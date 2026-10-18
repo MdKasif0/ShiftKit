@@ -11,6 +11,7 @@ public final class JobManager: @unchecked Sendable {
     private let outputManager: OutputManaging
     private let semaphore = AsyncSemaphore(value: 2)
     private let queueLock = NSLock()
+    private var runningTasks: [UUID: Task<Void, Never>] = [:]
 
     public init(
         router: ConversionRouting = ConversionRouter(),
@@ -29,11 +30,32 @@ public final class JobManager: @unchecked Sendable {
         activeJobs.insert(job, at: 0)
         queueLock.unlock()
 
-        Task.detached(priority: .userInitiated) { [weak self, jobID = job.id] in
+        let task = Task.detached(priority: .userInitiated) { [weak self, jobID = job.id] in
             await self?.processJob(id: jobID)
         }
 
+        queueLock.lock()
+        runningTasks[job.id] = task
+        queueLock.unlock()
+
         return job
+    }
+
+    /// Cancels a running job and cleans up its resources.
+    public func cancelJob(id: UUID) {
+        queueLock.lock()
+        let task = runningTasks.removeValue(forKey: id)
+        queueLock.unlock()
+
+        task?.cancel()
+
+        queueLock.lock()
+        if let idx = activeJobs.firstIndex(where: { $0.id == id }) {
+            var cancelledJob = activeJobs.remove(at: idx)
+            cancelledJob.status = .cancelled
+            completedJobs.insert(cancelledJob, at: 0)
+        }
+        queueLock.unlock()
     }
 
     /// Primary processing loop for a job
@@ -41,6 +63,9 @@ public final class JobManager: @unchecked Sendable {
         await semaphore.wait()
         defer {
             Task { await semaphore.signal() }
+            queueLock.lock()
+            runningTasks.removeValue(forKey: id)
+            queueLock.unlock()
         }
 
         guard var job = findJob(by: id) else { return }
@@ -50,6 +75,11 @@ public final class JobManager: @unchecked Sendable {
         updateJob(job, status: .processing(progress: 0.05, stage: "Routing request..."))
 
         do {
+            if Task.isCancelled {
+                cancelJob(id: id)
+                return
+            }
+
             let engine = try router.route(request: job.request)
             let destinationURL = router.resolveDestination(for: job.request)
 
@@ -65,8 +95,14 @@ public final class JobManager: @unchecked Sendable {
             job.completedAt = Date()
             finishJob(id: id, outputURL: outputURL, duration: duration)
 
+        } catch is CancellationError {
+            cancelJob(id: id)
         } catch let error as ShiftKitError {
-            failJob(id: id, error: error)
+            if case .cancelled = error {
+                cancelJob(id: id)
+            } else {
+                failJob(id: id, error: error)
+            }
         } catch {
             failJob(id: id, error: .conversionFailed(reason: error.localizedDescription))
         }
@@ -89,7 +125,7 @@ public final class JobManager: @unchecked Sendable {
         queueLock.unlock()
     }
 
-    private func updateJobProgress(id: UUID, progress: Double, stage: String) {
+    private func updateJobProgress(id: UUID, progress: Double?, stage: String) {
         queueLock.lock()
         if let idx = activeJobs.firstIndex(where: { $0.id == id }) {
             activeJobs[idx].status = .processing(progress: progress, stage: stage)
@@ -101,7 +137,10 @@ public final class JobManager: @unchecked Sendable {
         queueLock.lock()
         if let idx = activeJobs.firstIndex(where: { $0.id == id }) {
             var finished = activeJobs.remove(at: idx)
-            finished.status = .completed(outputURL: outputURL, duration: duration)
+            let fm = FileManager.default
+            let attrs = try? fm.attributesOfItem(atPath: outputURL.path)
+            let size = (attrs?[.size] as? NSNumber)?.int64Value ?? 0
+            finished.status = .completed(outputURL: outputURL, duration: duration, outputSize: size)
             completedJobs.insert(finished, at: 0)
         }
         queueLock.unlock()
@@ -133,7 +172,8 @@ public final class JobManager: @unchecked Sendable {
         var sampleJob1 = ConversionJob(request: sampleReq1)
         sampleJob1.status = .completed(
             outputURL: URL(fileURLWithPath: "/Users/demo/Downloads/ShiftKit/hero-banner_convert.webp"),
-            duration: 0.42
+            duration: 0.42,
+            outputSize: 245_000
         )
 
         let sampleReq2 = ConversionRequest(
@@ -144,7 +184,8 @@ public final class JobManager: @unchecked Sendable {
         var sampleJob2 = ConversionJob(request: sampleReq2)
         sampleJob2.status = .completed(
             outputURL: URL(fileURLWithPath: "/Users/demo/Downloads/ShiftKit/quarterly-brief_compress.pdf"),
-            duration: 0.88
+            duration: 0.88,
+            outputSize: 1_420_000
         )
 
         completedJobs = [sampleJob1, sampleJob2]

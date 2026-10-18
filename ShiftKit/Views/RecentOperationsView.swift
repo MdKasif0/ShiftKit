@@ -5,17 +5,20 @@ public struct RecentOperationsView: View {
     public let completedJobs: [ConversionJob]
     public let onRevealInFinder: (URL) -> Void
     public let onClearHistory: () -> Void
+    public let onCancelJob: ((UUID) -> Void)?
 
     public init(
         activeJobs: [ConversionJob],
         completedJobs: [ConversionJob],
         onRevealInFinder: @escaping (URL) -> Void,
-        onClearHistory: @escaping () -> Void
+        onClearHistory: @escaping () -> Void,
+        onCancelJob: ((UUID) -> Void)? = nil
     ) {
         self.activeJobs = activeJobs
         self.completedJobs = completedJobs
         self.onRevealInFinder = onRevealInFinder
         self.onClearHistory = onClearHistory
+        self.onCancelJob = onCancelJob
     }
 
     public var body: some View {
@@ -58,7 +61,7 @@ public struct RecentOperationsView: View {
                     VStack(spacing: 8) {
                         // Active jobs first
                         ForEach(activeJobs) { job in
-                            ActiveJobRow(job: job)
+                            ActiveJobRow(job: job, onCancel: onCancelJob)
                         }
 
                         // Completed jobs
@@ -75,6 +78,7 @@ public struct RecentOperationsView: View {
 // MARK: - Active Job Row
 private struct ActiveJobRow: View {
     let job: ConversionJob
+    let onCancel: ((UUID) -> Void)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -83,19 +87,74 @@ private struct ActiveJobRow: View {
                     .foregroundColor(ShiftKitColors.deepOlive)
                     .font(.system(size: 13))
 
-                Text(job.sourceFileName)
-                    .font(ShiftKitTypography.subheadline)
-                    .foregroundColor(ShiftKitColors.charcoalBrown)
-                    .lineLimit(1)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(job.sourceFileName)
+                        .font(ShiftKitTypography.subheadline)
+                        .foregroundColor(ShiftKitColors.charcoalBrown)
+                        .lineLimit(1)
+
+                    HStack(spacing: 4) {
+                        Text(job.actionTitle)
+                            .font(ShiftKitTypography.captionBold)
+                            .foregroundColor(ShiftKitColors.deepOlive)
+
+                        if let started = job.startedAt {
+                            Text("•")
+                                .font(ShiftKitTypography.caption)
+                                .foregroundColor(ShiftKitColors.textMuted)
+                            TimelineView(.periodic(from: .now, by: 0.5)) { context in
+                                let elapsed = context.date.timeIntervalSince(started)
+                                Text(String(format: "%.1fs elapsed", max(0.0, elapsed)))
+                                    .font(ShiftKitTypography.code)
+                                    .foregroundColor(ShiftKitColors.textMuted)
+                            }
+                        }
+                    }
+                }
 
                 Spacer()
 
-                ShiftKitPill(job.status.displayText, icon: "arrow.triangle.2.circlepath", tint: ShiftKitColors.softTerracotta, background: ShiftKitColors.warmPeach.opacity(0.4))
+                // Cancel Button
+                if let onCancel {
+                    Button {
+                        onCancel(job.id)
+                    } label: {
+                        Text("Cancel")
+                            .font(ShiftKitTypography.caption)
+                            .foregroundColor(ShiftKitColors.softTerracotta)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(ShiftKitColors.warmPeach.opacity(0.5))
+                            .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                ShiftKitPill(
+                    job.status.displayText,
+                    icon: "arrow.triangle.2.circlepath",
+                    tint: ShiftKitColors.softTerracotta,
+                    background: ShiftKitColors.warmPeach.opacity(0.4)
+                )
             }
 
-            if case .processing(let progress, _) = job.status {
-                ProgressView(value: progress)
-                    .tint(ShiftKitColors.softTerracotta)
+            // Honest Progress View
+            if case .processing(let progress, let stage) = job.status {
+                VStack(alignment: .leading, spacing: 3) {
+                    if let progress {
+                        ProgressView(value: progress)
+                            .tint(ShiftKitColors.softTerracotta)
+                    } else {
+                        // Honest indeterminate progress state
+                        ProgressView()
+                            .progressViewStyle(.linear)
+                            .tint(ShiftKitColors.softTerracotta)
+                    }
+
+                    Text(stage)
+                        .font(ShiftKitTypography.caption)
+                        .foregroundColor(ShiftKitColors.textMuted)
+                }
             }
         }
         .padding(10)
@@ -107,7 +166,7 @@ private struct ActiveJobRow: View {
     }
 }
 
-// MARK: - Completed Job Row
+// MARK: - Completed / Failed Job Row
 private struct CompletedJobRow: View {
     let job: ConversionJob
     let onReveal: (URL) -> Void
@@ -115,7 +174,7 @@ private struct CompletedJobRow: View {
     var body: some View {
         HStack(spacing: 10) {
             Image(systemName: job.request.fileType.systemIcon)
-                .foregroundColor(ShiftKitColors.deepOlive)
+                .foregroundColor(iconColor)
                 .font(.system(size: 13))
                 .frame(width: 24, height: 24)
                 .background(ShiftKitColors.softCream)
@@ -130,15 +189,42 @@ private struct CompletedJobRow: View {
                 HStack(spacing: 4) {
                     Text(job.actionTitle)
                         .font(ShiftKitTypography.captionBold)
-                        .foregroundColor(ShiftKitColors.deepOlive)
+                        .foregroundColor(titleColor)
 
-                    if case .completed(_, let duration) = job.status {
+                    switch job.status {
+                    case .completed(_, let duration, let size):
                         Text("•")
                             .font(ShiftKitTypography.caption)
                             .foregroundColor(ShiftKitColors.textMuted)
                         Text(String(format: "%.2fs", duration))
                             .font(ShiftKitTypography.code)
                             .foregroundColor(ShiftKitColors.textMuted)
+
+                        if size > 0 {
+                            Text("•")
+                                .font(ShiftKitTypography.caption)
+                                .foregroundColor(ShiftKitColors.textMuted)
+                            Text(ByteCountFormatter.string(fromByteCount: size, countStyle: .file))
+                                .font(ShiftKitTypography.code)
+                                .foregroundColor(ShiftKitColors.deepOlive)
+                        }
+
+                    case .failed(let err):
+                        Text("•")
+                            .font(ShiftKitTypography.caption)
+                            .foregroundColor(ShiftKitColors.textMuted)
+                        Text(err.localizedDescription)
+                            .font(ShiftKitTypography.caption)
+                            .foregroundColor(ShiftKitColors.softTerracotta)
+                            .lineLimit(1)
+
+                    case .cancelled:
+                        Text("• Cancelled")
+                            .font(ShiftKitTypography.caption)
+                            .foregroundColor(ShiftKitColors.textMuted)
+
+                    default:
+                        EmptyView()
                     }
                 }
             }
@@ -164,5 +250,23 @@ private struct CompletedJobRow: View {
         .overlay(
             RoundedRectangle(cornerRadius: 8).stroke(ShiftKitColors.borderSubtle, lineWidth: 1)
         )
+    }
+
+    private var iconColor: Color {
+        switch job.status {
+        case .completed: return ShiftKitColors.deepOlive
+        case .failed: return ShiftKitColors.softTerracotta
+        case .cancelled: return ShiftKitColors.textMuted
+        default: return ShiftKitColors.deepOlive
+        }
+    }
+
+    private var titleColor: Color {
+        switch job.status {
+        case .completed: return ShiftKitColors.deepOlive
+        case .failed: return ShiftKitColors.softTerracotta
+        case .cancelled: return ShiftKitColors.textMuted
+        default: return ShiftKitColors.deepOlive
+        }
     }
 }

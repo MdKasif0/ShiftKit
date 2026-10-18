@@ -119,6 +119,9 @@ public struct MainView: View {
                             },
                             onClearHistory: {
                                 coordinator.clearCompleted()
+                            },
+                            onCancelJob: { id in
+                                coordinator.jobManager.cancelJob(id: id)
                             }
                         )
                     }
