@@ -164,5 +164,8 @@ public struct MainView: View {
         .onAppear {
             coordinator.startMenuBar()
         }
+        .onOpenURL { url in
+            coordinator.handleFileSelected(url: url)
+        }
     }
 }

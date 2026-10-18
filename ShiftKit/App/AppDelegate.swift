@@ -19,6 +19,14 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         return true
     }
 
+    public func application(_ sender: NSApplication, openFiles filenames: [String]) {
+        let urls = filenames.map { URL(fileURLWithPath: $0) }
+        NotificationCenter.default.post(
+            name: NSNotification.Name("ShiftKitOpenFilesNotification"),
+            object: urls
+        )
+    }
+
     private func configureWindowAppearance(_ window: NSWindow) {
         window.appearance = NSAppearance(named: .aqua)
         window.backgroundColor = ShiftKitColors.NS.warmIvory

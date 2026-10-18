@@ -56,6 +56,20 @@ public final class AppCoordinator {
 
         // Initialize drag session coordination
         self.dragSessionCoordinator.configure(appCoordinator: self)
+
+        // Observe external file open requests (e.g. from Finder or Dock)
+        NotificationCenter.default.addObserver(
+            forName: NSNotification.Name("ShiftKitOpenFilesNotification"),
+            object: nil,
+            queue: .main
+        ) { [weak self] note in
+            guard let self, let urls = note.object as? [URL] else { return }
+            if urls.count > 1 {
+                self.handleBatchFilesSelected(urls: urls)
+            } else if let first = urls.first {
+                self.handleFileSelected(url: first)
+            }
+        }
     }
 
     public func startMenuBar() {

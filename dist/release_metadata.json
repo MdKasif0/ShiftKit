@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "build": "1",
   "filename": "ShiftKit-1.0.0.dmg",
-  "sizeBytes": 3935071,
+  "sizeBytes": 3940450,
   "sizeHuman": "3.8M",
-  "sha256": "a0773ec0eb76da52e64efa56945e35025c76b47ee3eeabb4c1c4d67e49982ecd",
+  "sha256": "5ed8b40ab399b8ef420fa6c13c5061a4721a1ca79f8d13ffa01d3c1bb9198327",
   "minMacOS": "14.0",
   "architectures": ["arm64", "x86_64"],
   "format": "Apple Disk Image (UDZO)",
   "downloadURL": "https://github.com/MdKasif0/ShiftKit/releases/download/v1.0.0/ShiftKit-1.0.0.dmg",
-  "releaseDate": "2026-10-18T13:14:32Z"
+  "releaseDate": "2026-10-18T13:23:58Z"
 }

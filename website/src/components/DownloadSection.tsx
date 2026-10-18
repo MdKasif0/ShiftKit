@@ -105,7 +105,7 @@ export function DownloadSection() {
 
           <div className="pt-2 text-center">
             <p className="text-[11px] font-mono text-[#34312D]/60 truncate max-w-md mx-auto">
-              SHA-256: a0773ec0eb76da52e64efa56945e35025c76b47ee3eeabb4c1c4d67e49982ecd
+              SHA-256: 5ed8b40ab399b8ef420fa6c13c5061a4721a1ca79f8d13ffa01d3c1bb9198327
             </p>
           </div>
         </div>
