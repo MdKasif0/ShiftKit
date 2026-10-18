@@ -38,6 +38,11 @@ echo "✓ Built application found at: $BUILT_APP"
 
 echo "2. Validating Binary Architectures and Code Sign..."
 lipo -info "$BUILT_APP/Contents/MacOS/$APP_NAME"
+if [ ! -d "$BUILT_APP/Contents/Frameworks/Sparkle.framework" ]; then
+    echo "ERROR: Sparkle.framework missing in $BUILT_APP"
+    exit 1
+fi
+echo "✓ Verified Sparkle.framework embedded in app bundle" 
 codesign -dvvv "$BUILT_APP" 2>&1 | grep -E "flags=|Format=|Identifier="
 
 echo "3. Staging DMG layout..."

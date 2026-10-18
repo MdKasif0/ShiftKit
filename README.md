@@ -192,6 +192,7 @@ chmod +x scripts/package_dmg.sh
 
 - [Build & Packaging Guide](docs/BUILD_AND_PACKAGING.md)
 - [Code Signing & Notarization Guide](docs/CODE_SIGNING_AND_NOTARIZATION.md)
+- [Automatic Updates & Sparkle 2 Guide](docs/AUTO_UPDATES.md)
 - [User Installation & Permissions](docs/USER_INSTALLATION_GUIDE.md)
 - [Release Checklist](docs/RELEASE_CHECKLIST.md)
 - [Troubleshooting & FAQ](docs/TROUBLESHOOTING.md)

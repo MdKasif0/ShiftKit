@@ -1,0 +1,14 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>ShiftKit</title>
+        <item>
+            <title>1.0.0</title>
+            <pubDate>Sun, 18 Oct 2026 20:02:22 +0530</pubDate>
+            <sparkle:version>1</sparkle:version>
+            <sparkle:shortVersionString>1.0.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/MdKasif0/ShiftKit/releases/download/v1.0.0/ShiftKit-1.0.0.zip" length="7708710" type="application/octet-stream" sparkle:edSignature="wSEziyN1V66OMCwcgSK7lqyZj2sHujtkFiApuiDl4TNkC9+jFz+UyJ7N4ob4kugo5+PM+UrLIc7+sa5QSPEGDA=="/>
+        </item>
+    </channel>
+</rss>
