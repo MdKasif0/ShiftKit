@@ -74,8 +74,8 @@ export function AppShowcase() {
   const polarToCartesian = (cx: number, cy: number, r: number, angleDeg: number) => {
     const rad = (angleDeg * Math.PI) / 180;
     return {
-      x: cx + r * Math.cos(rad),
-      y: cy + r * Math.sin(rad),
+      x: Math.round((cx + r * Math.cos(rad)) * 1000) / 1000,
+      y: Math.round((cy + r * Math.sin(rad)) * 1000) / 1000,
     };
   };
 
