@@ -296,8 +296,16 @@ public final class ConversionRegistry: ConversionRegistering {
             ConversionAction(id: "more_copy_path", title: "Copy Path", subtitle: "Absolute location", systemIcon: "link", category: .more)
         ]
 
-        let cropTitle = fileType.isMedia ? "Trim" : "Crop"
-        let cropIcon = fileType.isMedia ? "scissors" : "crop"
+        let (cropTitle, cropIcon): (String, String) = {
+            switch fileType {
+            case .video, .audio:
+                return ("Trim", "scissors")
+            case .image, .pdf:
+                return ("Crop", "crop")
+            default:
+                return ("Crop/Trim", "scissors")
+            }
+        }()
 
         return [
             RadialSegmentItem(
