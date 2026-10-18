@@ -4,6 +4,8 @@ options:
   deploymentTarget:
     macOS: "14.0"
   createIntermediateGroups: true
+  xcodeVersion: "16.0"
+  projectFormat: xcode16_0
 
 packages:
   Sparkle:
