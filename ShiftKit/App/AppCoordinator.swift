@@ -361,4 +361,12 @@ public final class AppCoordinator {
     public func clearCompleted() {
         jobManager.clearCompletedJobs()
     }
+
+    public func openSettingsWindow() {
+        SettingsWindowController.shared.present()
+    }
+
+    public func openJobQueueWindow() {
+        JobQueueWindowController.shared.present()
+    }
 }

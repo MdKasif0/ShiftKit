@@ -1,27 +1,60 @@
 import Foundation
 import Observation
 
+// MARK: - Batch Progress Summary
+public struct BatchSummary: Sendable, Hashable {
+    public let total: Int
+    public let queued: Int
+    public let inspecting: Int
+    public let ready: Int
+    public let running: Int
+    public let completed: Int
+    public let failed: Int
+    public let cancelled: Int
+
+    public var isFinished: Bool {
+        (completed + failed + cancelled) == total && total > 0
+    }
+
+    public var percentComplete: Double {
+        guard total > 0 else { return 1.0 }
+        return Double(completed + failed + cancelled) / Double(total)
+    }
+}
+
+// MARK: - Centralized Job Manager
 @Observable
 public final class JobManager: @unchecked Sendable {
+    public static let shared = JobManager()
+
     // Observable UI states
     public private(set) var activeJobs: [ConversionJob] = []
     public private(set) var completedJobs: [ConversionJob] = []
+    public private(set) var failedJobs: [ConversionJob] = []
 
     private let router: ConversionRouting
     private let outputManager: OutputManaging
-    private let semaphore = AsyncSemaphore(value: 2)
+    private let historyStore: JobHistoryStore
+    private var semaphore: AsyncSemaphore
     private let queueLock = NSLock()
     private var runningTasks: [UUID: Task<Void, Never>] = [:]
+    private var maxConcurrency: Int
 
     public init(
         router: ConversionRouting = ConversionRouter(),
-        outputManager: OutputManaging = OutputManager()
+        outputManager: OutputManaging = OutputManager(),
+        historyStore: JobHistoryStore = .shared,
+        maxConcurrency: Int = 2
     ) {
         self.router = router
         self.outputManager = outputManager
+        self.historyStore = historyStore
+        let concurrency = max(1, maxConcurrency)
+        self.maxConcurrency = concurrency
+        self.semaphore = AsyncSemaphore(value: concurrency)
     }
 
-    /// Enqueues a new conversion request and begins background processing.
+    /// Enqueues a single conversion request
     @discardableResult
     public func enqueue(request: ConversionRequest) -> ConversionJob {
         let job = ConversionJob(request: request, status: .queued)
@@ -42,7 +75,13 @@ public final class JobManager: @unchecked Sendable {
         return job
     }
 
-    /// Cancels a running job and cleans up its resources.
+    /// Enqueues a batch of multiple conversion requests
+    @discardableResult
+    public func enqueueBatch(requests: [ConversionRequest]) -> [ConversionJob] {
+        requests.map { enqueue(request: $0) }
+    }
+
+    /// Cancels a running or queued job by ID
     public func cancelJob(id: UUID) {
         queueLock.lock()
         let task = runningTasks.removeValue(forKey: id)
@@ -54,12 +93,81 @@ public final class JobManager: @unchecked Sendable {
         if let idx = activeJobs.firstIndex(where: { $0.id == id }) {
             var cancelledJob = activeJobs.remove(at: idx)
             cancelledJob.status = .cancelled
+            cancelledJob.completedAt = Date()
             completedJobs.insert(cancelledJob, at: 0)
+            historyStore.record(job: cancelledJob)
         }
         queueLock.unlock()
     }
 
-    /// Primary processing loop for a job
+    /// Cancels multiple jobs by ID
+    public func cancelBatch(ids: [UUID]) {
+        for id in ids {
+            cancelJob(id: id)
+        }
+    }
+
+    /// Cancels all currently active/queued operations
+    public func cancelAllActiveJobs() {
+        queueLock.lock()
+        let ids = activeJobs.map { $0.id }
+        queueLock.unlock()
+        for id in ids {
+            cancelJob(id: id)
+        }
+    }
+
+    /// Computes summary of current jobs
+    public var batchSummary: BatchSummary {
+        queueLock.lock()
+        defer { queueLock.unlock() }
+
+        var queued = 0
+        var inspecting = 0
+        var ready = 0
+        var running = 0
+        var completed = 0
+        var failed = 0
+        var cancelled = 0
+
+        for job in activeJobs {
+            switch job.status {
+            case .queued: queued += 1
+            case .inspecting: inspecting += 1
+            case .ready: ready += 1
+            case .running: running += 1
+            case .completed: completed += 1
+            case .failed: failed += 1
+            case .cancelled: cancelled += 1
+            }
+        }
+
+        for job in completedJobs {
+            switch job.status {
+            case .completed: completed += 1
+            case .cancelled: cancelled += 1
+            default: break
+            }
+        }
+
+        for _ in failedJobs {
+            failed += 1
+        }
+
+        let total = queued + inspecting + ready + running + completed + failed + cancelled
+        return BatchSummary(
+            total: total,
+            queued: queued,
+            inspecting: inspecting,
+            ready: ready,
+            running: running,
+            completed: completed,
+            failed: failed,
+            cancelled: cancelled
+        )
+    }
+
+    /// Primary processing loop for an individual job with strict state transitions
     private func processJob(id: UUID) async {
         await semaphore.wait()
         defer {
@@ -71,9 +179,28 @@ public final class JobManager: @unchecked Sendable {
 
         guard var job = findJob(by: id) else { return }
 
+        // 1. Transition: inspecting
+        updateJob(job, status: .inspecting)
+
+        // Validate source file exists and is readable
+        for input in job.inputs {
+            if !FileManager.default.fileExists(atPath: input.path) {
+                failJob(id: id, error: .fileNotFound(input))
+                return
+            }
+            if !FileManager.default.isReadableFile(atPath: input.path) {
+                failJob(id: id, error: .permissionDenied(input))
+                return
+            }
+        }
+
+        // 2. Transition: ready
+        updateJob(job, status: .ready)
+
+        // 3. Transition: running
         let startTime = Date()
         job.startedAt = startTime
-        updateJob(job, status: .processing(progress: 0.05, stage: "Routing request..."))
+        updateJob(job, status: .running(progress: 0.05, stage: "Routing conversion..."))
 
         do {
             if Task.isCancelled {
@@ -88,13 +215,21 @@ public final class JobManager: @unchecked Sendable {
                 request: job.request,
                 outputURL: destinationURL,
                 progressHandler: { [weak self, id] progress, stage in
-                    self?.updateJobProgress(id: id, progress: progress, stage: stage)
+                    self?.updateJobProgress(id: id, progress: progress ?? 0.0, stage: stage)
                 }
             )
 
+            if Task.isCancelled {
+                cancelJob(id: id)
+                return
+            }
+
+            // 4. Output Validation: Do not mark completed until verified
+            let outputSize = try outputManager.validateOutput(at: outputURL)
+
             let duration = Date().timeIntervalSince(startTime)
             job.completedAt = Date()
-            finishJob(id: id, outputURL: outputURL, duration: duration)
+            finishJob(id: id, outputURL: outputURL, duration: duration, outputSize: outputSize)
 
         } catch is CancellationError {
             cancelJob(id: id)
@@ -126,23 +261,22 @@ public final class JobManager: @unchecked Sendable {
         queueLock.unlock()
     }
 
-    private func updateJobProgress(id: UUID, progress: Double?, stage: String) {
+    private func updateJobProgress(id: UUID, progress: Double, stage: String) {
         queueLock.lock()
         if let idx = activeJobs.firstIndex(where: { $0.id == id }) {
-            activeJobs[idx].status = .processing(progress: progress, stage: stage)
+            activeJobs[idx].status = .running(progress: progress, stage: stage)
         }
         queueLock.unlock()
     }
 
-    private func finishJob(id: UUID, outputURL: URL, duration: TimeInterval) {
+    private func finishJob(id: UUID, outputURL: URL, duration: TimeInterval, outputSize: Int64) {
         queueLock.lock()
         if let idx = activeJobs.firstIndex(where: { $0.id == id }) {
             var finished = activeJobs.remove(at: idx)
-            let fm = FileManager.default
-            let attrs = try? fm.attributesOfItem(atPath: outputURL.path)
-            let size = (attrs?[.size] as? NSNumber)?.int64Value ?? 0
-            finished.status = .completed(outputURL: outputURL, duration: duration, outputSize: size)
+            finished.status = .completed(outputURL: outputURL, duration: duration, outputSize: outputSize)
+            finished.completedAt = Date()
             completedJobs.insert(finished, at: 0)
+            historyStore.record(job: finished)
         }
         queueLock.unlock()
     }
@@ -152,7 +286,10 @@ public final class JobManager: @unchecked Sendable {
         if let idx = activeJobs.firstIndex(where: { $0.id == id }) {
             var failed = activeJobs.remove(at: idx)
             failed.status = .failed(error: error)
+            failed.completedAt = Date()
+            failedJobs.insert(failed, at: 0)
             completedJobs.insert(failed, at: 0)
+            historyStore.record(job: failed)
         }
         queueLock.unlock()
     }
@@ -160,10 +297,10 @@ public final class JobManager: @unchecked Sendable {
     public func clearCompletedJobs() {
         queueLock.lock()
         completedJobs.removeAll()
+        failedJobs.removeAll()
         queueLock.unlock()
     }
 
-    /// Injects sample completed jobs for UI preview / testing
     public func populateSampleJobsForPreview() {
         let sampleReq1 = ConversionRequest(
             sourceURL: URL(fileURLWithPath: "/Users/demo/Photos/hero-banner.png"),

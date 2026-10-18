@@ -32,6 +32,10 @@ public final class MenuBarCoordinator: NSObject, @unchecked Sendable {
 
         menu.addItem(NSMenuItem.separator())
 
+        let queueItem = NSMenuItem(title: "Activity & Queue...", action: #selector(openJobQueue), keyEquivalent: "j")
+        queueItem.target = self
+        menu.addItem(queueItem)
+
         let openMainItem = NSMenuItem(title: "Open Main Window", action: #selector(openMainWindow), keyEquivalent: "o")
         openMainItem.target = self
         menu.addItem(openMainItem)
@@ -58,7 +62,12 @@ public final class MenuBarCoordinator: NSObject, @unchecked Sendable {
     }
 
     @MainActor
+    @objc private func openJobQueue() {
+        JobQueueWindowController.shared.present()
+    }
+
+    @MainActor
     @objc private func openPreferences() {
-        appCoordinator?.isSettingsPresented = true
+        SettingsWindowController.shared.present()
     }
 }

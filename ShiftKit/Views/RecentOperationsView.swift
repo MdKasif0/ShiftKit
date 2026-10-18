@@ -139,22 +139,36 @@ private struct ActiveJobRow: View {
             }
 
             // Honest Progress View
-            if case .processing(let progress, let stage) = job.status {
+            switch job.status {
+            case .running(let progress, let stage):
                 VStack(alignment: .leading, spacing: 3) {
-                    if let progress {
+                    if progress > 0 {
                         ProgressView(value: progress)
                             .tint(ShiftKitColors.softTerracotta)
                     } else {
-                        // Honest indeterminate progress state
                         ProgressView()
                             .progressViewStyle(.linear)
                             .tint(ShiftKitColors.softTerracotta)
                     }
-
                     Text(stage)
                         .font(ShiftKitTypography.caption)
                         .foregroundColor(ShiftKitColors.textMuted)
                 }
+            case .inspecting:
+                VStack(alignment: .leading, spacing: 3) {
+                    ProgressView()
+                        .progressViewStyle(.linear)
+                        .tint(ShiftKitColors.mutedSage)
+                    Text("Inspecting files and validating pipeline...")
+                        .font(ShiftKitTypography.caption)
+                        .foregroundColor(ShiftKitColors.textMuted)
+                }
+            case .ready:
+                Text("Queued and ready to process")
+                    .font(ShiftKitTypography.caption)
+                    .foregroundColor(ShiftKitColors.textMuted)
+            default:
+                EmptyView()
             }
         }
         .padding(10)

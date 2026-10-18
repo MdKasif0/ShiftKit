@@ -23,6 +23,14 @@ public protocol OutputManaging: Sendable {
         suffix: String?,
         strategy: OutputLocationStrategy
     ) async throws -> URL
+    func resolveDestination(
+        for sourceURL: URL,
+        targetExtension: String?,
+        suffix: String?,
+        customDirectory: URL?,
+        conflictResolution: FilenameConflictResolution
+    ) throws -> URL
+    func validateOutput(at url: URL) throws -> Int64
     func createTemporaryOutputURL(for destinationURL: URL) throws -> URL
     func commitTemporaryOutput(temporaryURL: URL, destinationURL: URL) throws
     func cleanupTemporaryOutput(temporaryURL: URL)
@@ -60,7 +68,30 @@ public final class OutputManager: OutputManaging {
         customDirectory: URL? = nil
     ) -> URL {
         let targetDir = customDirectory ?? defaultOutputDirectory()
-        return generateCollisionFreeURL(sourceURL: sourceURL, targetDir: targetDir, targetExtension: targetExtension, suffix: suffix)
+        return (try? generateURL(
+            sourceURL: sourceURL,
+            targetDir: targetDir,
+            targetExtension: targetExtension,
+            suffix: suffix,
+            conflictResolution: .renameWithNumber
+        )) ?? targetDir.appendingPathComponent("\(sourceURL.deletingPathExtension().lastPathComponent).\(targetExtension ?? sourceURL.pathExtension)")
+    }
+
+    public func resolveDestination(
+        for sourceURL: URL,
+        targetExtension: String? = nil,
+        suffix: String? = nil,
+        customDirectory: URL? = nil,
+        conflictResolution: FilenameConflictResolution = .renameWithNumber
+    ) throws -> URL {
+        let targetDir = customDirectory ?? defaultOutputDirectory()
+        return try generateURL(
+            sourceURL: sourceURL,
+            targetDir: targetDir,
+            targetExtension: targetExtension,
+            suffix: suffix,
+            conflictResolution: conflictResolution
+        )
     }
 
     public func resolveDestinationURL(
@@ -72,14 +103,41 @@ public final class OutputManager: OutputManaging {
         switch strategy {
         case .besideOriginal:
             let parentDir = sourceURL.deletingLastPathComponent()
-            return generateCollisionFreeURL(sourceURL: sourceURL, targetDir: parentDir, targetExtension: targetExtension, suffix: suffix)
+            return try generateURL(
+                sourceURL: sourceURL,
+                targetDir: parentDir,
+                targetExtension: targetExtension,
+                suffix: suffix,
+                conflictResolution: .renameWithNumber
+            )
 
         case .dedicatedFolder(let folderURL):
-            return generateCollisionFreeURL(sourceURL: sourceURL, targetDir: folderURL, targetExtension: targetExtension, suffix: suffix)
+            return try generateURL(
+                sourceURL: sourceURL,
+                targetDir: folderURL,
+                targetExtension: targetExtension,
+                suffix: suffix,
+                conflictResolution: .renameWithNumber
+            )
 
         case .askWhereToSave:
             return try await promptUserForSaveLocation(sourceURL: sourceURL, targetExtension: targetExtension, suffix: suffix)
         }
+    }
+
+    /// Validates an exported file: exists, non-empty, and readable.
+    public func validateOutput(at url: URL) throws -> Int64 {
+        guard fileManager.fileExists(atPath: url.path) else {
+            throw ShiftKitError.conversionFailed(reason: "Output file was not created at \(url.lastPathComponent)")
+        }
+        guard let attrs = try? fileManager.attributesOfItem(atPath: url.path),
+              let size = (attrs[.size] as? NSNumber)?.int64Value, size > 0 else {
+            throw ShiftKitError.conversionFailed(reason: "Output file is empty (0 bytes)")
+        }
+        guard fileManager.isReadableFile(atPath: url.path) else {
+            throw ShiftKitError.permissionDenied(url)
+        }
+        return size
     }
 
     /// Creates an atomic temporary working file URL in the same directory as the final destination.
@@ -99,7 +157,6 @@ public final class OutputManager: OutputManaging {
             throw ShiftKitError.conversionFailed(reason: "Temporary output file missing at \(temporaryURL.path)")
         }
 
-        // If target exists, remove it before replacing atomically
         if fileManager.fileExists(atPath: destinationURL.path) {
             try fileManager.removeItem(at: destinationURL)
         }
@@ -147,12 +204,13 @@ public final class OutputManager: OutputManaging {
     }
 
     // MARK: - Private Helpers
-    private func generateCollisionFreeURL(
+    private func generateURL(
         sourceURL: URL,
         targetDir: URL,
         targetExtension: String?,
-        suffix: String?
-    ) -> URL {
+        suffix: String?,
+        conflictResolution: FilenameConflictResolution
+    ) throws -> URL {
         if !fileManager.fileExists(atPath: targetDir.path) {
             try? fileManager.createDirectory(at: targetDir, withIntermediateDirectories: true)
         }
@@ -167,16 +225,27 @@ public final class OutputManager: OutputManaging {
             baseWithSuffix = baseName
         }
 
-        var candidate = targetDir.appendingPathComponent("\(baseWithSuffix).\(ext)")
-        var counter = 1
+        let standard = targetDir.appendingPathComponent("\(baseWithSuffix).\(ext)")
 
-        // Resolve name collisions safely (never overwrite without user prompt)
-        while fileManager.fileExists(atPath: candidate.path) {
-            candidate = targetDir.appendingPathComponent("\(baseWithSuffix)_\(counter).\(ext)")
-            counter += 1
+        switch conflictResolution {
+        case .overwrite:
+            return standard
+
+        case .failWithConflict:
+            if fileManager.fileExists(atPath: standard.path) {
+                throw ShiftKitError.outputConflict(standard)
+            }
+            return standard
+
+        case .renameWithNumber:
+            var candidate = standard
+            var counter = 1
+            while fileManager.fileExists(atPath: candidate.path) {
+                candidate = targetDir.appendingPathComponent("\(baseWithSuffix)_\(counter).\(ext)")
+                counter += 1
+            }
+            return candidate
         }
-
-        return candidate
     }
 
     @MainActor
