@@ -273,11 +273,37 @@ public struct OutputFormat: Identifiable, Hashable, Sendable, Codable {
         isContainerLossy: false
     )
 
+    public static let docx = OutputFormat(
+        id: "docx",
+        displayName: "Word Document",
+        uti: "org.openxmlformats.wordprocessingml.document",
+        primaryExtension: "docx",
+        recognizedExtensions: ["docx", "doc"],
+        mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        category: .document,
+        supportsAlpha: false,
+        supportsAnimation: false,
+        isContainerLossy: false
+    )
+
+    public static let rtf = OutputFormat(
+        id: "rtf",
+        displayName: "Rich Text Format",
+        uti: "public.rtf",
+        primaryExtension: "rtf",
+        recognizedExtensions: ["rtf"],
+        mimeType: "application/rtf",
+        category: .document,
+        supportsAlpha: false,
+        supportsAnimation: false,
+        isContainerLossy: false
+    )
+
     public static let allCanonical: [OutputFormat] = [
         .png, .jpeg, .webp, .heic, .tiff, .gif,
         .mp4, .mov, .webm,
         .mp3, .m4a, .wav, .flac,
-        .pdf, .csv, .json, .txt, .zip
+        .pdf, .docx, .rtf, .csv, .json, .txt, .zip
     ]
 
     public static func find(byExtension ext: String) -> OutputFormat? {
