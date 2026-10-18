@@ -721,7 +721,7 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
             effectiveArgs[effectiveArgs.count - 1] = tempURL.path
         }
 
-        effectiveArgs.insert(contentsOf: ["-progress", "pipe:1", "-nostats"], at: 1)
+        effectiveArgs.insert(contentsOf: ["-progress", "pipe:1", "-nostats", "-v", "warning"], at: 1)
 
         let process = Process()
         process.executableURL = binaryURL
@@ -735,17 +735,68 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
         process.standardError = stderrPipe
         process.standardInput = stdinPipe
 
+        var errData = Data()
+        let pipeLock = NSLock()
+
+        stderrPipe.fileHandleForReading.readabilityHandler = { handle in
+            let data = handle.availableData
+            guard !data.isEmpty else { return }
+            pipeLock.lock()
+            errData.append(data)
+            pipeLock.unlock()
+        }
+
+        var outBuffer = Data()
+        stdoutPipe.fileHandleForReading.readabilityHandler = { handle in
+            let data = handle.availableData
+            guard !data.isEmpty else { return }
+            pipeLock.lock()
+            outBuffer.append(data)
+            while let range = outBuffer.range(of: Data("\n".utf8)) {
+                let lineData = outBuffer.subdata(in: 0..<range.lowerBound)
+                outBuffer.removeSubrange(0..<range.upperBound)
+                if let line = String(data: lineData, encoding: .utf8) {
+                    Self.parseProgressLineStatic(line, expectedDuration: expectedDuration, progressHandler: progressHandler)
+                }
+            }
+            pipeLock.unlock()
+        }
+
         try process.run()
 
         return try await withTaskCancellationHandler {
             do {
-                try await monitorProgress(
-                    process: process,
-                    stdoutPipe: stdoutPipe,
-                    stderrPipe: stderrPipe,
-                    expectedDuration: expectedDuration,
-                    progressHandler: progressHandler
-                )
+                while process.isRunning {
+                    if Task.isCancelled {
+                        process.terminate()
+                        throw ShiftKitError.cancelled
+                    }
+                    try await Task.sleep(nanoseconds: 50_000_000)
+                }
+
+                process.waitUntilExit()
+
+                stdoutPipe.fileHandleForReading.readabilityHandler = nil
+                stderrPipe.fileHandleForReading.readabilityHandler = nil
+
+                if process.terminationStatus != 0 {
+                    pipeLock.lock()
+                    let errString = String(data: errData, encoding: .utf8) ?? "Unknown process error"
+                    pipeLock.unlock()
+                    let cleanErr = errString.trimmingCharacters(in: .whitespacesAndNewlines)
+
+                    if cleanErr.contains("Invalid data found") || cleanErr.contains("corrupt input") {
+                        throw ShiftKitError.corruptMedia(reason: cleanErr.suffix(250).trimmingCharacters(in: .whitespacesAndNewlines))
+                    } else if cleanErr.contains("No space left") {
+                        throw ShiftKitError.insufficientDiskSpace(needed: 0, available: 0)
+                    } else {
+                        let tail = cleanErr.suffix(350).trimmingCharacters(in: .whitespacesAndNewlines)
+                        throw ShiftKitError.processExecutionFailed(
+                            exitCode: process.terminationStatus,
+                            message: tail.isEmpty ? "FFmpeg exited with error code \(process.terminationStatus)" : tail
+                        )
+                    }
+                }
 
                 let fm = FileManager.default
                 guard fm.fileExists(atPath: tempURL.path) else {
@@ -768,76 +819,18 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
                 return outputURL
 
             } catch {
+                stdoutPipe.fileHandleForReading.readabilityHandler = nil
+                stderrPipe.fileHandleForReading.readabilityHandler = nil
                 try? FileManager.default.removeItem(at: tempURL)
                 throw error
             }
         } onCancel: {
-            Task.detached {
-                if let data = "q\n".data(using: .utf8) {
-                    try? stdinPipe.fileHandleForWriting.write(contentsOf: data)
-                }
-                try? await Task.sleep(nanoseconds: 300_000_000)
-                if process.isRunning {
-                    process.terminate()
-                }
-                try? FileManager.default.removeItem(at: tempURL)
-            }
+            process.terminate()
+            try? FileManager.default.removeItem(at: tempURL)
         }
     }
 
-    private func monitorProgress(
-        process: Process,
-        stdoutPipe: Pipe,
-        stderrPipe: Pipe,
-        expectedDuration: Double?,
-        progressHandler: @Sendable @escaping (Double?, String) -> Void
-    ) async throws {
-        let stdoutHandle = stdoutPipe.fileHandleForReading
-        var buffer = Data()
-
-        while process.isRunning {
-            if Task.isCancelled {
-                process.terminate()
-                throw ShiftKitError.cancelled
-            }
-
-            let available = stdoutHandle.availableData
-            if !available.isEmpty {
-                buffer.append(available)
-                while let range = buffer.range(of: Data("\n".utf8)) {
-                    let lineData = buffer.subdata(in: 0..<range.lowerBound)
-                    buffer.removeSubrange(0..<range.upperBound)
-                    if let line = String(data: lineData, encoding: .utf8) {
-                        parseProgressLine(line, expectedDuration: expectedDuration, progressHandler: progressHandler)
-                    }
-                }
-            } else {
-                try await Task.sleep(nanoseconds: 100_000_000)
-            }
-        }
-
-        process.waitUntilExit()
-
-        if process.terminationStatus != 0 {
-            let errData = stderrPipe.fileHandleForReading.readDataToEndOfFile()
-            let errString = String(data: errData, encoding: .utf8) ?? "Unknown process error"
-            let cleanErr = errString.trimmingCharacters(in: .whitespacesAndNewlines)
-
-            if cleanErr.contains("Invalid data found") || cleanErr.contains("corrupt input") {
-                throw ShiftKitError.corruptMedia(reason: cleanErr.suffix(250).trimmingCharacters(in: .whitespacesAndNewlines))
-            } else if cleanErr.contains("No space left") {
-                throw ShiftKitError.insufficientDiskSpace(needed: 0, available: 0)
-            } else {
-                let tail = cleanErr.suffix(350).trimmingCharacters(in: .whitespacesAndNewlines)
-                throw ShiftKitError.processExecutionFailed(
-                    exitCode: process.terminationStatus,
-                    message: tail.isEmpty ? "FFmpeg exited with error code \(process.terminationStatus)" : tail
-                )
-            }
-        }
-    }
-
-    private func parseProgressLine(
+    private static func parseProgressLineStatic(
         _ line: String,
         expectedDuration: Double?,
         progressHandler: @Sendable @escaping (Double?, String) -> Void
@@ -931,8 +924,9 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
         switch targetExt {
         case "mp4", "mov":
             args.append(contentsOf: [
-                "-c:v", "h264_videotoolbox",
-                "-b:v", "\(options.videoBitrateKbps ?? 3500)k",
+                "-c:v", "libx264",
+                "-preset", "faster",
+                "-crf", "\(options.videoCRF ?? 23)",
                 "-c:a", "aac",
                 "-b:a", "\(options.audioBitrateKbps ?? 192)k"
             ])
@@ -941,7 +935,7 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
             args.append(contentsOf: [
                 "-c:v", "libx264",
                 "-crf", "\(options.videoCRF ?? 22)",
-                "-preset", "medium",
+                "-preset", "faster",
                 "-c:a", "aac",
                 "-b:a", "\(options.audioBitrateKbps ?? 192)k"
             ])
