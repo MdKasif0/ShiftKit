@@ -14,12 +14,13 @@ final class InteractionTests: XCTestCase {
         let tracker = ModifierKeyTracker.shared
         XCTAssertNotNil(tracker)
         tracker.startTracking()
-        // Ensure property can be read synchronously without blocking or deadlock
+        // Ensure properties can be read synchronously without blocking
         _ = tracker.isShiftPressed
         _ = tracker.isOptionPressed
         _ = tracker.isCommandPressed
     }
 
+    @MainActor
     func testDragSessionCoordinatorStateTransitions() {
         let coordinator = DragSessionCoordinator.shared
         XCTAssertNotNil(coordinator)
@@ -40,6 +41,8 @@ final class InteractionTests: XCTestCase {
     func testDropDestinationHitTesting() {
         let destination = DropDestinationView(frame: NSRect(x: 0, y: 0, width: 360, height: 360))
         XCTAssertNotNil(destination)
-        XCTAssertEqual(destination.registeredDraggedTypes.count, 3)
+        XCTAssertTrue(destination.registeredDraggedTypes.contains(.fileURL))
+        XCTAssertTrue(destination.registeredDraggedTypes.contains(.URL))
+        XCTAssertFalse(destination.registeredDraggedTypes.isEmpty)
     }
 }

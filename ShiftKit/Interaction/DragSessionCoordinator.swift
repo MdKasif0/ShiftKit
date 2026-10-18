@@ -13,7 +13,8 @@ public enum DragSessionState: Equatable, Sendable {
 
 // MARK: - Drag Session Coordinator
 @Observable
-public final class DragSessionCoordinator: @unchecked Sendable {
+@MainActor
+public final class DragSessionCoordinator {
     public static let shared = DragSessionCoordinator()
 
     public private(set) var currentState: DragSessionState = .idle
@@ -27,7 +28,6 @@ public final class DragSessionCoordinator: @unchecked Sendable {
 
     private weak var appCoordinator: AppCoordinator?
     private var isListening: Bool = false
-    private let lock = NSLock()
 
     private init() {}
 
@@ -45,28 +45,28 @@ public final class DragSessionCoordinator: @unchecked Sendable {
 
         // 1. Shift key change listener
         keyTracker.onShiftStateChanged { [weak self] isShift in
-            guard let self else { return }
-            if isShift && self.currentState == .idle {
-                self.currentState = .shiftHeld
-            } else if !isShift && self.currentState == .shiftHeld {
-                self.currentState = .idle
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                if isShift && self.currentState == .idle {
+                    self.currentState = .shiftHeld
+                } else if !isShift && self.currentState == .shiftHeld {
+                    self.currentState = .idle
+                }
             }
         }
 
         // 2. Global Shift + Drag detection hook
         eventMonitor.onShiftDragDetected = { [weak self] mouseLocation in
-            guard let self else { return }
-            DispatchQueue.main.async {
-                self.handleShiftDragAt(mouseLocation)
+            Task { @MainActor [weak self] in
+                self?.handleShiftDragAt(mouseLocation)
             }
         }
 
         // 3. Drag ended hook
         eventMonitor.onDragEnded = { [weak self] in
-            guard let self else { return }
-            DispatchQueue.main.async {
+            Task { @MainActor [weak self] in
+                guard let self else { return }
                 if case .dropDestinationActive = self.currentState {
-                    // Reset state
                     self.currentState = .idle
                 }
             }
@@ -74,7 +74,7 @@ public final class DragSessionCoordinator: @unchecked Sendable {
 
         // 4. Fallback Global Shortcut (Option + Shift + S)
         eventMonitor.onGlobalShortcutTriggered = { [weak self] in
-            DispatchQueue.main.async {
+            Task { @MainActor [weak self] in
                 self?.summonFloatingTargetAtCursor()
             }
         }
@@ -98,7 +98,7 @@ public final class DragSessionCoordinator: @unchecked Sendable {
         )
     }
 
-    /// Primary fallback shortcut trigger (<kbd>⌥⇧S</kbd>)
+    /// Primary fallback shortcut trigger (Option + Shift + S)
     public func summonFloatingTargetAtCursor() {
         let cursor = NSEvent.mouseLocation
         currentState = .dropDestinationActive(location: cursor)
@@ -145,8 +145,10 @@ public final class DragSessionCoordinator: @unchecked Sendable {
                         appCoordinator.inspectedFile = inspected
                         appCoordinator.radialMenuCoordinator.presentFloatingWindow(for: inspected) { action in
                             for file in validatedFiles {
-                                if let item = try? await appCoordinator.fileInspector.inspect(url: file.resolvedURL) {
-                                    appCoordinator.executeAction(action, on: item)
+                                Task {
+                                    if let item = try? await appCoordinator.fileInspector.inspect(url: file.resolvedURL) {
+                                        appCoordinator.executeAction(action, on: item)
+                                    }
                                 }
                             }
                         }

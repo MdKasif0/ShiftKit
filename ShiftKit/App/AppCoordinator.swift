@@ -3,7 +3,8 @@ import Observation
 import AppKit
 
 @Observable
-public final class AppCoordinator: @unchecked Sendable {
+@MainActor
+public final class AppCoordinator {
     public let jobManager: JobManager
     public let radialMenuCoordinator: RadialMenuCoordinator
     public let conversionRouter: ConversionRouting
@@ -57,7 +58,6 @@ public final class AppCoordinator: @unchecked Sendable {
         self.dragSessionCoordinator.configure(appCoordinator: self)
     }
 
-    @MainActor
     public func startMenuBar() {
         menuBarCoordinator?.setupStatusBarItem()
     }

@@ -88,7 +88,6 @@ public final class GlobalEventMonitor: @unchecked Sendable {
         globalKeyDownMonitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] event in
             guard let self else { return }
             let flags = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
-            // Option + Shift + S (keyCode 1 is 's' on standard US QWERTY keyboard)
             if flags.contains([.option, .shift]) && event.keyCode == 1 {
                 DispatchQueue.main.async {
                     self.onGlobalShortcutTriggered?()
@@ -104,7 +103,7 @@ public final class GlobalEventMonitor: @unchecked Sendable {
         if let m = globalKeyDownMonitor { NSEvent.removeMonitor(m); globalKeyDownMonitor = nil }
     }
 
-    // MARK: - CGEventTap for Low-Latency Event Tapping (Requires Accessibility)
+    // MARK: - CGEvent.tapCreate for Low-Latency Event Tapping (Requires Accessibility)
     private func startEventTapIfPermitted() {
         guard InteractionPermissionManager.shared.isAccessibilityGranted else { return }
 
@@ -114,18 +113,18 @@ public final class GlobalEventMonitor: @unchecked Sendable {
 
         let observer = UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())
 
-        guard let tap = CGEventTapCreate(
-            .cghidEventTap,
-            .headInsertEventTap,
-            .listenOnly,
-            CGEventMask(eventMask),
-            { (proxy, type, event, refcon) -> Unmanaged<CGEvent>? in
+        guard let tap = CGEvent.tapCreate(
+            tap: .cghidEventTap,
+            place: .headInsertEventTap,
+            options: .listenOnly,
+            eventsOfInterest: CGEventMask(eventMask),
+            callback: { (proxy, type, event, refcon) -> Unmanaged<CGEvent>? in
                 guard let refcon else { return Unmanaged.passUnretained(event) }
                 let monitor = Unmanaged<GlobalEventMonitor>.fromOpaque(refcon).takeUnretainedValue()
                 monitor.handleCGEvent(type: type, event: event)
                 return Unmanaged.passUnretained(event)
             },
-            observer
+            userInfo: observer
         ) else {
             return
         }
@@ -134,12 +133,12 @@ public final class GlobalEventMonitor: @unchecked Sendable {
         let source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap, 0)
         self.runLoopSource = source
         CFRunLoopAddSource(CFRunLoopGetMain(), source, .commonModes)
-        CGEventTapEnable(tap: tap, enable: true)
+        CGEvent.tapEnable(tap: tap, enable: true)
     }
 
     private func stopEventTap() {
         if let tap = eventTap {
-            CGEventTapEnable(tap: tap, enable: false)
+            CGEvent.tapEnable(tap: tap, enable: false)
             if let src = runLoopSource {
                 CFRunLoopRemoveSource(CFRunLoopGetMain(), src, .commonModes)
                 self.runLoopSource = nil
@@ -155,7 +154,6 @@ public final class GlobalEventMonitor: @unchecked Sendable {
             let flags = event.flags
             if flags.contains(.maskShift) {
                 let loc = event.location
-                // CGEvent location has (0,0) at top-left, AppKit at bottom-left
                 let screenH = NSScreen.main?.frame.height ?? 1080
                 let appKitPoint = CGPoint(x: loc.x, y: screenH - loc.y)
                 DispatchQueue.main.async {
