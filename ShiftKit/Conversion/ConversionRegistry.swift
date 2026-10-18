@@ -179,6 +179,42 @@ public final class ConversionRegistry: ConversionRegistering {
             return MergeValidationResult(canMerge: canMerge, targetFormat: targetFormat, compatibleFiles: compatible, incompatibleFiles: incompatible, failureReason: reason)
         }
 
+        if targetFormat.category == .audio {
+            var compatible: [InspectedFile] = []
+            var incompatible: [(file: InspectedFile, reason: String)] = []
+
+            for file in files {
+                let format = file.metadata.detectedFormat ?? mapFileTypeToFormat(file.fileType)
+                if format.category == .audio {
+                    compatible.append(file)
+                } else {
+                    incompatible.append((file, "Files of category \(format.category.displayName) cannot be joined into an audio track."))
+                }
+            }
+
+            let canMerge = incompatible.isEmpty && compatible.count >= 2
+            let reason = incompatible.isEmpty ? nil : "Mixed selection contains incompatible media types that cannot be merged into an audio track."
+            return MergeValidationResult(canMerge: canMerge, targetFormat: targetFormat, compatibleFiles: compatible, incompatibleFiles: incompatible, failureReason: reason)
+        }
+
+        if targetFormat.category == .video {
+            var compatible: [InspectedFile] = []
+            var incompatible: [(file: InspectedFile, reason: String)] = []
+
+            for file in files {
+                let format = file.metadata.detectedFormat ?? mapFileTypeToFormat(file.fileType)
+                if format.category == .video {
+                    compatible.append(file)
+                } else {
+                    incompatible.append((file, "Files of category \(format.category.displayName) cannot be joined into a video."))
+                }
+            }
+
+            let canMerge = incompatible.isEmpty && compatible.count >= 2
+            let reason = incompatible.isEmpty ? nil : "Mixed selection contains non-video files that cannot be merged into a video."
+            return MergeValidationResult(canMerge: canMerge, targetFormat: targetFormat, compatibleFiles: compatible, incompatibleFiles: incompatible, failureReason: reason)
+        }
+
         // Default: Verify all files share the target format category
         let allMatch = files.allSatisfy { file in
             let f = file.metadata.detectedFormat ?? mapFileTypeToFormat(file.fileType)
@@ -489,57 +525,39 @@ public final class ConversionRegistry: ConversionRegistering {
         }
 
         // ==========================================
-        // 2. VIDEO (AVFoundation & FFmpeg Engine)
+        // 2. VIDEO (AVFoundation & Dedicated FFmpeg Engine)
         // ==========================================
-        let videoFormats: [OutputFormat] = [.mp4, .mov]
+        let videoFormats: [OutputFormat] = [.mp4, .mov, .mkv, .webm, .avi]
+        let videoTargets: [OutputFormat] = [.mp4, .mov, .mkv, .webm, .avi]
+
         for src in videoFormats {
+            // Conversions to other video formats
+            for dst in videoTargets where dst.id != src.id {
+                caps.append(ConversionCapability(
+                    id: "vid_to_\(dst.id)",
+                    displayName: "Convert to \(dst.displayName)",
+                    category: .video,
+                    actionCategory: .convert,
+                    sourceFormatID: src.id,
+                    targetFormatID: dst.id,
+                    requiredEngineID: "com.shiftkit.engine.ffmpeg",
+                    isImplemented: true
+                ))
+            }
+
+            // Self re-encode
             caps.append(ConversionCapability(
-                id: "vid_to_mp4",
-                displayName: "Re-encode MP4",
+                id: "vid_to_\(src.id)",
+                displayName: "Re-encode \(src.displayName)",
                 category: .video,
                 actionCategory: .convert,
                 sourceFormatID: src.id,
-                targetFormatID: "mp4",
-                requiredEngineID: "com.shiftkit.engine.avfoundation",
-                requiredCodecs: ["h264", "aac"],
-                isImplemented: true
-            ))
-
-            caps.append(ConversionCapability(
-                id: "vid_compress",
-                displayName: "Compress Video (720p)",
-                category: .video,
-                actionCategory: .compress,
-                sourceFormatID: src.id,
-                targetFormatID: "mp4",
-                requiredEngineID: "com.shiftkit.engine.avfoundation",
-                knownLimitations: ["Downscales video stream to 1280x720"],
-                isImplemented: true
-            ))
-
-            caps.append(ConversionCapability(
-                id: "vid_trim",
-                displayName: "Trim Video Duration",
-                category: .video,
-                actionCategory: .cropOrTrim,
-                sourceFormatID: src.id,
                 targetFormatID: src.id,
-                requiredEngineID: "com.shiftkit.engine.avfoundation",
+                requiredEngineID: "com.shiftkit.engine.ffmpeg",
                 isImplemented: true
             ))
 
-            caps.append(ConversionCapability(
-                id: "vid_extract_audio",
-                displayName: "Extract M4A Audio",
-                category: .video,
-                actionCategory: .extract,
-                sourceFormatID: src.id,
-                targetFormatID: "m4a",
-                requiredEngineID: "com.shiftkit.engine.avfoundation",
-                isImplemented: true
-            ))
-
-            // FFmpeg video to GIF
+            // Video to Animated GIF
             caps.append(ConversionCapability(
                 id: "vid_to_gif",
                 displayName: "Convert to Animated GIF",
@@ -552,44 +570,166 @@ public final class ConversionRegistry: ConversionRegistering {
                 knownLimitations: ["256-color palette limitation"],
                 isImplemented: true
             ))
+
+            // Compression Presets
+            caps.append(ConversionCapability(
+                id: "vid_compress_smaller",
+                displayName: "Smaller File (720p)",
+                category: .video,
+                actionCategory: .compress,
+                sourceFormatID: src.id,
+                targetFormatID: "mp4",
+                requiredEngineID: "com.shiftkit.engine.ffmpeg",
+                knownLimitations: ["Downscales video to max 720p with efficient CRF 28"],
+                isImplemented: true
+            ))
+
+            caps.append(ConversionCapability(
+                id: "vid_compress_balanced",
+                displayName: "Balanced Compression (1080p)",
+                category: .video,
+                actionCategory: .compress,
+                sourceFormatID: src.id,
+                targetFormatID: "mp4",
+                requiredEngineID: "com.shiftkit.engine.ffmpeg",
+                knownLimitations: ["Balanced visual quality with CRF 22"],
+                isImplemented: true
+            ))
+
+            caps.append(ConversionCapability(
+                id: "vid_compress_hq",
+                displayName: "High Quality Compression",
+                category: .video,
+                actionCategory: .compress,
+                sourceFormatID: src.id,
+                targetFormatID: "mp4",
+                requiredEngineID: "com.shiftkit.engine.ffmpeg",
+                knownLimitations: ["High bitrate preservation with CRF 18"],
+                isImplemented: true
+            ))
+
+            // Trimming
+            caps.append(ConversionCapability(
+                id: "vid_trim",
+                displayName: "Trim Video Duration",
+                category: .video,
+                actionCategory: .cropOrTrim,
+                sourceFormatID: src.id,
+                targetFormatID: src.id,
+                requiredEngineID: "com.shiftkit.engine.ffmpeg",
+                isImplemented: true
+            ))
+
+            // Audio Extraction Targets
+            let extractAudioTargets: [OutputFormat] = [.mp3, .m4a, .wav, .aac, .flac]
+            for audioTarget in extractAudioTargets {
+                caps.append(ConversionCapability(
+                    id: "vid_extract_\(audioTarget.id)",
+                    displayName: "Extract \(audioTarget.displayName)",
+                    category: .video,
+                    actionCategory: .extract,
+                    sourceFormatID: src.id,
+                    targetFormatID: audioTarget.id,
+                    requiredEngineID: "com.shiftkit.engine.ffmpeg",
+                    isImplemented: true
+                ))
+            }
+
+            // Video Merge / Concatenation
+            caps.append(ConversionCapability(
+                id: "vid_merge",
+                displayName: "Join Video Clips",
+                category: .video,
+                actionCategory: .merge,
+                sourceFormatID: src.id,
+                targetFormatID: src.id,
+                requiredEngineID: "com.shiftkit.engine.ffmpeg",
+                isImplemented: true
+            ))
         }
 
         // ==========================================
-        // 3. AUDIO (AVFoundation & FFmpeg Engine)
+        // 3. AUDIO (Dedicated FFmpeg Engine)
         // ==========================================
-        let audioFormats: [OutputFormat] = [.wav, .m4a, .mp3]
+        let audioFormats: [OutputFormat] = [.mp3, .wav, .flac, .aac, .m4a, .aiff, .ogg, .opus]
+        let audioTargets: [OutputFormat] = [.mp3, .wav, .flac, .aac, .m4a, .aiff, .ogg, .opus]
+
         for src in audioFormats {
-            caps.append(ConversionCapability(
-                id: "audio_to_m4a",
-                displayName: "Convert to M4A (AAC)",
-                category: .audio,
-                actionCategory: .convert,
-                sourceFormatID: src.id,
-                targetFormatID: "m4a",
-                requiredEngineID: "com.shiftkit.engine.avfoundation",
-                isImplemented: true
-            ))
+            // Conversions to all other audio formats
+            for dst in audioTargets where dst.id != src.id {
+                let isLossless = !dst.isContainerLossy && !src.isContainerLossy
+                caps.append(ConversionCapability(
+                    id: "audio_to_\(dst.id)",
+                    displayName: "Convert to \(dst.displayName)",
+                    category: .audio,
+                    actionCategory: .convert,
+                    sourceFormatID: src.id,
+                    targetFormatID: dst.id,
+                    requiredEngineID: "com.shiftkit.engine.ffmpeg",
+                    isLossless: isLossless,
+                    isImplemented: true
+                ))
+            }
 
-            caps.append(ConversionCapability(
-                id: "audio_to_mp3",
-                displayName: "Convert to MP3",
-                category: .audio,
-                actionCategory: .convert,
-                sourceFormatID: src.id,
-                targetFormatID: "mp3",
-                requiredEngineID: "com.shiftkit.engine.ffmpeg",
-                requiredCodecs: ["libmp3lame"],
-                isImplemented: true
-            ))
-
+            // Audio Compression
             caps.append(ConversionCapability(
                 id: "audio_compress",
-                displayName: "Compress Audio",
+                displayName: "Compress Audio (Voice/Podcast 96k)",
                 category: .audio,
                 actionCategory: .compress,
                 sourceFormatID: src.id,
                 targetFormatID: "m4a",
-                requiredEngineID: "com.shiftkit.engine.avfoundation",
+                requiredEngineID: "com.shiftkit.engine.ffmpeg",
+                knownLimitations: ["AAC 96kbps optimized for speech"],
+                isImplemented: true
+            ))
+
+            // Audio Trimming
+            caps.append(ConversionCapability(
+                id: "audio_trim",
+                displayName: "Trim Audio Duration",
+                category: .audio,
+                actionCategory: .cropOrTrim,
+                sourceFormatID: src.id,
+                targetFormatID: src.id,
+                requiredEngineID: "com.shiftkit.engine.ffmpeg",
+                isImplemented: true
+            ))
+
+            // Audio Joining
+            caps.append(ConversionCapability(
+                id: "audio_merge",
+                displayName: "Join Audio Tracks",
+                category: .audio,
+                actionCategory: .merge,
+                sourceFormatID: src.id,
+                targetFormatID: src.id,
+                requiredEngineID: "com.shiftkit.engine.ffmpeg",
+                isImplemented: true
+            ))
+
+            // Volume & Sample Rate Adjustment
+            caps.append(ConversionCapability(
+                id: "audio_adjust",
+                displayName: "Adjust Volume & Sample Rate",
+                category: .audio,
+                actionCategory: .edit,
+                sourceFormatID: src.id,
+                targetFormatID: src.id,
+                requiredEngineID: "com.shiftkit.engine.ffmpeg",
+                isImplemented: true
+            ))
+
+            // Audio Tag Editing
+            caps.append(ConversionCapability(
+                id: "audio_edit_tags",
+                displayName: "Edit Audio Tags",
+                category: .audio,
+                actionCategory: .metadata,
+                sourceFormatID: src.id,
+                targetFormatID: src.id,
+                requiredEngineID: "com.shiftkit.engine.ffmpeg",
+                isLossless: true,
                 isImplemented: true
             ))
         }
