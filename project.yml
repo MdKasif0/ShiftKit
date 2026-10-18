@@ -34,11 +34,13 @@ targets:
         NSHumanReadableCopyright: "© 2026 ShiftKit. All rights reserved."
         LSApplicationCategoryType: public.app-category.utilities
         NSHighResolutionCapable: true
+        CFBundleIconFile: AppIcon
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.shiftkit.mac
         COMBINE_HIDPI_IMAGES: "YES"
         CODE_SIGN_ENTITLEMENTS: ShiftKit/Resources/ShiftKit.entitlements
+        ENABLE_HARDENED_RUNTIME: "YES"
 
   ShiftKitTests:
     type: bundle.unit-test
