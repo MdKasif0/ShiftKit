@@ -24,11 +24,12 @@ public struct RadialMenuView: View {
     public init(
         file: InspectedFile,
         segments: [RadialSegmentItem]? = nil,
+        registry: ConversionRegistering = ConversionRegistry.shared,
         onSelectAction: @escaping (ConversionAction) -> Void,
         onDismiss: @escaping () -> Void
     ) {
         self.file = file
-        self.segments = segments ?? ConversionRegistry().segments(for: file.fileType)
+        self.segments = segments ?? registry.segments(for: file)
         self.onSelectAction = onSelectAction
         self.onDismiss = onDismiss
     }

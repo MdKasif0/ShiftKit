@@ -3,130 +3,377 @@ import Foundation
 // MARK: - Protocol
 public protocol ConversionRegistering: Sendable {
     func segments(for fileType: FileType) -> [RadialSegmentItem]
+    func segments(for file: InspectedFile) -> [RadialSegmentItem]
     func actions(for fileType: FileType) -> [ConversionAction]
+    func actions(for file: InspectedFile) -> [ConversionAction]
     func defaultAction(for fileType: FileType) -> ConversionAction?
     func searchableActions(for fileType: FileType, query: String) -> [ConversionAction]
+
+    // Universal Capability Engine APIs
+    func registeredCapabilities() -> [ConversionCapability]
+    func implementedCapabilities() -> [ConversionCapability]
+    func capabilities(for sourceFormat: OutputFormat) -> [ConversionCapability]
+    func capability(from source: OutputFormat, to target: OutputFormat, category: ActionCategory) -> ConversionCapability?
+    func availableOutputFormats(for sourceFormat: OutputFormat) -> [OutputFormat]
+    
+    // Multi-File Validation
+    func validateBatch(files: [InspectedFile], targetFormat: OutputFormat, category: ActionCategory) -> BatchValidationResult
+    func validateMerge(files: [InspectedFile], targetFormat: OutputFormat) -> MergeValidationResult
 }
 
 // MARK: - Implementation
 public final class ConversionRegistry: ConversionRegistering {
-    public init() {}
+    public static let shared = ConversionRegistry()
 
-    /// Generates the 8 contextual primary segments for the circular radial action menu.
-    public func segments(for fileType: FileType) -> [RadialSegmentItem] {
-        let convertActions = makeConvertCatalog(for: fileType)
-        let compressActions = makeCompressCatalog(for: fileType)
-        let cropTrimActions = makeCropTrimCatalog(for: fileType)
-        let mergeActions = makeMergeCatalog(for: fileType)
-        let editActions = makeEditCatalog(for: fileType)
-        let metadataActions = makeMetadataCatalog(for: fileType)
-        let extractActions = makeExtractCatalog(for: fileType)
-        let moreActions = makeMoreCatalog(for: fileType)
+    private let capabilitiesTable: [ConversionCapability]
+    private let formatsTable: [String: OutputFormat]
 
-        // Dynamic Title & Icon for Segment 3 (Crop vs Trim)
-        let (cropTrimTitle, cropTrimIcon): (String, String) = {
-            switch fileType {
-            case .video, .audio:
-                return ("Trim", "scissors")
-            case .image:
-                return ("Crop", "crop")
-            case .pdf:
-                return ("Crop", "crop")
-            default:
-                return ("Crop/Trim", "scissors")
+    public init() {
+        var formats: [String: OutputFormat] = [:]
+        for f in OutputFormat.allCanonical {
+            formats[f.id] = f
+            for ext in f.recognizedExtensions {
+                formats[ext] = f
             }
-        }()
+        }
+        self.formatsTable = formats
+        self.capabilitiesTable = Self.buildUniversalCapabilities()
+    }
+
+    // MARK: - Format & Capability Lookups
+    public func registeredCapabilities() -> [ConversionCapability] {
+        capabilitiesTable
+    }
+
+    public func implementedCapabilities() -> [ConversionCapability] {
+        capabilitiesTable.filter { zsh.isImplemented }
+    }
+
+    public func capabilities(for sourceFormat: OutputFormat) -> [ConversionCapability] {
+        capabilitiesTable.filter { zsh.sourceFormatID == sourceFormat.id }
+    }
+
+    public func capability(from source: OutputFormat, to target: OutputFormat, category: ActionCategory = .convert) -> ConversionCapability? {
+        capabilitiesTable.first {
+            zsh.sourceFormatID == source.id &&
+            zsh.targetFormatID == target.id &&
+            zsh.actionCategory == category
+        }
+    }
+
+    public func availableOutputFormats(for sourceFormat: OutputFormat) -> [OutputFormat] {
+        let targets = capabilitiesTable
+            .filter { zsh.sourceFormatID == sourceFormat.id && zsh.isImplemented }
+            .compactMap { zsh.targetFormat }
+        return Array(Set(targets)).sorted { zsh.displayName < .displayName }
+    }
+
+    // MARK: - Radial Menu Integration (Contextual & Dynamic)
+    public func segments(for fileType: FileType) -> [RadialSegmentItem] {
+        let sourceFormat = mapFileTypeToFormat(fileType)
+        return buildDynamicSegments(sourceFormat: sourceFormat, fileType: fileType)
+    }
+
+    public func segments(for file: InspectedFile) -> [RadialSegmentItem] {
+        let sourceFormat = file.metadata.detectedFormat ?? mapFileTypeToFormat(file.fileType)
+        return buildDynamicSegments(sourceFormat: sourceFormat, fileType: file.fileType)
+    }
+
+    public func actions(for fileType: FileType) -> [ConversionAction] {
+        let segs = segments(for: fileType)
+        return segs.flatMap { zsh.subActions }
+    }
+
+    public func actions(for file: InspectedFile) -> [ConversionAction] {
+        let segs = segments(for: file)
+        return segs.flatMap { zsh.subActions }
+    }
+
+    public func defaultAction(for fileType: FileType) -> ConversionAction? {
+        actions(for: fileType).first
+    }
+
+    public func searchableActions(for fileType: FileType, query: String) -> [ConversionAction] {
+        let all = actions(for: fileType)
+        guard !query.isEmpty else { return all }
+        let clean = query.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        return all.filter {
+            zsh.title.lowercased().contains(clean) ||
+            zsh.subtitle.lowercased().contains(clean) ||
+            (zsh.targetFormat?.lowercased().contains(clean) ?? false)
+        }
+    }
+
+    // MARK: - Multi-File Batch & Merge Validation
+    public func validateBatch(
+        files: [InspectedFile],
+        targetFormat: OutputFormat,
+        category: ActionCategory = .convert
+    ) -> BatchValidationResult {
+        var results: [URL: ConversionValidationResult] = [:]
+        var supported: [InspectedFile] = []
+        var unsupported: [(file: InspectedFile, reason: String)] = []
+
+        for file in files {
+            let sourceFormat = file.metadata.detectedFormat ?? mapFileTypeToFormat(file.fileType)
+            if let cap = capability(from: sourceFormat, to: targetFormat, category: category), cap.isImplemented {
+                supported.append(file)
+                results[file.url] = .valid(
+                    capability: cap,
+                    isLossless: cap.isLossless
+                )
+            } else {
+                let reason = "Cannot convert \(sourceFormat.displayName) to \(targetFormat.displayName) - unsupported capability."
+                unsupported.append((file, reason))
+                results[file.url] = .invalid(reason: reason)
+            }
+        }
+
+        // Conflict check on destination names in common folder
+        var destinations: [String: [URL]] = [:]
+        for file in supported {
+            let baseName = file.url.deletingPathExtension().lastPathComponent
+            let targetName = "\(baseName).\(targetFormat.primaryExtension)"
+            destinations[targetName, default: []].append(file.url)
+        }
+
+        var conflicts: [URL: [URL]] = [:]
+        for (_, urls) in destinations where urls.count > 1 {
+            if let first = urls.first {
+                conflicts[first] = urls
+            }
+        }
+
+        return BatchValidationResult(
+            targetFormat: targetFormat,
+            fileResults: results,
+            supportedFiles: supported,
+            unsupportedFiles: unsupported,
+            outputNameConflicts: conflicts
+        )
+    }
+
+    public func validateMerge(
+        files: [InspectedFile],
+        targetFormat: OutputFormat
+    ) -> MergeValidationResult {
+        guard !files.isEmpty else {
+            return MergeValidationResult(canMerge: false, targetFormat: targetFormat, compatibleFiles: [], incompatibleFiles: [], failureReason: "No files selected for merge.")
+        }
+
+        if targetFormat == .pdf {
+            var compatible: [InspectedFile] = []
+            var incompatible: [(file: InspectedFile, reason: String)] = []
+
+            for file in files {
+                let format = file.metadata.detectedFormat ?? mapFileTypeToFormat(file.fileType)
+                if format == .pdf || format.category == .image {
+                    compatible.append(file)
+                } else {
+                    incompatible.append((file, "Files of category \(format.category.displayName) cannot be merged into a PDF document."))
+                }
+            }
+
+            let canMerge = incompatible.isEmpty && compatible.count >= 2
+            let reason = incompatible.isEmpty ? nil : "Mixed selection contains incompatible media streams that cannot be bound into a single PDF."
+            return MergeValidationResult(canMerge: canMerge, targetFormat: targetFormat, compatibleFiles: compatible, incompatibleFiles: incompatible, failureReason: reason)
+        }
+
+        // Default: Verify all files share the target format category
+        let allMatch = files.allSatisfy { file in
+            let f = file.metadata.detectedFormat ?? mapFileTypeToFormat(file.fileType)
+            return f.category == targetFormat.category
+        }
+
+        if allMatch && files.count >= 2 {
+            return MergeValidationResult(canMerge: true, targetFormat: targetFormat, compatibleFiles: files, incompatibleFiles: [])
+        } else {
+            return MergeValidationResult(canMerge: false, targetFormat: targetFormat, compatibleFiles: [], incompatibleFiles: files.map { (zsh, "Incompatible format") }, failureReason: "Cannot merge mixed file types into \(targetFormat.displayName).")
+        }
+    }
+
+    // MARK: - Private Dynamic Segment Generation
+    private func buildDynamicSegments(sourceFormat: OutputFormat, fileType: FileType) -> [RadialSegmentItem] {
+        let implementedCaps = capabilitiesTable.filter { zsh.sourceFormatID == sourceFormat.id && zsh.isImplemented }
+
+        // 1. Convert Segment
+        let convertCaps = implementedCaps.filter { zsh.actionCategory == .convert }
+        let convertActions: [ConversionAction] = convertCaps.compactMap { cap in
+            guard let target = cap.targetFormat else { return nil }
+            return ConversionAction(
+                id: cap.id,
+                title: "To \(target.primaryExtension.uppercased())",
+                subtitle: cap.displayName,
+                systemIcon: target.category.defaultIcon,
+                category: .convert,
+                targetFormat: target.primaryExtension,
+                badgeTag: cap.isLossless ? "Lossless" : nil
+            )
+        }
+
+        // 2. Compress Segment
+        let compressCaps = implementedCaps.filter { zsh.actionCategory == .compress }
+        let compressActions: [ConversionAction] = compressCaps.compactMap { cap in
+            ConversionAction(
+                id: cap.id,
+                title: cap.displayName,
+                subtitle: cap.knownLimitations.first ?? "Reduce file size",
+                systemIcon: "arrow.down.forward.and.arrow.up.backward",
+                category: .compress,
+                targetFormat: cap.targetFormatID,
+                badgeTag: "Optimized"
+            )
+        }
+
+        // 3. Crop / Trim Segment
+        let cropTrimCaps = implementedCaps.filter { zsh.actionCategory == .cropOrTrim }
+        let cropTrimActions: [ConversionAction] = cropTrimCaps.compactMap { cap in
+            ConversionAction(
+                id: cap.id,
+                title: cap.displayName,
+                subtitle: cap.knownLimitations.first ?? "Adjust bounds",
+                systemIcon: fileType.isMedia ? "scissors" : "crop",
+                category: .cropOrTrim,
+                targetFormat: cap.targetFormatID
+            )
+        }
+
+        // 4. Merge Segment
+        let mergeCaps = implementedCaps.filter { zsh.actionCategory == .merge }
+        let mergeActions: [ConversionAction] = mergeCaps.compactMap { cap in
+            ConversionAction(
+                id: cap.id,
+                title: cap.displayName,
+                subtitle: "Combine into single \(cap.targetFormatID.uppercased())",
+                systemIcon: "doc.on.doc",
+                category: .merge,
+                targetFormat: cap.targetFormatID
+            )
+        }
+
+        // 5. Edit Segment
+        let editCaps = implementedCaps.filter { zsh.actionCategory == .edit }
+        let editActions: [ConversionAction] = editCaps.compactMap { cap in
+            ConversionAction(
+                id: cap.id,
+                title: cap.displayName,
+                subtitle: cap.knownLimitations.first ?? "Adjust properties",
+                systemIcon: "slider.horizontal.3",
+                category: .edit,
+                targetFormat: cap.targetFormatID
+            )
+        }
+
+        // 6. Metadata Segment
+        let metaCaps = implementedCaps.filter { zsh.actionCategory == .metadata }
+        let metaActions: [ConversionAction] = metaCaps.compactMap { cap in
+            ConversionAction(
+                id: cap.id,
+                title: cap.displayName,
+                subtitle: cap.knownLimitations.first ?? "Manage metadata",
+                systemIcon: "info.circle",
+                category: .metadata,
+                targetFormat: cap.targetFormatID
+            )
+        }
+
+        // 7. Extract Segment
+        let extractCaps = implementedCaps.filter { zsh.actionCategory == .extract }
+        let extractActions: [ConversionAction] = extractCaps.compactMap { cap in
+            ConversionAction(
+                id: cap.id,
+                title: cap.displayName,
+                subtitle: cap.knownLimitations.first ?? "Extract stream",
+                systemIcon: "arrow.up.right.and.arrow.down.left.rectangle",
+                category: .extract,
+                targetFormat: cap.targetFormatID
+            )
+        }
+
+        // 8. More Segment
+        let moreActions: [ConversionAction] = [
+            ConversionAction(id: "more_info", title: "File Details", subtitle: "UTI & Properties", systemIcon: "doc.text.magnifyingglass", category: .more),
+            ConversionAction(id: "more_copy_path", title: "Copy Path", subtitle: "Absolute location", systemIcon: "link", category: .more)
+        ]
+
+        let cropTitle = fileType.isMedia ? "Trim" : "Crop"
+        let cropIcon = fileType.isMedia ? "scissors" : "crop"
 
         return [
-            // 1. Convert
             RadialSegmentItem(
                 id: "seg_convert",
                 title: "Convert",
-                subtitle: "\(convertActions.count) target formats",
+                subtitle: "\(convertActions.count) formats",
                 systemIcon: "arrow.triangle.2.circlepath",
                 shortcutKey: "1",
                 category: .convert,
                 isEnabled: !convertActions.isEmpty,
                 subActions: convertActions
             ),
-
-            // 2. Compress
             RadialSegmentItem(
                 id: "seg_compress",
                 title: "Compress",
-                subtitle: "Reduce file weight",
+                subtitle: "Reduce weight",
                 systemIcon: "arrow.down.forward.and.arrow.up.backward",
                 shortcutKey: "2",
                 category: .compress,
                 isEnabled: !compressActions.isEmpty,
                 subActions: compressActions
             ),
-
-            // 3. Crop or Trim (Contextual)
             RadialSegmentItem(
                 id: "seg_crop_trim",
-                title: cropTrimTitle,
-                subtitle: fileType.isMedia ? "Adjust boundaries" : "Adjust margins",
-                systemIcon: cropTrimIcon,
+                title: cropTitle,
+                subtitle: fileType.isMedia ? "Time boundaries" : "Pixel margins",
+                systemIcon: cropIcon,
                 shortcutKey: "3",
                 category: .cropOrTrim,
                 isEnabled: !cropTrimActions.isEmpty,
                 subActions: cropTrimActions
             ),
-
-            // 4. Merge
             RadialSegmentItem(
                 id: "seg_merge",
                 title: "Merge",
-                subtitle: "Combine documents",
+                subtitle: "Combine files",
                 systemIcon: "doc.on.doc",
                 shortcutKey: "4",
                 category: .merge,
                 isEnabled: !mergeActions.isEmpty,
                 subActions: mergeActions
             ),
-
-            // 5. Edit
             RadialSegmentItem(
                 id: "seg_edit",
                 title: "Edit",
-                subtitle: "Rotate, flip, adjust",
+                subtitle: "Adjust properties",
                 systemIcon: "slider.horizontal.3",
                 shortcutKey: "5",
                 category: .edit,
                 isEnabled: !editActions.isEmpty,
                 subActions: editActions
             ),
-
-            // 6. Metadata
             RadialSegmentItem(
                 id: "seg_metadata",
                 title: "Metadata",
-                subtitle: "Privacy & EXIF clean",
+                subtitle: "EXIF & privacy",
                 systemIcon: "info.circle",
                 shortcutKey: "6",
                 category: .metadata,
-                isEnabled: true,
-                subActions: metadataActions
+                isEnabled: !metaActions.isEmpty,
+                subActions: metaActions
             ),
-
-            // 7. Extract
             RadialSegmentItem(
                 id: "seg_extract",
                 title: "Extract",
-                subtitle: fileType.isMedia ? "Extract audio/stills" : "Extract assets",
+                subtitle: "Assets & audio",
                 systemIcon: "arrow.up.right.and.arrow.down.left.rectangle",
                 shortcutKey: "7",
                 category: .extract,
                 isEnabled: !extractActions.isEmpty,
                 subActions: extractActions
             ),
-
-            // 8. More
             RadialSegmentItem(
                 id: "seg_more",
                 title: "More",
-                subtitle: "Finder & utilities",
+                subtitle: "Inspection",
                 systemIcon: "ellipsis.circle",
                 shortcutKey: "8",
                 category: .more,
@@ -136,197 +383,282 @@ public final class ConversionRegistry: ConversionRegistering {
         ]
     }
 
-    /// Flattened action list for direct selection and backward compatibility
-    public func actions(for fileType: FileType) -> [ConversionAction] {
-        var result: [ConversionAction] = []
-        for segment in segments(for: fileType) {
-            result.append(contentsOf: segment.subActions)
-        }
-        return result
-    }
-
-    public func defaultAction(for fileType: FileType) -> ConversionAction? {
-        actions(for: fileType).first
-    }
-
-    public func searchableActions(for fileType: FileType, query: String) -> [ConversionAction] {
-        let all = actions(for: fileType)
-        guard !query.trimmingCharacters(in: .whitespaces).isEmpty else {
-            return all
-        }
-        let q = query.lowercased().trimmingCharacters(in: .whitespaces)
-        return all.filter { action in
-            action.title.lowercased().contains(q) ||
-            action.subtitle.lowercased().contains(q) ||
-            (action.targetFormat?.lowercased().contains(q) ?? false) ||
-            (action.badgeTag?.lowercased().contains(q) ?? false)
-        }
-    }
-
-    // MARK: - Catalog Builders
-    private func makeConvertCatalog(for fileType: FileType) -> [ConversionAction] {
+    private func mapFileTypeToFormat(_ fileType: FileType) -> OutputFormat {
         switch fileType {
-        case .image:
-            return [
-                .imageToPNG,
-                .imageToJPEG,
-                .imageToWebP,
-                .imageToHEIC,
-                .imageToTIFF,
-                ConversionAction(id: "img_to_gif", title: "To Static GIF", subtitle: "Web 256-color palette", systemIcon: "photo", category: .convert, targetFormat: "gif", badgeTag: "GIF"),
-                ConversionAction(id: "img_to_pdf", title: "To Single-Page PDF", subtitle: "Encapsulate image in PDF", systemIcon: "doc.richtext", category: .convert, targetFormat: "pdf", badgeTag: "PDF")
-            ]
-        case .video:
-            return [
-                .videoToMP4,
-                .videoToGIF,
-                ConversionAction(id: "vid_to_mov", title: "To Apple ProRes / QuickTime", subtitle: "Native MOV container", systemIcon: "film", category: .convert, targetFormat: "mov", badgeTag: "MOV"),
-                ConversionAction(id: "vid_to_webm", title: "To WebM (VP9)", subtitle: "Open HTML5 web video", systemIcon: "globe", category: .convert, targetFormat: "webm", badgeTag: "VP9")
-            ]
-        case .audio:
-            return [
-                .audioToMP3,
-                .audioToM4A,
-                ConversionAction(id: "audio_to_wav", title: "To WAV (PCM)", subtitle: "Uncompressed 16-bit 44.1kHz", systemIcon: "waveform", category: .convert, targetFormat: "wav", badgeTag: "Lossless"),
-                ConversionAction(id: "audio_to_flac", title: "To FLAC", subtitle: "Free Lossless Audio Codec", systemIcon: "waveform.badge.plus", category: .convert, targetFormat: "flac", badgeTag: "Lossless")
-            ]
+        case .image(let sub):
+            return OutputFormat.find(byExtension: sub.rawValue) ?? .png
+        case .video(let sub):
+            return OutputFormat.find(byExtension: sub.rawValue) ?? .mp4
+        case .audio(let sub):
+            return OutputFormat.find(byExtension: sub.rawValue) ?? .wav
         case .pdf:
-            return [
-                .pdfToImages,
-                ConversionAction(id: "pdf_to_jpeg", title: "Pages to JPEG", subtitle: "Render pages as high-res JPEGs", systemIcon: "photo", category: .convert, targetFormat: "jpg", badgeTag: "JPEG"),
-                ConversionAction(id: "pdf_to_tiff", title: "Pages to TIFF", subtitle: "Archival 300DPI TIFFs", systemIcon: "printer", category: .convert, targetFormat: "tiff", badgeTag: "Archival")
-            ]
-        default:
-            return [
-                ConversionAction(id: "doc_to_pdf", title: "To PDF Document", subtitle: "Export text to printable PDF", systemIcon: "doc.richtext", category: .convert, targetFormat: "pdf", badgeTag: "PDF")
-            ]
+            return .pdf
+        case .archive:
+            return .zip
+        case .document(let sub):
+            return OutputFormat.find(byExtension: sub.rawValue) ?? .txt
+        case .unknown(let ext):
+            return OutputFormat.find(byExtension: ext) ?? .txt
         }
     }
 
-    private func makeCompressCatalog(for fileType: FileType) -> [ConversionAction] {
-        switch fileType {
-        case .image:
-            return [
-                .imageCompress,
-                ConversionAction(id: "img_compress_max", title: "Maximum Compression", subtitle: "High compression ~70% reduction", systemIcon: "arrow.down.forward.and.arrow.up.backward", category: .compress, badgeTag: "Max (~70%)", options: ["quality": "0.50"]),
-                ConversionAction(id: "img_compress_light", title: "Light Lossless Optimization", subtitle: "Strips bloat without visual change", systemIcon: "arrow.down.forward.and.arrow.up.backward", category: .compress, badgeTag: "Light (~20%)", options: ["quality": "0.90"])
-            ]
-        case .video:
-            return [
-                .videoCompress,
-                ConversionAction(id: "vid_compress_720p", title: "Compress 720p Mobile", subtitle: "Balanced bitrate for mobile sharing", systemIcon: "iphone", category: .compress, badgeTag: "720p"),
-                ConversionAction(id: "vid_compress_480p", title: "Compress 480p Compact", subtitle: "Ultra lightweight archive", systemIcon: "arrow.down.right.and.arrow.up.left", category: .compress, badgeTag: "480p")
-            ]
-        case .audio:
-            return [
-                .audioCompress,
-                ConversionAction(id: "audio_compress_voice", title: "Compress for Voice", subtitle: "Mono 64kbps speech optimization", systemIcon: "mic", category: .compress, badgeTag: "64kbps")
-            ]
-        case .pdf:
-            return [
-                .pdfCompress,
-                ConversionAction(id: "pdf_compress_grayscale", title: "Compress & Grayscale", subtitle: "Convert images to monochrome", systemIcon: "circle.lefthalf.filled", category: .compress, badgeTag: "Monochrome")
-            ]
-        default:
-            return []
+    // MARK: - Capabilities Matrix Factory
+    private static func buildUniversalCapabilities() -> [ConversionCapability] {
+        var caps: [ConversionCapability] = []
+
+        // ==========================================
+        // 1. IMAGES (ImageIO & CoreGraphics Engine)
+        // ==========================================
+        let imageFormats: [OutputFormat] = [.png, .jpeg, .webp, .heic, .tiff]
+        for src in imageFormats {
+            for tgt in imageFormats where src.id != tgt.id {
+                let isLossless = !tgt.isContainerLossy && !src.isContainerLossy
+                var limitations: [String] = []
+                if src.supportsAlpha && !tgt.supportsAlpha {
+                    limitations.append("Alpha channel flattened to matte background")
+                }
+                if src.isContainerLossy && !tgt.isContainerLossy {
+                    limitations.append("Lossy source does not restore original detail")
+                }
+
+                caps.append(ConversionCapability(
+                    id: "img_to_\(tgt.id)",
+                    displayName: "Convert to \(tgt.primaryExtension.uppercased())",
+                    category: .image,
+                    actionCategory: .convert,
+                    sourceFormatID: src.id,
+                    targetFormatID: tgt.id,
+                    requiredEngineID: "com.shiftkit.engine.imageio",
+                    requiredCodecs: ["ImageIO"],
+                    supportedOptionKeys: ["quality", "preserveAlpha", "stripMetadata"],
+                    knownLimitations: limitations,
+                    isLossless: isLossless,
+                    isImplemented: true
+                ))
+            }
+
+            // Image Compression
+            caps.append(ConversionCapability(
+                id: "img_compress",
+                displayName: "Compress \(src.primaryExtension.uppercased())",
+                category: .image,
+                actionCategory: .compress,
+                sourceFormatID: src.id,
+                targetFormatID: src.id,
+                requiredEngineID: "com.shiftkit.engine.imageio",
+                requiredCodecs: ["ImageIO"],
+                supportedOptionKeys: ["quality", "maxDimension"],
+                knownLimitations: ["Reduces pixel dimensions or compression quality"],
+                isLossless: false,
+                isImplemented: true
+            ))
+
+            // Image Crop
+            caps.append(ConversionCapability(
+                id: "img_crop_square",
+                displayName: "Crop Square",
+                category: .image,
+                actionCategory: .cropOrTrim,
+                sourceFormatID: src.id,
+                targetFormatID: src.id,
+                requiredEngineID: "com.shiftkit.engine.imageio",
+                isImplemented: true
+            ))
+
+            // Image Strip EXIF
+            caps.append(ConversionCapability(
+                id: "img_strip_exif",
+                displayName: "Strip EXIF & Location",
+                category: .image,
+                actionCategory: .metadata,
+                sourceFormatID: src.id,
+                targetFormatID: src.id,
+                requiredEngineID: "com.shiftkit.engine.imageio",
+                knownLimitations: ["Removes camera and GPS coordinates for privacy"],
+                isLossless: true,
+                isImplemented: true
+            ))
         }
-    }
 
-    private func makeCropTrimCatalog(for fileType: FileType) -> [ConversionAction] {
-        switch fileType {
-        case .image:
-            return [
-                .imageCropSquare,
-                ConversionAction(id: "img_crop_16_9", title: "Crop 16:9 Landscape", subtitle: "Standard presentation ratio", systemIcon: "rectangle.ratio.16.to.9", category: .cropOrTrim, badgeTag: "16:9", options: ["aspect": "16:9"]),
-                ConversionAction(id: "img_crop_4_3", title: "Crop 4:3 Photo", subtitle: "Classic photography ratio", systemIcon: "rectangle.ratio.4.to.3", category: .cropOrTrim, badgeTag: "4:3", options: ["aspect": "4:3"]),
-                ConversionAction(id: "img_crop_9_16", title: "Crop 9:16 Story", subtitle: "Vertical mobile format", systemIcon: "iphone", category: .cropOrTrim, badgeTag: "9:16", options: ["aspect": "9:16"])
-            ]
-        case .video:
-            return [
-                .videoTrim,
-                ConversionAction(id: "vid_trim_first_30", title: "Trim First 30s", subtitle: "Extract opening 30 seconds", systemIcon: "clock", category: .cropOrTrim, badgeTag: "First 30s", options: ["duration": "30"]),
-                ConversionAction(id: "vid_trim_first_60", title: "Trim First 60s", subtitle: "Extract opening 60 seconds", systemIcon: "clock.fill", category: .cropOrTrim, badgeTag: "First 60s", options: ["duration": "60"])
-            ]
-        case .audio:
-            return [
-                ConversionAction(id: "audio_trim_30", title: "Trim to 30s Sample", subtitle: "Extract opening preview hook", systemIcon: "scissors", category: .cropOrTrim, badgeTag: "30s Preview")
-            ]
-        default:
-            return []
+        // ==========================================
+        // 2. VIDEO (AVFoundation & FFmpeg Engine)
+        // ==========================================
+        let videoFormats: [OutputFormat] = [.mp4, .mov]
+        for src in videoFormats {
+            caps.append(ConversionCapability(
+                id: "vid_to_mp4",
+                displayName: "Re-encode MP4",
+                category: .video,
+                actionCategory: .convert,
+                sourceFormatID: src.id,
+                targetFormatID: "mp4",
+                requiredEngineID: "com.shiftkit.engine.avfoundation",
+                requiredCodecs: ["h264", "aac"],
+                isImplemented: true
+            ))
+
+            caps.append(ConversionCapability(
+                id: "vid_compress",
+                displayName: "Compress Video (720p)",
+                category: .video,
+                actionCategory: .compress,
+                sourceFormatID: src.id,
+                targetFormatID: "mp4",
+                requiredEngineID: "com.shiftkit.engine.avfoundation",
+                knownLimitations: ["Downscales video stream to 1280x720"],
+                isImplemented: true
+            ))
+
+            caps.append(ConversionCapability(
+                id: "vid_trim",
+                displayName: "Trim Video Duration",
+                category: .video,
+                actionCategory: .cropOrTrim,
+                sourceFormatID: src.id,
+                targetFormatID: src.id,
+                requiredEngineID: "com.shiftkit.engine.avfoundation",
+                isImplemented: true
+            ))
+
+            caps.append(ConversionCapability(
+                id: "vid_extract_audio",
+                displayName: "Extract M4A Audio",
+                category: .video,
+                actionCategory: .extract,
+                sourceFormatID: src.id,
+                targetFormatID: "m4a",
+                requiredEngineID: "com.shiftkit.engine.avfoundation",
+                isImplemented: true
+            ))
+
+            // FFmpeg video to GIF
+            caps.append(ConversionCapability(
+                id: "vid_to_gif",
+                displayName: "Convert to Animated GIF",
+                category: .video,
+                actionCategory: .convert,
+                sourceFormatID: src.id,
+                targetFormatID: "gif",
+                requiredEngineID: "com.shiftkit.engine.ffmpeg",
+                requiredCodecs: ["palettegen"],
+                knownLimitations: ["256-color palette limitation"],
+                isImplemented: true
+            ))
         }
-    }
 
-    private func makeMergeCatalog(for fileType: FileType) -> [ConversionAction] {
-        switch fileType {
-        case .pdf:
-            return [
-                .pdfMerge,
-                ConversionAction(id: "pdf_append_blank", title: "Append Blank Note Page", subtitle: "Insert white margin page", systemIcon: "doc.badge.plus", category: .merge, badgeTag: "Blank Page")
-            ]
-        case .image:
-            return [
-                ConversionAction(id: "img_combine_pdf", title: "Combine into Multi-Page PDF", subtitle: "Collate with other photos", systemIcon: "doc.on.doc", category: .merge, targetFormat: "pdf", badgeTag: "Multi-PDF"),
-                ConversionAction(id: "img_stitch_vertical", title: "Stitch Vertically", subtitle: "Combine top to bottom", systemIcon: "rectangle.split.1x2", category: .merge, badgeTag: "Vertical")
-            ]
-        default:
-            return []
+        // ==========================================
+        // 3. AUDIO (AVFoundation & FFmpeg Engine)
+        // ==========================================
+        let audioFormats: [OutputFormat] = [.wav, .m4a, .mp3]
+        for src in audioFormats {
+            caps.append(ConversionCapability(
+                id: "audio_to_m4a",
+                displayName: "Convert to M4A (AAC)",
+                category: .audio,
+                actionCategory: .convert,
+                sourceFormatID: src.id,
+                targetFormatID: "m4a",
+                requiredEngineID: "com.shiftkit.engine.avfoundation",
+                isImplemented: true
+            ))
+
+            caps.append(ConversionCapability(
+                id: "audio_to_mp3",
+                displayName: "Convert to MP3",
+                category: .audio,
+                actionCategory: .convert,
+                sourceFormatID: src.id,
+                targetFormatID: "mp3",
+                requiredEngineID: "com.shiftkit.engine.ffmpeg",
+                requiredCodecs: ["libmp3lame"],
+                isImplemented: true
+            ))
+
+            caps.append(ConversionCapability(
+                id: "audio_compress",
+                displayName: "Compress Audio",
+                category: .audio,
+                actionCategory: .compress,
+                sourceFormatID: src.id,
+                targetFormatID: "m4a",
+                requiredEngineID: "com.shiftkit.engine.avfoundation",
+                isImplemented: true
+            ))
         }
-    }
 
-    private func makeEditCatalog(for fileType: FileType) -> [ConversionAction] {
-        switch fileType {
-        case .image:
-            return [
-                ConversionAction(id: "img_rotate_cw", title: "Rotate 90° Clockwise", subtitle: "Quarter turn right", systemIcon: "rotate.right", category: .edit, badgeTag: "90° CW"),
-                ConversionAction(id: "img_rotate_ccw", title: "Rotate 90° Counter-CW", subtitle: "Quarter turn left", systemIcon: "rotate.left", category: .edit, badgeTag: "90° CCW"),
-                ConversionAction(id: "img_flip_horizontal", title: "Flip Horizontal", subtitle: "Mirror image left to right", systemIcon: "arrow.left.and.right.righttriangle.left.righttriangle.right", category: .edit, badgeTag: "Mirror"),
-                ConversionAction(id: "img_grayscale", title: "Apply Grayscale", subtitle: "Convert to clean monochrome", systemIcon: "circle.lefthalf.filled", category: .edit, badgeTag: "B&W")
-            ]
-        case .video:
-            return [
-                ConversionAction(id: "vid_mute", title: "Mute Audio Track", subtitle: "Strip audio track completely", systemIcon: "speaker.slash", category: .edit, badgeTag: "Mute"),
-                ConversionAction(id: "vid_speed_2x", title: "Speed Up 2.0x", subtitle: "Double playback rate", systemIcon: "forward.fill", category: .edit, badgeTag: "2x Fast")
-            ]
-        case .audio:
-            return [
-                ConversionAction(id: "audio_normalize", title: "Normalize Volume", subtitle: "Balance loudness to standard LUFS", systemIcon: "waveform.badge.magnifyingglass", category: .edit, badgeTag: "Normalize")
-            ]
-        default:
-            return []
-        }
-    }
+        // ==========================================
+        // 4. PDF (PDFKit Engine)
+        // ==========================================
+        caps.append(ConversionCapability(
+            id: "pdf_compress",
+            displayName: "Compress PDF",
+            category: .pdf,
+            actionCategory: .compress,
+            sourceFormatID: "pdf",
+            targetFormatID: "pdf",
+            requiredEngineID: "com.shiftkit.engine.pdfkit",
+            isImplemented: true
+        ))
 
-    private func makeMetadataCatalog(for fileType: FileType) -> [ConversionAction] {
-        return [
-            .imageStripMetadata,
-            ConversionAction(id: "meta_clean_gps", title: "Remove GPS Coordinates", subtitle: "Strip latitude/longitude only", systemIcon: "location.slash", category: .metadata, badgeTag: "Location"),
-            ConversionAction(id: "meta_inspect_json", title: "Export Metadata (JSON)", subtitle: "Dump attributes to JSON file", systemIcon: "curlybraces", category: .metadata, targetFormat: "json", badgeTag: "JSON")
-        ]
-    }
+        caps.append(ConversionCapability(
+            id: "pdf_to_images",
+            displayName: "Render to Images",
+            category: .pdf,
+            actionCategory: .convert,
+            sourceFormatID: "pdf",
+            targetFormatID: "png",
+            requiredEngineID: "com.shiftkit.engine.pdfkit",
+            isImplemented: true
+        ))
 
-    private func makeExtractCatalog(for fileType: FileType) -> [ConversionAction] {
-        switch fileType {
-        case .video:
-            return [
-                .videoExtractAudio,
-                ConversionAction(id: "vid_extract_aac", title: "Extract M4A (AAC)", subtitle: "Lossless Apple audio stream", systemIcon: "music.note", category: .extract, targetFormat: "m4a", badgeTag: "AAC"),
-                ConversionAction(id: "vid_extract_first_frame", title: "Extract Poster Frame", subtitle: "Save opening frame as PNG", systemIcon: "photo", category: .extract, targetFormat: "png", badgeTag: "Thumbnail")
-            ]
-        case .pdf:
-            return [
-                .pdfToImages,
-                ConversionAction(id: "pdf_extract_first", title: "Extract Cover Page", subtitle: "Save page 1 as high-res PNG", systemIcon: "doc.viewfinder", category: .extract, targetFormat: "png", badgeTag: "Page 1")
-            ]
-        default:
-            return []
-        }
-    }
+        caps.append(ConversionCapability(
+            id: "pdf_merge",
+            displayName: "Merge PDF Documents",
+            category: .pdf,
+            actionCategory: .merge,
+            sourceFormatID: "pdf",
+            targetFormatID: "pdf",
+            requiredEngineID: "com.shiftkit.engine.pdfkit",
+            isImplemented: true
+        ))
 
-    private func makeMoreCatalog(for fileType: FileType) -> [ConversionAction] {
-        return [
-            ConversionAction(id: "more_reveal", title: "Reveal in Finder", subtitle: "Locate original file on disk", systemIcon: "folder", category: .more, badgeTag: "Finder"),
-            ConversionAction(id: "more_duplicate", title: "Quick Duplicate", subtitle: "Create instant copy beside original", systemIcon: "plus.square.on.square", category: .more, badgeTag: "Copy"),
-            ConversionAction(id: "more_copy_path", title: "Copy File Path", subtitle: "Copy absolute path to clipboard", systemIcon: "doc.on.clipboard", category: .more, badgeTag: "Clipboard")
-        ]
+        // ==========================================
+        // 5-8. PLANNED CAPABILITIES (Documents, Structured Data, Archives)
+        // (Marked isImplemented: false so they are NOT advertised as ready)
+        // ==========================================
+        caps.append(ConversionCapability(
+            id: "doc_to_pdf",
+            displayName: "Document to PDF",
+            category: .document,
+            actionCategory: .convert,
+            sourceFormatID: "docx",
+            targetFormatID: "pdf",
+            requiredEngineID: "com.shiftkit.engine.pandoc",
+            isImplemented: false
+        ))
+
+        caps.append(ConversionCapability(
+            id: "csv_to_json",
+            displayName: "CSV Table to JSON",
+            category: .structuredData,
+            actionCategory: .convert,
+            sourceFormatID: "csv",
+            targetFormatID: "json",
+            requiredEngineID: "com.shiftkit.engine.data",
+            isImplemented: false
+        ))
+
+        caps.append(ConversionCapability(
+            id: "zip_extract",
+            displayName: "Extract Archive",
+            category: .archive,
+            actionCategory: .extract,
+            sourceFormatID: "zip",
+            targetFormatID: "zip",
+            requiredEngineID: "com.shiftkit.engine.archive",
+            isImplemented: false
+        ))
+
+        return caps
     }
 }
