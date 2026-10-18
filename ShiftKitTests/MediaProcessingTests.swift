@@ -8,7 +8,7 @@ final class MediaProcessingTests: XCTestCase {
     override func setUp() async throws {
         try await super.setUp()
         let fm = FileManager.default
-        let baseDir = URL(fileURLWithPath: FileManager.default.currentDirectoryPath).appendingPathComponent("build/TestMedia_\(UUID().uuidString.prefix(8))")
+        let baseDir = FileManager.default.temporaryDirectory.appendingPathComponent("TestMedia_\(UUID().uuidString.prefix(8))")
         try fm.createDirectory(at: baseDir, withIntermediateDirectories: true)
         self.tempDirectory = baseDir
         self.engine = FFmpegEngine()
