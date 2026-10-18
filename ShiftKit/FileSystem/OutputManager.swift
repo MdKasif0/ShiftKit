@@ -133,7 +133,7 @@ public final class OutputManager: OutputManaging {
             destinations[dest, default: []].append(source)
         }
 
-        return destinations.filter { zsh.value.count > 1 }
+        return destinations.filter { $0.value.count > 1 }
     }
 
     @MainActor

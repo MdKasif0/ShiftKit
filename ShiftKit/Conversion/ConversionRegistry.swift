@@ -46,26 +46,26 @@ public final class ConversionRegistry: ConversionRegistering {
     }
 
     public func implementedCapabilities() -> [ConversionCapability] {
-        capabilitiesTable.filter { zsh.isImplemented }
+        capabilitiesTable.filter { $0.isImplemented }
     }
 
     public func capabilities(for sourceFormat: OutputFormat) -> [ConversionCapability] {
-        capabilitiesTable.filter { zsh.sourceFormatID == sourceFormat.id }
+        capabilitiesTable.filter { $0.sourceFormatID == sourceFormat.id }
     }
 
     public func capability(from source: OutputFormat, to target: OutputFormat, category: ActionCategory = .convert) -> ConversionCapability? {
         capabilitiesTable.first {
-            zsh.sourceFormatID == source.id &&
-            zsh.targetFormatID == target.id &&
-            zsh.actionCategory == category
+            $0.sourceFormatID == source.id &&
+            $0.targetFormatID == target.id &&
+            $0.actionCategory == category
         }
     }
 
     public func availableOutputFormats(for sourceFormat: OutputFormat) -> [OutputFormat] {
         let targets = capabilitiesTable
-            .filter { zsh.sourceFormatID == sourceFormat.id && zsh.isImplemented }
-            .compactMap { zsh.targetFormat }
-        return Array(Set(targets)).sorted { zsh.displayName < .displayName }
+            .filter { $0.sourceFormatID == sourceFormat.id && $0.isImplemented }
+            .compactMap { $0.targetFormat }
+        return Array(Set(targets)).sorted { $0.displayName < .displayName }
     }
 
     // MARK: - Radial Menu Integration (Contextual & Dynamic)
@@ -81,12 +81,12 @@ public final class ConversionRegistry: ConversionRegistering {
 
     public func actions(for fileType: FileType) -> [ConversionAction] {
         let segs = segments(for: fileType)
-        return segs.flatMap { zsh.subActions }
+        return segs.flatMap { $0.subActions }
     }
 
     public func actions(for file: InspectedFile) -> [ConversionAction] {
         let segs = segments(for: file)
-        return segs.flatMap { zsh.subActions }
+        return segs.flatMap { $0.subActions }
     }
 
     public func defaultAction(for fileType: FileType) -> ConversionAction? {
@@ -98,9 +98,9 @@ public final class ConversionRegistry: ConversionRegistering {
         guard !query.isEmpty else { return all }
         let clean = query.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         return all.filter {
-            zsh.title.lowercased().contains(clean) ||
-            zsh.subtitle.lowercased().contains(clean) ||
-            (zsh.targetFormat?.lowercased().contains(clean) ?? false)
+            $0.title.lowercased().contains(clean) ||
+            $0.subtitle.lowercased().contains(clean) ||
+            ($0.targetFormat?.lowercased().contains(clean) ?? false)
         }
     }
 
@@ -194,10 +194,10 @@ public final class ConversionRegistry: ConversionRegistering {
 
     // MARK: - Private Dynamic Segment Generation
     private func buildDynamicSegments(sourceFormat: OutputFormat, fileType: FileType) -> [RadialSegmentItem] {
-        let implementedCaps = capabilitiesTable.filter { zsh.sourceFormatID == sourceFormat.id && zsh.isImplemented }
+        let implementedCaps = capabilitiesTable.filter { $0.sourceFormatID == sourceFormat.id && $0.isImplemented }
 
         // 1. Convert Segment
-        let convertCaps = implementedCaps.filter { zsh.actionCategory == .convert }
+        let convertCaps = implementedCaps.filter { $0.actionCategory == .convert }
         let convertActions: [ConversionAction] = convertCaps.compactMap { cap in
             guard let target = cap.targetFormat else { return nil }
             return ConversionAction(
@@ -212,7 +212,7 @@ public final class ConversionRegistry: ConversionRegistering {
         }
 
         // 2. Compress Segment
-        let compressCaps = implementedCaps.filter { zsh.actionCategory == .compress }
+        let compressCaps = implementedCaps.filter { $0.actionCategory == .compress }
         let compressActions: [ConversionAction] = compressCaps.compactMap { cap in
             ConversionAction(
                 id: cap.id,
@@ -226,7 +226,7 @@ public final class ConversionRegistry: ConversionRegistering {
         }
 
         // 3. Crop / Trim Segment
-        let cropTrimCaps = implementedCaps.filter { zsh.actionCategory == .cropOrTrim }
+        let cropTrimCaps = implementedCaps.filter { $0.actionCategory == .cropOrTrim }
         let cropTrimActions: [ConversionAction] = cropTrimCaps.compactMap { cap in
             ConversionAction(
                 id: cap.id,
@@ -239,7 +239,7 @@ public final class ConversionRegistry: ConversionRegistering {
         }
 
         // 4. Merge Segment
-        let mergeCaps = implementedCaps.filter { zsh.actionCategory == .merge }
+        let mergeCaps = implementedCaps.filter { $0.actionCategory == .merge }
         let mergeActions: [ConversionAction] = mergeCaps.compactMap { cap in
             ConversionAction(
                 id: cap.id,
@@ -252,7 +252,7 @@ public final class ConversionRegistry: ConversionRegistering {
         }
 
         // 5. Edit Segment
-        let editCaps = implementedCaps.filter { zsh.actionCategory == .edit }
+        let editCaps = implementedCaps.filter { $0.actionCategory == .edit }
         let editActions: [ConversionAction] = editCaps.compactMap { cap in
             ConversionAction(
                 id: cap.id,
@@ -265,7 +265,7 @@ public final class ConversionRegistry: ConversionRegistering {
         }
 
         // 6. Metadata Segment
-        let metaCaps = implementedCaps.filter { zsh.actionCategory == .metadata }
+        let metaCaps = implementedCaps.filter { $0.actionCategory == .metadata }
         let metaActions: [ConversionAction] = metaCaps.compactMap { cap in
             ConversionAction(
                 id: cap.id,
@@ -278,7 +278,7 @@ public final class ConversionRegistry: ConversionRegistering {
         }
 
         // 7. Extract Segment
-        let extractCaps = implementedCaps.filter { zsh.actionCategory == .extract }
+        let extractCaps = implementedCaps.filter { $0.actionCategory == .extract }
         let extractActions: [ConversionAction] = extractCaps.compactMap { cap in
             ConversionAction(
                 id: cap.id,

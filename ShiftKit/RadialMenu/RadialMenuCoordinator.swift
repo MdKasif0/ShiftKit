@@ -14,13 +14,13 @@ public final class RadialMenuCoordinator: @unchecked Sendable {
 
     private let registry: ConversionRegistering
 
-    public init(registry: ConversionRegistering = ConversionRegistry()) {
+    public init(registry: ConversionRegistering = ConversionRegistry.shared) {
         self.registry = registry
     }
 
     public func present(for file: InspectedFile, at position: CGPoint = .zero) {
         self.currentFile = file
-        self.availableSegments = registry.segments(for: file.fileType)
+        self.availableSegments = registry.segments(for: file)
         self.menuPosition = position
         withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
             self.isPresented = true

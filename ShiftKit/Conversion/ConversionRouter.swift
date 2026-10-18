@@ -99,7 +99,7 @@ public final class ConversionRouter: ConversionRouting {
         }
 
         // 3. Find matching engine
-        guard engines.contains(where: { zsh.engineID == capability.requiredEngineID }) else {
+        guard engines.contains(where: { $0.engineID == capability.requiredEngineID }) else {
             return .invalid(reason: "Required engine \(capability.requiredEngineID) is not registered or unavailable.")
         }
 
