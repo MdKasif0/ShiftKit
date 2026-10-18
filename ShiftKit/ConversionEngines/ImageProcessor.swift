@@ -482,24 +482,36 @@ public final class ImageProcessor: Sendable {
     private func locateWebPBinary() -> URL? {
         let fm = FileManager.default
 
-        // 1. App Bundle Resource
-        if let url = Bundle.main.url(forResource: "cwebp", withExtension: nil) {
-            return url
-        }
-        if let url = Bundle.main.url(forResource: "cwebp", withExtension: nil, subdirectory: "bin") {
-            return url
-        }
-
-        // 2. Project directory during development/testing
-        let localPath = "ShiftKit/Resources/bin/cwebp"
-        if fm.isExecutableFile(atPath: localPath) {
-            return URL(fileURLWithPath: localPath)
+        // 1. Target bundle / App bundle
+        let bundles = [Bundle.main, Bundle(for: ImageProcessor.self)]
+        for b in bundles {
+            if let url = b.url(forResource: "cwebp", withExtension: nil) {
+                return url
+            }
+            if let url = b.url(forResource: "cwebp", withExtension: nil, subdirectory: "bin") {
+                return url
+            }
         }
 
-        // 3. Absolute path to project resources
-        let absPath = FileManager.default.currentDirectoryPath + "/ShiftKit/Resources/bin/cwebp"
-        if fm.isExecutableFile(atPath: absPath) {
-            return URL(fileURLWithPath: absPath)
+        // 2. Products directory (e.g. during xcodebuild test execution)
+        let testBundle = Bundle(for: ImageProcessor.self)
+        let appBundleBin = testBundle.bundleURL
+            .deletingLastPathComponent()
+            .appendingPathComponent("ShiftKit.app/Contents/Resources/bin/cwebp")
+        if fm.isExecutableFile(atPath: appBundleBin.path) {
+            return appBundleBin
+        }
+
+        // 3. Known project source directory
+        let knownPaths = [
+            "/Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Resources/bin/cwebp",
+            fm.currentDirectoryPath + "/ShiftKit/Resources/bin/cwebp",
+            "ShiftKit/Resources/bin/cwebp"
+        ]
+        for path in knownPaths {
+            if fm.isExecutableFile(atPath: path) {
+                return URL(fileURLWithPath: path)
+            }
         }
 
         return nil
