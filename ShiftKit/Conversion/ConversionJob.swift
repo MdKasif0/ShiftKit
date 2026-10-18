@@ -141,6 +141,10 @@ public struct ConversionJob: Identifiable, Hashable, Sendable {
         return nil
     }
 
+    public var errorInfo: ShiftKitError? {
+        error
+    }
+
     public var sourceFileName: String {
         inputs.first?.lastPathComponent ?? "File"
     }

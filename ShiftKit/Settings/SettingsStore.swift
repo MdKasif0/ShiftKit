@@ -122,7 +122,10 @@ public final class SettingsStore: @unchecked Sendable {
 
     // MARK: - Conversion Defaults
     public var maxConcurrentJobs: Int {
-        didSet { defaults.set(maxConcurrentJobs, forKey: Keys.maxConcurrentJobs) }
+        didSet {
+            defaults.set(maxConcurrentJobs, forKey: Keys.maxConcurrentJobs)
+            JobManager.shared.updateMaxConcurrency(maxConcurrentJobs)
+        }
     }
 
     public var defaultImageQuality: Double {

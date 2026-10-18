@@ -39,6 +39,7 @@ public final class JobManager: @unchecked Sendable {
     private let queueLock = NSLock()
     private var runningTasks: [UUID: Task<Void, Never>] = [:]
     private var maxConcurrency: Int
+    private var isQueuePaused: Bool = false
 
     public init(
         router: ConversionRouting = ConversionRouter(),
@@ -117,6 +118,59 @@ public final class JobManager: @unchecked Sendable {
         }
     }
 
+    /// Checks if queue processing is currently paused
+    public var isPaused: Bool {
+        queueLock.lock()
+        defer { queueLock.unlock() }
+        return isQueuePaused
+    }
+
+    /// Pauses dispatching of new queued jobs
+    public func pauseQueue() {
+        queueLock.lock()
+        isQueuePaused = true
+        queueLock.unlock()
+    }
+
+    /// Resumes dispatching of queued jobs
+    public func resumeQueue() {
+        queueLock.lock()
+        isQueuePaused = false
+        queueLock.unlock()
+    }
+
+    /// Dynamically updates the maximum concurrent conversions
+    public func updateMaxConcurrency(_ newLimit: Int) {
+        queueLock.lock()
+        let clamped = max(1, min(8, newLimit))
+        self.maxConcurrency = clamped
+        self.semaphore = AsyncSemaphore(value: clamped)
+        queueLock.unlock()
+    }
+
+    /// Retries a previously failed job by ID
+    @discardableResult
+    public func retryJob(id: UUID) -> ConversionJob? {
+        queueLock.lock()
+        guard let idx = failedJobs.firstIndex(where: { $0.id == id }) else {
+            queueLock.unlock()
+            return nil
+        }
+        let failedJob = failedJobs.remove(at: idx)
+        queueLock.unlock()
+        return enqueue(request: failedJob.request)
+    }
+
+    /// Retries all failed jobs currently in the failure buffer
+    @discardableResult
+    public func retryAllFailedJobs() -> [ConversionJob] {
+        queueLock.lock()
+        let jobsToRetry = failedJobs
+        failedJobs.removeAll()
+        queueLock.unlock()
+        return jobsToRetry.map { enqueue(request: $0.request) }
+    }
+
     /// Computes summary of current jobs
     public var batchSummary: BatchSummary {
         queueLock.lock()
@@ -169,6 +223,16 @@ public final class JobManager: @unchecked Sendable {
 
     /// Primary processing loop for an individual job with strict state transitions
     private func processJob(id: UUID) async {
+        while true {
+            let paused = isPaused
+            if !paused { break }
+            if Task.isCancelled {
+                cancelJob(id: id)
+                return
+            }
+            try? await Task.sleep(nanoseconds: 100_000_000)
+        }
+
         await semaphore.wait()
         defer {
             Task { await semaphore.signal() }

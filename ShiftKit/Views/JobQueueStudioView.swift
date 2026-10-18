@@ -90,11 +90,32 @@ public struct JobQueueStudioView: View {
 
                 Spacer()
 
-                if !jobManager.activeJobs.isEmpty {
-                    Button("Cancel All") {
-                        jobManager.cancelAllActiveJobs()
+                HStack(spacing: 8) {
+                    if !jobManager.activeJobs.isEmpty {
+                        Button(jobManager.isPaused ? "Resume Queue" : "Pause Queue") {
+                            if jobManager.isPaused {
+                                jobManager.resumeQueue()
+                            } else {
+                                jobManager.pauseQueue()
+                            }
+                        }
+                        .buttonStyle(ShiftKitSecondaryButtonStyle())
+                        .accessibilityLabel(jobManager.isPaused ? "Resume Queue" : "Pause Queue")
+
+                        Button("Cancel All") {
+                            jobManager.cancelAllActiveJobs()
+                        }
+                        .buttonStyle(ShiftKitSecondaryButtonStyle())
+                        .accessibilityLabel("Cancel all active and queued jobs")
                     }
-                    .buttonStyle(ShiftKitSecondaryButtonStyle())
+
+                    if !jobManager.failedJobs.isEmpty {
+                        Button("Retry Failed (\(jobManager.failedJobs.count))") {
+                            jobManager.retryAllFailedJobs()
+                        }
+                        .buttonStyle(ShiftKitSecondaryButtonStyle())
+                        .accessibilityLabel("Retry all failed conversions")
+                    }
                 }
             }
             .padding(.horizontal, 20)
