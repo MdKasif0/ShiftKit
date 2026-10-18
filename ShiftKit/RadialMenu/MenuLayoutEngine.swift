@@ -119,11 +119,13 @@ public final class MenuLayoutEngine: Sendable {
         windowSize: CGSize,
         targetScreen: NSScreen? = nil
     ) -> CGPoint {
-        // Find screen containing target center or fallback to main screen
-        let screen = targetScreen
+        // Find screen containing target center or fallback to main screen (safe against empty screens in headless/CI)
+        guard let screen = targetScreen
             ?? NSScreen.screens.first(where: { $0.frame.contains(targetCenter) })
             ?? NSScreen.main
-            ?? NSScreen.screens[0]
+            ?? NSScreen.screens.first else {
+            return CGPoint(x: targetCenter.x - windowSize.width / 2.0, y: targetCenter.y - windowSize.height / 2.0)
+        }
 
         let visibleFrame = screen.visibleFrame
         let halfW = windowSize.width / 2.0

@@ -207,13 +207,21 @@ public enum DeveloperUtilities {
         guard let output = String(data: data, encoding: .utf8) else { return }
 
         let lines = output.components(separatedBy: .newlines)
+        let maxAllowedEntries = 10_000
+        guard lines.count <= maxAllowedEntries else {
+            throw ShiftKitError.conversionFailed(
+                reason: "Security Alert: Archive exceeds maximum entry count limit (\(lines.count) > \(maxAllowedEntries)). Extraction blocked to protect system resources."
+            )
+        }
+
         for line in lines {
             let entry = line.trimmingCharacters(in: .whitespaces)
             guard !entry.isEmpty else { continue }
 
-            if entry.hasPrefix("/") || entry.contains("../") || entry.contains("..\\") || entry == ".." {
+            let components = entry.components(separatedBy: CharacterSet(charactersIn: "/\\"))
+            if entry.hasPrefix("/") || entry.hasPrefix("\\") || components.contains("..") {
                 throw ShiftKitError.conversionFailed(
-                    reason: "Security Alert: Malicious archive entry \(entry) contains directory traversal sequences. Extraction blocked."
+                    reason: "Security Alert: Malicious archive entry '\(entry)' contains directory traversal sequences. Extraction blocked."
                 )
             }
         }

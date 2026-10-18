@@ -58,12 +58,24 @@ public final class UpdateManager {
         Bundle.main.infoDictionary?["SUPublicEDKey"] as? String
     }
 
-    public var isConfigured: Bool {
-        guard let feed = feedURLString, !feed.isEmpty,
-              let key = publicEDKey, !key.isEmpty else {
-            return false
+    public var configurationDiagnostic: String? {
+        guard let feed = feedURLString, !feed.isEmpty else {
+            return "Missing SUFeedURL in application configuration."
         }
-        return true
+        guard feed.hasPrefix("https://") else {
+            return "SUFeedURL must use a secure HTTPS protocol."
+        }
+        guard let key = publicEDKey, !key.isEmpty else {
+            return "Missing SUPublicEDKey in application configuration."
+        }
+        guard let keyData = Data(base64Encoded: key), keyData.count == 32 else {
+            return "SUPublicEDKey is not a valid 32-byte Base64 EdDSA public key."
+        }
+        return nil
+    }
+
+    public var isConfigured: Bool {
+        configurationDiagnostic == nil
     }
 
     // MARK: - Updater Control & Preferences

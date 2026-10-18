@@ -53,8 +53,12 @@ public final class RadialMenuWindowController: NSObject, @unchecked Sendable {
         onSelectAction: @escaping (ConversionAction) -> Void,
         onDismiss: @escaping () -> Void
     ) {
-        // Dismiss any existing presentation
-        dismiss()
+        // Immediately clean up any previous window to prevent overlapping instances
+        if let existing = window {
+            removeDismissalMonitors()
+            existing.orderOut(nil)
+            self.window = nil
+        }
 
         // 1. Calculate clamped position across multiple displays
         let origin = MenuLayoutEngine.shared.clampedWindowOrigin(
@@ -119,9 +123,11 @@ public final class RadialMenuWindowController: NSObject, @unchecked Sendable {
         NSAnimationContext.runAnimationGroup({ context in
             context.duration = 0.12
             panel.animator().alphaValue = 0.0
-        }, completionHandler: { [weak self] in
-            panel.orderOut(nil)
-            self?.window = nil
+        }, completionHandler: { [weak self, weak panel] in
+            panel?.orderOut(nil)
+            if self?.window === panel {
+                self?.window = nil
+            }
         })
     }
 

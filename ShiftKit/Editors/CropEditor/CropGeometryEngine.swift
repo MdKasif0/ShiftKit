@@ -150,10 +150,13 @@ public struct CropGeometryEngine: Sendable {
 
     /// Clamps a rectangle to ensure it stays strictly within [0, 0, imageWidth, imageHeight].
     public func clampToImageBounds(_ rect: CGRect) -> CGRect {
-        let clampedX = max(0, min(rect.origin.x, imageSize.width - minCropDimension))
-        let clampedY = max(0, min(rect.origin.y, imageSize.height - minCropDimension))
-        let clampedW = max(minCropDimension, min(rect.width, imageSize.width - clampedX))
-        let clampedH = max(minCropDimension, min(rect.height, imageSize.height - clampedY))
+        let effMinW = min(minCropDimension, max(1, imageSize.width))
+        let effMinH = min(minCropDimension, max(1, imageSize.height))
+
+        let clampedX = max(0, min(rect.origin.x, max(0, imageSize.width - effMinW)))
+        let clampedY = max(0, min(rect.origin.y, max(0, imageSize.height - effMinH)))
+        let clampedW = max(effMinW, min(rect.width, imageSize.width - clampedX))
+        let clampedH = max(effMinH, min(rect.height, imageSize.height - clampedY))
 
         return CGRect(x: clampedX, y: clampedY, width: clampedW, height: clampedH)
     }

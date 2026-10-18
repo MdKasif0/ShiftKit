@@ -84,6 +84,9 @@ public final class ImageProcessor: Sendable {
         }
 
         let originalSize = (try? FileManager.default.attributesOfItem(atPath: sourceURL.path)[.size] as? NSNumber)?.int64Value ?? 0
+        guard originalSize > 0 else {
+            throw ShiftKitError.conversionFailed(reason: "Input file is empty (0 bytes). ShiftKit cannot convert empty files.")
+        }
 
         guard let imageSource = CGImageSourceCreateWithURL(sourceURL as CFURL, nil) else {
             throw ShiftKitError.conversionFailed(reason: "Cannot create ImageIO source from \(sourceURL.lastPathComponent)")
@@ -328,7 +331,27 @@ public final class ImageProcessor: Sendable {
             return merged as CFDictionary
         })()
 
-        CGImageDestinationAddImage(destination, finalImageToWrite, propertiesDictionary)
+        // Convert CMYK images to standard RGB for targets like PNG/WebP that do not support CMYK
+        var effectiveImage = finalImageToWrite
+        if let model = effectiveImage.colorSpace?.model, model == .cmyk, (targetFormat == .png || targetFormat == .webp) {
+            let rgbSpace = CGColorSpaceCreateDeviceRGB()
+            if let rgbContext = CGContext(
+                data: nil,
+                width: effectiveImage.width,
+                height: effectiveImage.height,
+                bitsPerComponent: 8,
+                bytesPerRow: 0,
+                space: rgbSpace,
+                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+            ) {
+                rgbContext.draw(effectiveImage, in: CGRect(x: 0, y: 0, width: effectiveImage.width, height: effectiveImage.height))
+                if let converted = rgbContext.makeImage() {
+                    effectiveImage = converted
+                }
+            }
+        }
+
+        CGImageDestinationAddImage(destination, effectiveImage, propertiesDictionary)
 
         guard CGImageDestinationFinalize(destination) else {
             throw ShiftKitError.conversionFailed(reason: "Failed to finalize ImageIO destination at \(tempURL.lastPathComponent)")
@@ -502,12 +525,14 @@ public final class ImageProcessor: Sendable {
             return appBundleBin
         }
 
-        // 3. Known project source directory
+        // 3. Known project source directory & system paths
         let knownPaths = [
-            "/Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Resources/bin/cwebp",
+            Bundle.main.resourceURL?.appendingPathComponent("bin/cwebp").path,
             fm.currentDirectoryPath + "/ShiftKit/Resources/bin/cwebp",
-            "ShiftKit/Resources/bin/cwebp"
-        ]
+            "ShiftKit/Resources/bin/cwebp",
+            "/opt/homebrew/bin/cwebp",
+            "/usr/local/bin/cwebp"
+        ].compactMap { $0 }
         for path in knownPaths {
             if fm.isExecutableFile(atPath: path) {
                 return URL(fileURLWithPath: path)

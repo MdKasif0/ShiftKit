@@ -738,6 +738,7 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
         var errData = Data()
         let pipeLock = NSLock()
 
+        let maxErrBufferSize = 128 * 1024 // 128 KB bounded error tail buffer
         stderrPipe.fileHandleForReading.readabilityHandler = { [weak stderrPipe] handle in
             let data = handle.availableData
             if data.isEmpty {
@@ -746,6 +747,9 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
             }
             pipeLock.lock()
             errData.append(data)
+            if errData.count > maxErrBufferSize {
+                errData.removeSubrange(0..<(errData.count - maxErrBufferSize))
+            }
             pipeLock.unlock()
         }
 
@@ -773,8 +777,23 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
         return try await withTaskCancellationHandler {
             do {
                 await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+                    var isResumed = false
+                    let resumeLock = NSLock()
+                    let safeResume = {
+                        resumeLock.lock()
+                        defer { resumeLock.unlock() }
+                        if !isResumed {
+                            isResumed = true
+                            continuation.resume()
+                        }
+                    }
+
                     process.terminationHandler = { _ in
-                        continuation.resume()
+                        safeResume()
+                    }
+
+                    if !process.isRunning {
+                        safeResume()
                     }
                 }
 
@@ -816,6 +835,11 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
                 guard size > 0 else {
                     try? fm.removeItem(at: tempURL)
                     throw ShiftKitError.corruptMedia(reason: "Output file was 0 bytes.")
+                }
+
+                guard outputURL.standardizedFileURL.path != request.sourceURL.standardizedFileURL.path else {
+                    try? fm.removeItem(at: tempURL)
+                    throw ShiftKitError.conversionFailed(reason: "Output destination cannot overwrite original source file.")
                 }
 
                 if fm.fileExists(atPath: outputURL.path) {

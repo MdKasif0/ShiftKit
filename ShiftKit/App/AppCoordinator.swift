@@ -49,10 +49,7 @@ public final class AppCoordinator {
         self.permissionManager = InteractionPermissionManager.shared
         self.updateManager = UpdateManager.shared
 
-        // Seed preview jobs if empty
-        if self.jobManager.completedJobs.isEmpty {
-            self.jobManager.populateSampleJobsForPreview()
-        }
+        // Note: Sample preview jobs are preserved for SwiftUI previews only and never seeded into production launches
 
         self.menuBarCoordinator = MenuBarCoordinator(appCoordinator: self)
 

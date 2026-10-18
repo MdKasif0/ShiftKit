@@ -50,6 +50,17 @@ public final class PDFKitEngine: ConversionEngine {
             throw ShiftKitError.conversionFailed(reason: "Failed to open PDF document at \(request.sourceURL.path).")
         }
 
+        // Handle password protection / encrypted documents explicitly
+        if document.isLocked {
+            if let password = request.options["password"], !password.isEmpty {
+                guard document.unlock(withPassword: password) else {
+                    throw ShiftKitError.conversionFailed(reason: "The provided password for the PDF document is incorrect.")
+                }
+            } else {
+                throw ShiftKitError.conversionFailed(reason: "This PDF document is password-protected. Please unlock it before converting.")
+            }
+        }
+
         guard document.pageCount > 0 else {
             throw ShiftKitError.conversionFailed(reason: "The PDF document contains no pages.")
         }

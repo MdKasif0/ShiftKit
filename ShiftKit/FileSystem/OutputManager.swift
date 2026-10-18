@@ -47,10 +47,24 @@ public protocol OutputManaging: Sendable {
 // MARK: - Implementation
 public final class OutputManager: OutputManaging {
     private let fileManager = FileManager.default
+    private let reservationLock = NSLock()
+    private var reservedDestinationPaths: Set<String> = []
 
     public init() {}
 
     public func defaultOutputDirectory() -> URL {
+        let customPath = SettingsStore.shared.outputDirectoryPath
+        let expanded = NSString(string: customPath).expandingTildeInPath
+        if !expanded.isEmpty {
+            let customDir = URL(fileURLWithPath: expanded)
+            if !fileManager.fileExists(atPath: customDir.path) {
+                try? fileManager.createDirectory(at: customDir, withIntermediateDirectories: true)
+            }
+            if fileManager.fileExists(atPath: customDir.path) {
+                return customDir
+            }
+        }
+
         let downloads = fileManager.urls(for: .downloadsDirectory, in: .userDomainMask).first
             ?? fileManager.temporaryDirectory
         let shiftKitFolder = downloads.appendingPathComponent("ShiftKit", isDirectory: true)
@@ -153,12 +167,27 @@ public final class OutputManager: OutputManaging {
 
     /// Atomically commits a completed temporary output file to its destination.
     public func commitTemporaryOutput(temporaryURL: URL, destinationURL: URL) throws {
+        defer {
+            reservationLock.lock()
+            reservedDestinationPaths.remove(destinationURL.path)
+            reservationLock.unlock()
+        }
+
+        guard destinationURL.standardizedFileURL.path != temporaryURL.standardizedFileURL.path else {
+            throw ShiftKitError.conversionFailed(reason: "Temporary and destination output paths cannot be identical.")
+        }
+
         guard fileManager.fileExists(atPath: temporaryURL.path) else {
             throw ShiftKitError.conversionFailed(reason: "Temporary output file missing at \(temporaryURL.path)")
         }
 
         if fileManager.fileExists(atPath: destinationURL.path) {
-            try fileManager.removeItem(at: destinationURL)
+            do {
+                _ = try fileManager.replaceItemAt(destinationURL, withItemAt: temporaryURL)
+                return
+            } catch {
+                try fileManager.removeItem(at: destinationURL)
+            }
         }
 
         try fileManager.moveItem(at: temporaryURL, to: destinationURL)
@@ -195,7 +224,14 @@ public final class OutputManager: OutputManaging {
 
     @MainActor
     public func revealInFinder(url: URL) {
-        NSWorkspace.shared.activateFileViewerSelecting([url])
+        if fileManager.fileExists(atPath: url.path) {
+            NSWorkspace.shared.activateFileViewerSelecting([url])
+        } else {
+            let parent = url.deletingLastPathComponent()
+            if fileManager.fileExists(atPath: parent.path) {
+                NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: parent.path)
+            }
+        }
     }
 
     @MainActor
@@ -229,21 +265,33 @@ public final class OutputManager: OutputManaging {
 
         switch conflictResolution {
         case .overwrite:
-            return standard
-
-        case .failWithConflict:
-            if fileManager.fileExists(atPath: standard.path) {
+            guard standard.standardizedFileURL.path != sourceURL.standardizedFileURL.path else {
                 throw ShiftKitError.outputConflict(standard)
             }
             return standard
 
+        case .failWithConflict:
+            reservationLock.lock()
+            let isReserved = reservedDestinationPaths.contains(standard.path)
+            reservationLock.unlock()
+            if isReserved || fileManager.fileExists(atPath: standard.path) {
+                throw ShiftKitError.outputConflict(standard)
+            }
+            reservationLock.lock()
+            reservedDestinationPaths.insert(standard.path)
+            reservationLock.unlock()
+            return standard
+
         case .renameWithNumber:
+            reservationLock.lock()
+            defer { reservationLock.unlock() }
             var candidate = standard
             var counter = 1
-            while fileManager.fileExists(atPath: candidate.path) {
+            while fileManager.fileExists(atPath: candidate.path) || reservedDestinationPaths.contains(candidate.path) || candidate.standardizedFileURL.path == sourceURL.standardizedFileURL.path {
                 candidate = targetDir.appendingPathComponent("\(baseWithSuffix)_\(counter).\(ext)")
                 counter += 1
             }
+            reservedDestinationPaths.insert(candidate.path)
             return candidate
         }
     }

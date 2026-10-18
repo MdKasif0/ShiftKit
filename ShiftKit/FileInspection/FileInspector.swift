@@ -19,11 +19,14 @@ public final class FileInspector: FileInspecting {
     }
 
     public func inspect(url: URL) async throws -> InspectedFile {
-        // 1. Verify existence
+        // 1. Verify existence & type
         let fileManager = FileManager.default
         var isDirectory: ObjCBool = false
-        guard fileManager.fileExists(atPath: url.path, isDirectory: &isDirectory), !isDirectory.boolValue else {
+        guard fileManager.fileExists(atPath: url.path, isDirectory: &isDirectory) else {
             throw ShiftKitError.fileNotFound(url)
+        }
+        guard !isDirectory.boolValue else {
+            throw ShiftKitError.unsupportedFileType("Folders and directories cannot be processed directly as files. Please select individual files or compress to a ZIP archive.")
         }
 
         // 2. Format & Type Detection via Magic Signatures and Inspection
