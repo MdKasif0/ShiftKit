@@ -209,6 +209,13 @@ public final class FileTypeDetector: FileTypeDetecting {
         case "csv": return .document(.csv)
         case "json": return .document(.json)
         case "txt": return .document(.txt)
+        case "markdown": return .document(.markdown)
+        case "html": return .document(.html)
+        case "odt": return .document(.odt)
+        case "docx": return .document(.docx)
+        case "xlsx": return .document(.xlsx)
+        case "pptx": return .document(.pptx)
+        case "yaml": return .document(.yaml)
         default:
             return detectTypeFromExtensionAndUTI(pathExtension: format.primaryExtension)
         }
@@ -256,8 +263,14 @@ public final class FileTypeDetector: FileTypeDetecting {
         case "md", "markdown": return .document(.markdown)
         case "rtf": return .document(.rtf)
         case "docx": return .document(.docx)
+        case "doc": return .document(.docx)
+        case "odt": return .document(.odt)
+        case "html", "htm": return .document(.html)
         case "csv": return .document(.csv)
+        case "xlsx", "xls": return .document(.xlsx)
+        case "pptx", "ppt": return .document(.pptx)
         case "json": return .document(.json)
+        case "yaml", "yml": return .document(.yaml)
 
         default:
             break

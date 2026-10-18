@@ -94,7 +94,12 @@ public enum DocumentSubtype: String, CaseIterable, Hashable, Sendable {
     case markdown
     case rtf
     case docx
+    case odt
+    case html
     case csv
+    case xlsx
+    case pptx
     case json
+    case yaml
     case other
 }

@@ -379,11 +379,89 @@ public struct OutputFormat: Identifiable, Hashable, Sendable {
         isContainerLossy: false
     )
 
+    public static let markdown = OutputFormat(
+        id: "markdown",
+        displayName: "Markdown Document",
+        uti: "net.daringfireball.markdown",
+        primaryExtension: "md",
+        recognizedExtensions: ["md", "markdown"],
+        mimeType: "text/markdown",
+        category: .text,
+        supportsAlpha: false,
+        supportsAnimation: false,
+        isContainerLossy: false
+    )
+
+    public static let html = OutputFormat(
+        id: "html",
+        displayName: "HTML Document",
+        uti: "public.html",
+        primaryExtension: "html",
+        recognizedExtensions: ["html", "htm"],
+        mimeType: "text/html",
+        category: .document,
+        supportsAlpha: false,
+        supportsAnimation: false,
+        isContainerLossy: false
+    )
+
+    public static let odt = OutputFormat(
+        id: "odt",
+        displayName: "OpenDocument Text",
+        uti: "org.oasis-open.opendocument.text",
+        primaryExtension: "odt",
+        recognizedExtensions: ["odt"],
+        mimeType: "application/vnd.oasis.opendocument.text",
+        category: .document,
+        supportsAlpha: false,
+        supportsAnimation: false,
+        isContainerLossy: false
+    )
+
+    public static let xlsx = OutputFormat(
+        id: "xlsx",
+        displayName: "Excel Spreadsheet",
+        uti: "org.openxmlformats.spreadsheetml.sheet",
+        primaryExtension: "xlsx",
+        recognizedExtensions: ["xlsx", "xls"],
+        mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        category: .structuredData,
+        supportsAlpha: false,
+        supportsAnimation: false,
+        isContainerLossy: false
+    )
+
+    public static let pptx = OutputFormat(
+        id: "pptx",
+        displayName: "PowerPoint Presentation",
+        uti: "org.openxmlformats.presentationml.presentation",
+        primaryExtension: "pptx",
+        recognizedExtensions: ["pptx", "ppt"],
+        mimeType: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        category: .document,
+        supportsAlpha: false,
+        supportsAnimation: false,
+        isContainerLossy: false
+    )
+
+    public static let yaml = OutputFormat(
+        id: "yaml",
+        displayName: "YAML Data",
+        uti: "public.yaml",
+        primaryExtension: "yaml",
+        recognizedExtensions: ["yaml", "yml"],
+        mimeType: "application/x-yaml",
+        category: .structuredData,
+        supportsAlpha: false,
+        supportsAnimation: false,
+        isContainerLossy: false
+    )
+
     public static let allCanonical: [OutputFormat] = [
         .png, .jpeg, .webp, .heic, .tiff, .gif,
         .mp4, .mov, .mkv, .webm, .avi,
         .mp3, .m4a, .aac, .wav, .flac, .aiff, .ogg, .opus,
-        .pdf, .docx, .rtf, .csv, .json, .txt, .zip
+        .pdf, .docx, .rtf, .csv, .json, .txt, .zip, .markdown, .html, .odt, .xlsx, .pptx, .yaml
     ]
 
     public static func find(byExtension ext: String) -> OutputFormat? {
