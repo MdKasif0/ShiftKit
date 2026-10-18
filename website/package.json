@@ -3,12 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack",
-    "build": "next build --webpack",
+    "dev": "node scripts/compile-css.js && next dev --webpack",
+    "build": "node scripts/compile-css.js && next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "compile:css": "node scripts/compile-css.js"
   },
   "dependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
     "lucide-react": "^1.59.0",
     "next": "16.4.2",
     "react": "19.3.0",
