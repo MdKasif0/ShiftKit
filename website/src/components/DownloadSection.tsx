@@ -378,12 +378,9 @@ export function DownloadSection() {
                 </p>
               </div>
             )}
-          </div>
-        </div>
-      </div>
-    </section>
         </div>
       </div>
     </section>
   );
 }
+
