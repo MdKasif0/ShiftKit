@@ -90,6 +90,10 @@ export function DownloadSection() {
               <span className="font-bold text-[#34312D] text-sm">1.0.0</span>
             </div>
             <div>
+              <span className="text-[#465343] block">FILE SIZE</span>
+              <span className="font-bold text-[#34312D] text-sm">3.8 MB (DMG)</span>
+            </div>
+            <div>
               <span className="text-[#465343] block">ARCHITECTURE</span>
               <span className="font-bold text-[#34312D] text-sm">Universal Mac</span>
             </div>
@@ -97,10 +101,12 @@ export function DownloadSection() {
               <span className="text-[#465343] block">MINIMUM OS</span>
               <span className="font-bold text-[#34312D] text-sm">macOS 14.0+</span>
             </div>
-            <div>
-              <span className="text-[#465343] block">LICENSE</span>
-              <span className="font-bold text-[#34312D] text-sm">MIT Open Source</span>
-            </div>
+          </div>
+
+          <div className="pt-2 text-center">
+            <p className="text-[11px] font-mono text-[#34312D]/60 truncate max-w-md mx-auto">
+              SHA-256: a0773ec0eb76da52e64efa56945e35025c76b47ee3eeabb4c1c4d67e49982ecd
+            </p>
           </div>
         </div>
       </div>
