@@ -1,7 +1,7 @@
 # Netlify Configuration for ShiftKit (Subdirectory build)
 
 [build]
-  publish = ".next"
+  publish = "out"
   command = "npm run build"
 
 [build.environment]
