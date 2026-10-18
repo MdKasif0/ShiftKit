@@ -14,6 +14,7 @@ public final class AppCoordinator {
     public let dragMonitor: DragEventMonitoring
     public let dragSessionCoordinator: DragSessionCoordinator
     public let permissionManager: InteractionPermissionManager
+    public let updateManager: UpdateManager
 
     public var inspectedFile: InspectedFile?
     public var isSettingsPresented: Bool = false
@@ -46,6 +47,7 @@ public final class AppCoordinator {
         self.dragMonitor = dragMonitor
         self.dragSessionCoordinator = DragSessionCoordinator.shared
         self.permissionManager = InteractionPermissionManager.shared
+        self.updateManager = UpdateManager.shared
 
         // Seed preview jobs if empty
         if self.jobManager.completedJobs.isEmpty {
