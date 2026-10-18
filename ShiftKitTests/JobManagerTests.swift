@@ -248,4 +248,139 @@ final class JobManagerTests: XCTestCase {
         jobManager.clearCompletedJobs()
         XCTAssertTrue(jobManager.completedJobs.isEmpty)
     }
+
+    func testQueuePauseAndResume() async throws {
+        jobManager.pauseQueue()
+        XCTAssertTrue(jobManager.isPaused)
+
+        let inputURL = createTestPNG(named: "pause_test.png")
+        let destURL = tempDir.appendingPathComponent("pause_test.jpg")
+        let request = ConversionRequest(
+            sourceURL: inputURL,
+            fileType: .image(.png),
+            action: .imageToJPEG,
+            destinationURL: destURL
+        )
+
+        let job = jobManager.enqueue(request: request)
+
+        // Give it 150ms to ensure it does not run while paused
+        try await Task.sleep(nanoseconds: 150_000_000)
+        XCTAssertFalse(jobManager.completedJobs.contains(where: { /bin/zsh.id == job.id }))
+
+        jobManager.resumeQueue()
+        XCTAssertFalse(jobManager.isPaused)
+
+        // Wait for completion now that queue is resumed
+        let deadline = Date().addingTimeInterval(5.0)
+        var finished = false
+        while Date() < deadline {
+            if jobManager.completedJobs.contains(where: { /bin/zsh.id == job.id }) {
+                finished = true
+                break
+            }
+            try await Task.sleep(nanoseconds: 50_000_000)
+        }
+        XCTAssertTrue(finished)
+    }
+
+    func testRetryFailedJob() async throws {
+        let missingURL = tempDir.appendingPathComponent("missing_to_retry.png")
+        let destURL = tempDir.appendingPathComponent("missing_to_retry.jpg")
+        let request = ConversionRequest(
+            sourceURL: missingURL,
+            fileType: .image(.png),
+            action: .imageToJPEG,
+            destinationURL: destURL
+        )
+
+        let job = jobManager.enqueue(request: request)
+
+        // Wait for failure
+        let deadline = Date().addingTimeInterval(3.0)
+        var failed = false
+        while Date() < deadline {
+            if jobManager.failedJobs.contains(where: { /bin/zsh.id == job.id }) {
+                failed = true
+                break
+            }
+            try await Task.sleep(nanoseconds: 30_000_000)
+        }
+        XCTAssertTrue(failed)
+
+        // Now create the file and retry
+        _ = createTestPNG(named: "missing_to_retry.png")
+        guard let retried = jobManager.retryJob(id: job.id) else {
+            XCTFail("retryJob returned nil")
+            return
+        }
+
+        // Wait for retried job to complete
+        let retryDeadline = Date().addingTimeInterval(5.0)
+        var retriedFinished = false
+        while Date() < retryDeadline {
+            if let completed = jobManager.completedJobs.first(where: { /bin/zsh.id == retried.id }) {
+                if case .completed = completed.status {
+                    retriedFinished = true
+                    break
+                }
+            }
+            try await Task.sleep(nanoseconds: 50_000_000)
+        }
+        XCTAssertTrue(retriedFinished)
+    }
+
+    func testRetryAllFailedJobs() async throws {
+        let missing1 = tempDir.appendingPathComponent("fail1.png")
+        let missing2 = tempDir.appendingPathComponent("fail2.png")
+
+        let r1 = ConversionRequest(
+            sourceURL: missing1,
+            fileType: .image(.png),
+            action: .imageToJPEG,
+            destinationURL: tempDir.appendingPathComponent("fail1.jpg")
+        )
+        let r2 = ConversionRequest(
+            sourceURL: missing2,
+            fileType: .image(.png),
+            action: .imageToJPEG,
+            destinationURL: tempDir.appendingPathComponent("fail2.jpg")
+        )
+
+        _ = jobManager.enqueue(request: r1)
+        _ = jobManager.enqueue(request: r2)
+
+        // Wait for both to be in failedJobs
+        let deadline = Date().addingTimeInterval(3.0)
+        while Date() < deadline {
+            if jobManager.failedJobs.count >= 2 {
+                break
+            }
+            try await Task.sleep(nanoseconds: 30_000_000)
+        }
+        XCTAssertEqual(jobManager.failedJobs.count, 2)
+
+        // Create both files
+        _ = createTestPNG(named: "fail1.png")
+        _ = createTestPNG(named: "fail2.png")
+
+        let retried = jobManager.retryAllFailedJobs()
+        XCTAssertEqual(retried.count, 2)
+        XCTAssertTrue(jobManager.failedJobs.isEmpty)
+    }
+
+    func testConcurrencyThrottlingLimits() {
+        jobManager.updateMaxConcurrency(1)
+        XCTAssertEqual(jobManager.maxConcurrency, 1)
+
+        jobManager.updateMaxConcurrency(4)
+        XCTAssertEqual(jobManager.maxConcurrency, 4)
+
+        // Check clamping bounds
+        jobManager.updateMaxConcurrency(0)
+        XCTAssertEqual(jobManager.maxConcurrency, 1)
+
+        jobManager.updateMaxConcurrency(99)
+        XCTAssertEqual(jobManager.maxConcurrency, 8)
+    }
 }

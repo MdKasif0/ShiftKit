@@ -81,9 +81,15 @@ public final class AppCoordinator {
             // Present dedicated Merge Studio for multiple files
             Task { @MainActor in
                 self.radialMenuCoordinator.dismiss()
-                MergeWindowController.shared.present(for: urls) { [weak self] orderedURLs, workflow, options in
-                    self?.executeMerge(urls: orderedURLs, workflow: workflow, options: options)
-                }
+                MergeWindowController.shared.present(
+                    for: urls,
+                    onBatchConvert: { [weak self] orderedURLs, format, options in
+                        self?.executeBatchConversion(urls: orderedURLs, targetFormat: format, options: options)
+                    },
+                    completion: { [weak self] orderedURLs, workflow, options in
+                        self?.executeMerge(urls: orderedURLs, workflow: workflow, options: options)
+                    }
+                )
             }
             return
         }
@@ -128,9 +134,15 @@ public final class AppCoordinator {
         // If merge action is selected, present the dedicated visual Merge Studio
         if action.category == .merge || action.id == "pdf_merge" || action.id == "audio_merge" || action.id == "vid_merge" {
             self.radialMenuCoordinator.dismiss()
-            MergeWindowController.shared.present(for: [file.url]) { [weak self] orderedURLs, workflow, options in
-                self?.executeMerge(urls: orderedURLs, workflow: workflow, options: options)
-            }
+            MergeWindowController.shared.present(
+                for: [file.url],
+                onBatchConvert: { [weak self] orderedURLs, format, options in
+                    self?.executeBatchConversion(urls: orderedURLs, targetFormat: format, options: options)
+                },
+                completion: { [weak self] orderedURLs, workflow, options in
+                    self?.executeMerge(urls: orderedURLs, workflow: workflow, options: options)
+                }
+            )
             return
         }
 
@@ -247,6 +259,50 @@ public final class AppCoordinator {
 
         jobManager.enqueue(request: request)
         self.inspectedFile = nil
+    }
+
+    public func executeBatchConversion(
+        urls: [URL],
+        targetFormat: OutputFormat,
+        options: ConversionOptions
+    ) {
+        let detector = FileTypeDetector.shared
+        let customDir = URL(fileURLWithPath: settingsStore.outputDirectoryPath)
+
+        var requests: [ConversionRequest] = []
+        for url in urls {
+            let fileType = detector.detect(for: url)
+            let destURL = outputManager.resolveDestinationURL(
+                for: url,
+                targetExtension: targetFormat.primaryExtension,
+                suffix: "batch",
+                customDirectory: customDir
+            )
+
+            let action = ConversionAction(
+                id: "batch_" + targetFormat.primaryExtension,
+                title: "Convert to " + targetFormat.displayName,
+                subtitle: url.lastPathComponent,
+                systemIcon: "arrow.triangle.2.circlepath",
+                category: .convert,
+                targetFormat: targetFormat.primaryExtension,
+                options: options.stringDictionary
+            )
+
+            let request = ConversionRequest(
+                sourceURL: url,
+                fileType: fileType,
+                action: action,
+                destinationURL: destURL,
+                options: options.stringDictionary,
+                conversionOptions: options
+            )
+            requests.append(request)
+        }
+
+        jobManager.enqueueBatch(requests: requests)
+        self.inspectedFile = nil
+        openJobQueueWindow()
     }
 
     private func executeMerge(urls: [URL], workflow: MergeWorkflowType, options: [String: String]) {

@@ -6,6 +6,7 @@ public final class MergeWindowController: NSObject, NSWindowDelegate {
 
     private var window: NSWindow?
     private var completionHandler: (([URL], MergeWorkflowType, [String: String]) -> Void)?
+    private var batchHandler: (([URL], OutputFormat, ConversionOptions) -> Void)?
 
     private override init() {
         super.init()
@@ -14,9 +15,11 @@ public final class MergeWindowController: NSObject, NSWindowDelegate {
     @MainActor
     public func present(
         for fileURLs: [URL],
+        onBatchConvert: (([URL], OutputFormat, ConversionOptions) -> Void)? = nil,
         completion: @escaping ([URL], MergeWorkflowType, [String: String]) -> Void
     ) {
         self.completionHandler = completion
+        self.batchHandler = onBatchConvert
 
         if window != nil {
             window?.close()
@@ -27,6 +30,9 @@ public final class MergeWindowController: NSObject, NSWindowDelegate {
             initialURLs: fileURLs,
             onMerge: { [weak self] urls, workflow, options in
                 self?.handleMerge(urls: urls, workflow: workflow, options: options)
+            },
+            onBatchConvert: { [weak self] urls, format, options in
+                self?.handleBatchConvert(urls: urls, format: format, options: options)
             },
             onCancel: { [weak self] in
                 self?.dismiss()
@@ -57,6 +63,7 @@ public final class MergeWindowController: NSObject, NSWindowDelegate {
         window?.close()
         window = nil
         completionHandler = nil
+        batchHandler = nil
     }
 
     @MainActor
@@ -66,8 +73,16 @@ public final class MergeWindowController: NSObject, NSWindowDelegate {
         handler?(urls, workflow, options)
     }
 
+    @MainActor
+    private func handleBatchConvert(urls: [URL], format: OutputFormat, options: ConversionOptions) {
+        let handler = self.batchHandler
+        dismiss()
+        handler?(urls, format, options)
+    }
+
     public func windowWillClose(_ notification: Notification) {
         completionHandler = nil
+        batchHandler = nil
         window = nil
     }
 }

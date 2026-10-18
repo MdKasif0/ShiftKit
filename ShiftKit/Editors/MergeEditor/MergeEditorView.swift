@@ -2,6 +2,12 @@ import SwiftUI
 import AppKit
 import PDFKit
 
+public enum MultiFileStudioMode: String, CaseIterable, Identifiable, Sendable {
+    case merge = "Merge"
+    case batch = "Batch Convert"
+    public var id: String { rawValue }
+}
+
 public enum MergeWorkflowType: String, CaseIterable, Identifiable, Sendable {
     case pdf = "PDF Documents"
     case imagesToPDF = "Images to PDF"
@@ -72,12 +78,17 @@ public struct MergeEditorView: View {
     @State private var watermarkText: String = "CONFIDENTIAL"
     @State private var targetFormatExt: String = "pdf"
 
+    @State private var studioMode: MultiFileStudioMode = .merge
+    @State private var batchTargetFormat: OutputFormat = .webp
+
     public let onMerge: @Sendable ([URL], MergeWorkflowType, [String: String]) -> Void
+    public let onBatchConvert: (@Sendable ([URL], OutputFormat, ConversionOptions) -> Void)?
     public let onCancel: @Sendable () -> Void
 
     public init(
         initialURLs: [URL],
         onMerge: @Sendable @escaping ([URL], MergeWorkflowType, [String: String]) -> Void,
+        onBatchConvert: (@Sendable ([URL], OutputFormat, ConversionOptions) -> Void)? = nil,
         onCancel: @Sendable @escaping () -> Void
     ) {
         let detector = FileTypeDetector.shared
@@ -86,6 +97,7 @@ public struct MergeEditorView: View {
         }
         _items = State(initialValue: inspectedItems)
         self.onMerge = onMerge
+        self.onBatchConvert = onBatchConvert
         self.onCancel = onCancel
     }
 
@@ -120,6 +132,21 @@ public struct MergeEditorView: View {
         if allVideo { return .video }
 
         return .incompatible
+    }
+
+    private var availableBatchFormats: [OutputFormat] {
+        switch detectedWorkflow {
+        case .imagesToPDF:
+            return [.webp, .png, .jpeg, .pdf, .tiff]
+        case .audio:
+            return [.mp3, .m4a, .wav, .flac, .aac]
+        case .video:
+            return [.mp4, .webm, .mov, .mkv, .gif]
+        case .pdf:
+            return [.png, .jpeg, .txt]
+        default:
+            return [.pdf, .zip, .txt]
+        }
     }
 
     private var isValid: Bool {
@@ -171,32 +198,40 @@ public struct MergeEditorView: View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 8) {
-                    Image(systemName: detectedWorkflow.systemIcon)
+                    Image(systemName: studioMode == .merge ? detectedWorkflow.systemIcon : "arrow.triangle.2.circlepath")
                         .foregroundColor(Color(hex: "#D98768"))
                         .font(.system(size: 18, weight: .semibold))
-                    Text("Merge & Combine Files")
+                    Text(studioMode == .merge ? "Merge & Combine Files" : "Batch Convert Files")
                         .font(.system(size: 16, weight: .bold))
                         .foregroundColor(Color(hex: "#34312D"))
                 }
-                Text("Reorder files before combining. Output will follow this exact sequence.")
+                Text(studioMode == .merge ? "Reorder files before combining. Output will follow this exact sequence." : "Convert each selected file independently to the chosen output format.")
                     .font(.system(size: 12))
                     .foregroundColor(Color(hex: "#465343"))
             }
 
             Spacer()
 
-            // Workflow badge
-            Text(detectedWorkflow.rawValue)
-                .font(.system(size: 11, weight: .semibold))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 4)
-                .background(Color(hex: "#F3EEE4"))
-                .foregroundColor(Color(hex: "#465343"))
-                .cornerRadius(6)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 6)
-                        .stroke(Color(hex: "#E5D8C7"), lineWidth: 1)
-                )
+            if onBatchConvert != nil {
+                Picker("", selection: $studioMode) {
+                    Text("Merge").tag(MultiFileStudioMode.merge)
+                    Text("Batch Convert").tag(MultiFileStudioMode.batch)
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 200)
+            } else {
+                Text(detectedWorkflow.rawValue)
+                    .font(.system(size: 11, weight: .semibold))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(Color(hex: "#F3EEE4"))
+                    .foregroundColor(Color(hex: "#465343"))
+                    .cornerRadius(6)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(Color(hex: "#E5D8C7"), lineWidth: 1)
+                    )
+            }
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
@@ -345,57 +380,107 @@ public struct MergeEditorView: View {
     // MARK: - Bottom Bar
     private var bottomBarView: some View {
         VStack(spacing: 12) {
-            HStack(spacing: 12) {
-                Text("Output Filename:")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(Color(hex: "#34312D"))
+            if studioMode == .merge {
+                HStack(spacing: 12) {
+                    Text("Output Filename:")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(Color(hex: "#34312D"))
 
-                TextField("Filename", text: $outputName)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    TextField("Filename", text: $outputName)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .frame(maxWidth: 220)
+
+                    Text(".\(targetFormatExt)")
+                        .font(.system(size: 12, weight: .bold, design: .monospaced))
+                        .foregroundColor(Color(hex: "#465343"))
+
+                    Spacer()
+
+                    if detectedWorkflow == .pdf || detectedWorkflow == .imagesToPDF {
+                        Toggle("Add Watermark", isOn: $addWatermark)
+                            .toggleStyle(CheckboxToggleStyle())
+                            .font(.system(size: 12))
+                            .foregroundColor(Color(hex: "#34312D"))
+                    }
+                }
+
+                HStack {
+                    Text("\(items.count) item\(items.count == 1 ? "" : "s") selected")
+                        .font(.system(size: 12))
+                        .foregroundColor(Color(hex: "#465343"))
+
+                    Spacer()
+
+                    Button("Cancel", action: onCancel)
+                        .keyboardShortcut(.cancelAction)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 6)
+                        .background(Color(hex: "#F3EEE4"))
+                        .foregroundColor(Color(hex: "#34312D"))
+                        .cornerRadius(6)
+                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(hex: "#E5D8C7"), lineWidth: 1))
+                        .buttonStyle(PlainButtonStyle())
+
+                    Button(action: handleMergeTriggered) {
+                        Text(mergeButtonTitle)
+                            .font(.system(size: 13, weight: .semibold))
+                            .padding(.horizontal, 18)
+                            .padding(.vertical, 7)
+                            .background(isValid ? Color(hex: "#D98768") : Color(hex: "#E5D8C7"))
+                            .foregroundColor(.white)
+                            .cornerRadius(6)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .disabled(!isValid)
+                }
+            } else {
+                HStack(spacing: 12) {
+                    Text("Target Format:")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(Color(hex: "#34312D"))
+
+                    Picker("", selection: $batchTargetFormat) {
+                        ForEach(availableBatchFormats) { fmt in
+                            Text(fmt.displayName).tag(fmt)
+                        }
+                    }
+                    .labelsHidden()
                     .frame(maxWidth: 220)
 
-                Text(".\(targetFormatExt)")
-                    .font(.system(size: 12, weight: .bold, design: .monospaced))
-                    .foregroundColor(Color(hex: "#465343"))
+                    Spacer()
+                }
 
-                Spacer()
-
-                if detectedWorkflow == .pdf || detectedWorkflow == .imagesToPDF {
-                    Toggle("Add Watermark", isOn: $addWatermark)
-                        .toggleStyle(CheckboxToggleStyle())
+                HStack {
+                    Text("\(items.count) item\(items.count == 1 ? "" : "s") will be converted")
                         .font(.system(size: 12))
+                        .foregroundColor(Color(hex: "#465343"))
+
+                    Spacer()
+
+                    Button("Cancel", action: onCancel)
+                        .keyboardShortcut(.cancelAction)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 6)
+                        .background(Color(hex: "#F3EEE4"))
                         .foregroundColor(Color(hex: "#34312D"))
-                }
-            }
-
-            HStack {
-                Text("\(items.count) item\(items.count == 1 ? "" : "s") selected")
-                    .font(.system(size: 12))
-                    .foregroundColor(Color(hex: "#465343"))
-
-                Spacer()
-
-                Button("Cancel", action: onCancel)
-                    .keyboardShortcut(.cancelAction)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 6)
-                    .background(Color(hex: "#F3EEE4"))
-                    .foregroundColor(Color(hex: "#34312D"))
-                    .cornerRadius(6)
-                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(hex: "#E5D8C7"), lineWidth: 1))
-                    .buttonStyle(PlainButtonStyle())
-
-                Button(action: handleMergeTriggered) {
-                    Text(mergeButtonTitle)
-                        .font(.system(size: 13, weight: .semibold))
-                        .padding(.horizontal, 18)
-                        .padding(.vertical, 7)
-                        .background(isValid ? Color(hex: "#D98768") : Color(hex: "#E5D8C7"))
-                        .foregroundColor(.white)
                         .cornerRadius(6)
+                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(hex: "#E5D8C7"), lineWidth: 1))
+                        .buttonStyle(PlainButtonStyle())
+
+                    Button {
+                        onBatchConvert?(items.map { $0.url }, batchTargetFormat, ConversionOptions())
+                    } label: {
+                        Text("Convert All (\(items.count) Files)")
+                            .font(.system(size: 13, weight: .semibold))
+                            .padding(.horizontal, 18)
+                            .padding(.vertical, 7)
+                            .background(Color(hex: "#D98768"))
+                            .foregroundColor(.white)
+                            .cornerRadius(6)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .disabled(items.isEmpty)
                 }
-                .buttonStyle(PlainButtonStyle())
-                .disabled(!isValid)
             }
         }
         .padding(16)
