@@ -65,7 +65,7 @@ public final class ConversionRegistry: ConversionRegistering {
         let targets = capabilitiesTable
             .filter { $0.sourceFormatID == sourceFormat.id && $0.isImplemented }
             .compactMap { $0.targetFormat }
-        return Array(Set(targets)).sorted { $0.displayName < .displayName }
+        return Array(Set(targets)).sorted { $0.displayName < $1.displayName }
     }
 
     // MARK: - Radial Menu Integration (Contextual & Dynamic)
