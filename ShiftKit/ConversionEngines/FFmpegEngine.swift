@@ -951,6 +951,8 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
                 "-c:v", "libvpx-vp9",
                 "-crf", "\(options.videoCRF ?? 30)",
                 "-b:v", "0",
+                "-deadline", "realtime",
+                "-cpu-used", "5",
                 "-c:a", "libopus",
                 "-b:a", "\(options.audioBitrateKbps ?? 128)k"
             ])
@@ -988,8 +990,9 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
         case .smallerFile:
             args.append(contentsOf: [
                 "-vf", "scale=w=1280:h=-2:force_original_aspect_ratio=decrease",
-                "-c:v", "h264_videotoolbox",
-                "-b:v", "1500k",
+                "-c:v", "libx264",
+                "-crf", "28",
+                "-preset", "faster",
                 "-c:a", "aac",
                 "-b:a", "96k"
             ])
@@ -997,16 +1000,18 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
         case .balanced:
             args.append(contentsOf: [
                 "-vf", "scale=w=1920:h=-2:force_original_aspect_ratio=decrease",
-                "-c:v", "h264_videotoolbox",
-                "-b:v", "3200k",
+                "-c:v", "libx264",
+                "-crf", "22",
+                "-preset", "faster",
                 "-c:a", "aac",
                 "-b:a", "160k"
             ])
 
         case .highQuality:
             args.append(contentsOf: [
-                "-c:v", "h264_videotoolbox",
-                "-b:v", "8500k",
+                "-c:v", "libx264",
+                "-crf", "18",
+                "-preset", "faster",
                 "-c:a", "aac",
                 "-b:a", "256k"
             ])
