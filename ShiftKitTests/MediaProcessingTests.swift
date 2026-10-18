@@ -31,6 +31,7 @@ final class MediaProcessingTests: XCTestCase {
         let process = Process()
         process.executableURL = binary
         process.arguments = [
+            "-nostdin",
             "-y",
             "-f", "lavfi",
             "-i", "sine=frequency=880:duration=\(duration)",
@@ -52,6 +53,7 @@ final class MediaProcessingTests: XCTestCase {
         let process = Process()
         process.executableURL = binary
         process.arguments = [
+            "-nostdin",
             "-y",
             "-f", "lavfi",
             "-i", "testsrc=duration=\(duration):size=320x240:rate=15",

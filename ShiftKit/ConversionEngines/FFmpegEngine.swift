@@ -300,12 +300,13 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
         process.arguments = arguments
         let pipe = Pipe()
         process.standardOutput = pipe
-        process.standardError = Pipe()
+        process.standardError = FileHandle.nullDevice
+        process.standardInput = FileHandle.nullDevice
 
         do {
             try process.run()
-            process.waitUntilExit()
             let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            process.waitUntilExit()
             return String(data: data, encoding: .utf8)
         } catch {
             return nil
@@ -668,12 +669,12 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
             ]
             let pipe = Pipe()
             process.standardOutput = pipe
-            process.standardError = Pipe()
+            process.standardError = FileHandle.nullDevice
+            process.standardInput = FileHandle.nullDevice
 
             try process.run()
-            process.waitUntilExit()
-
             let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            process.waitUntilExit()
             if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
                 return parseProbeJSON(json, url: url)
             }
@@ -685,15 +686,15 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
 
         let process = Process()
         process.executableURL = binary
-        process.arguments = ["-i", url.path]
+        process.arguments = ["-nostdin", "-i", url.path]
         let errPipe = Pipe()
         process.standardError = errPipe
-        process.standardOutput = Pipe()
+        process.standardOutput = FileHandle.nullDevice
+        process.standardInput = FileHandle.nullDevice
 
         try process.run()
-        process.waitUntilExit()
-
         let errData = errPipe.fileHandleForReading.readDataToEndOfFile()
+        process.waitUntilExit()
         let errString = String(data: errData, encoding: .utf8) ?? ""
 
         return parseFFmpegStderr(errString, url: url)
@@ -721,7 +722,7 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
             effectiveArgs[effectiveArgs.count - 1] = tempURL.path
         }
 
-        effectiveArgs.insert(contentsOf: ["-progress", "pipe:1", "-nostats", "-v", "warning"], at: 1)
+        effectiveArgs.insert(contentsOf: ["-nostdin", "-progress", "pipe:1", "-nostats", "-v", "warning"], at: 1)
 
         let process = Process()
         process.executableURL = binaryURL
@@ -729,27 +730,32 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
 
         let stdoutPipe = Pipe()
         let stderrPipe = Pipe()
-        let stdinPipe = Pipe()
 
         process.standardOutput = stdoutPipe
         process.standardError = stderrPipe
-        process.standardInput = stdinPipe
+        process.standardInput = FileHandle.nullDevice
 
         var errData = Data()
         let pipeLock = NSLock()
 
-        stderrPipe.fileHandleForReading.readabilityHandler = { handle in
+        stderrPipe.fileHandleForReading.readabilityHandler = { [weak stderrPipe] handle in
             let data = handle.availableData
-            guard !data.isEmpty else { return }
+            if data.isEmpty {
+                stderrPipe?.fileHandleForReading.readabilityHandler = nil
+                return
+            }
             pipeLock.lock()
             errData.append(data)
             pipeLock.unlock()
         }
 
         var outBuffer = Data()
-        stdoutPipe.fileHandleForReading.readabilityHandler = { handle in
+        stdoutPipe.fileHandleForReading.readabilityHandler = { [weak stdoutPipe] handle in
             let data = handle.availableData
-            guard !data.isEmpty else { return }
+            if data.isEmpty {
+                stdoutPipe?.fileHandleForReading.readabilityHandler = nil
+                return
+            }
             pipeLock.lock()
             outBuffer.append(data)
             while let range = outBuffer.range(of: Data("\n".utf8)) {
@@ -766,15 +772,17 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
 
         return try await withTaskCancellationHandler {
             do {
-                while process.isRunning {
-                    if Task.isCancelled {
-                        process.terminate()
-                        throw ShiftKitError.cancelled
+                await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+                    process.terminationHandler = { _ in
+                        continuation.resume()
                     }
-                    try await Task.sleep(nanoseconds: 50_000_000)
                 }
 
                 process.waitUntilExit()
+
+                if Task.isCancelled {
+                    throw ShiftKitError.cancelled
+                }
 
                 stdoutPipe.fileHandleForReading.readabilityHandler = nil
                 stderrPipe.fileHandleForReading.readabilityHandler = nil
@@ -983,7 +991,7 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
         switch preset {
         case .smallerFile:
             args.append(contentsOf: [
-                "-vf", "scale=w=1280:h=-2:force_original_aspect_ratio=decrease",
+                "-vf", "scale='min(1280,iw)':-2",
                 "-c:v", "libx264",
                 "-crf", "28",
                 "-preset", "faster",
@@ -993,7 +1001,7 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
 
         case .balanced:
             args.append(contentsOf: [
-                "-vf", "scale=w=1920:h=-2:force_original_aspect_ratio=decrease",
+                "-vf", "scale='min(1920,iw)':-2",
                 "-c:v", "libx264",
                 "-crf", "22",
                 "-preset", "faster",
@@ -1088,11 +1096,12 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
             ]
             let pipe = Pipe()
             process.standardOutput = pipe
-            process.standardError = Pipe()
+            process.standardError = FileHandle.nullDevice
+            process.standardInput = FileHandle.nullDevice
 
             if (try? process.run()) != nil {
-                process.waitUntilExit()
                 let data = pipe.fileHandleForReading.readDataToEndOfFile()
+                process.waitUntilExit()
                 if let str = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines),
                    let d = Double(str), d > 0 {
                     return d

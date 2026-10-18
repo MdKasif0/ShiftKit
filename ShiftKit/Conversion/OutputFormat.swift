@@ -353,6 +353,19 @@ public struct OutputFormat: Identifiable, Hashable, Sendable {
         isContainerLossy: false
     )
 
+    public static let any = OutputFormat(
+        id: "any",
+        displayName: "Any Item",
+        uti: "public.item",
+        primaryExtension: "*",
+        recognizedExtensions: ["*"],
+        mimeType: "application/octet-stream",
+        category: .archive,
+        supportsAlpha: false,
+        supportsAnimation: false,
+        isContainerLossy: false
+    )
+
     public static let docx = OutputFormat(
         id: "docx",
         displayName: "Word Document",
@@ -461,7 +474,7 @@ public struct OutputFormat: Identifiable, Hashable, Sendable {
         .png, .jpeg, .webp, .heic, .tiff, .gif,
         .mp4, .mov, .mkv, .webm, .avi,
         .mp3, .m4a, .aac, .wav, .flac, .aiff, .ogg, .opus,
-        .pdf, .docx, .rtf, .csv, .json, .txt, .zip, .markdown, .html, .odt, .xlsx, .pptx, .yaml
+        .pdf, .docx, .rtf, .csv, .json, .txt, .zip, .any, .markdown, .html, .odt, .xlsx, .pptx, .yaml
     ]
 
     public static func find(byExtension ext: String) -> OutputFormat? {

@@ -136,14 +136,11 @@ public final class FileTypeDetector: FileTypeDetecting {
 
         // EBML (Matroska / WebM): 1A 45 DF A3
         if count >= 4, bytes[0] == 0x1A, bytes[1] == 0x45, bytes[2] == 0xDF, bytes[3] == 0xA3 {
-            if let str = String(data: data.prefix(64), encoding: .ascii) {
-                if str.contains("webm") {
-                    return .webm
-                } else {
-                    return .mkv
-                }
+            if data.prefix(128).range(of: Data("webm".utf8)) != nil {
+                return .webm
+            } else {
+                return .mkv
             }
-            return .mkv
         }
 
         // AAC ADTS Sync Word: 0xFFF (0xFF followed by 0xF0..0xFF)

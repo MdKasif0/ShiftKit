@@ -65,17 +65,22 @@ final class ConversionRegistryTests: XCTestCase {
         let implemented = registry.implementedCapabilities()
         let all = registry.registeredCapabilities()
 
-        XCTAssertTrue(implemented.count < all.count, "Planned capabilities should exist alongside implemented capabilities")
+        XCTAssertTrue(implemented.count <= all.count, "Planned capabilities should exist alongside implemented capabilities")
         XCTAssertTrue(implemented.allSatisfy { $0.isImplemented })
 
-        // Verify planned capabilities are not marked implemented
+        // Verify Step 7 implemented capabilities
         let docCap = all.first { $0.id == "doc_to_pdf" }
         XCTAssertNotNil(docCap)
-        XCTAssertFalse(docCap?.isImplemented ?? true, "Planned pandoc capability must not be marked implemented")
+        XCTAssertTrue(docCap?.isImplemented ?? false, "Document to PDF capability is now implemented via DocumentConversionEngine")
 
         let zipCap = all.first { $0.id == "zip_extract" }
         XCTAssertNotNil(zipCap)
-        XCTAssertFalse(zipCap?.isImplemented ?? true, "Planned archive extraction must not be marked implemented")
+        XCTAssertTrue(zipCap?.isImplemented ?? false, "ZIP extract capability is now implemented via DeveloperUtilities")
+
+        // Verify LibreOffice-dependent capabilities are guarded
+        let pptxCap = all.first { $0.id == "pptx_to_pdf" }
+        XCTAssertNotNil(pptxCap)
+        XCTAssertEqual(pptxCap?.isImplemented, DocumentConversionEngine.isLibreOfficeAvailable)
     }
 
     func testBatchValidationCompatible() {
