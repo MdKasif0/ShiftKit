@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 public struct MainView: View {
     @Bindable var coordinator: AppCoordinator
@@ -94,6 +95,11 @@ public struct MainView: View {
                             },
                             onSelectAction: { action in
                                 if let file = coordinator.inspectedFile {
+                                    coordinator.executeAction(action, on: file)
+                                }
+                            },
+                            onOpenRadialWindow: { file in
+                                coordinator.radialMenuCoordinator.presentFloatingWindow(for: file) { action in
                                     coordinator.executeAction(action, on: file)
                                 }
                             }
