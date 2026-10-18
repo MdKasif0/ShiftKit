@@ -14,6 +14,7 @@ public struct SettingsView: View {
         case conversion = "Conversion"
         case output = "Output"
         case privacy = "Privacy"
+        case updates = "Updates"
         case about = "About"
 
         public var id: String { rawValue }
@@ -25,6 +26,7 @@ public struct SettingsView: View {
             case .conversion: return "arrow.triangle.2.circlepath"
             case .output: return "folder"
             case .privacy: return "lock.shield"
+            case .updates: return "arrow.triangle.2.circlepath.circle"
             case .about: return "info.circle"
             }
         }
@@ -123,6 +125,8 @@ public struct SettingsView: View {
                         outputSection
                     case .privacy:
                         privacySection
+                    case .updates:
+                        UpdateSettingsView(updateManager: UpdateManager.shared)
                     case .about:
                         aboutSection
                     }

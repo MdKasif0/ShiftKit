@@ -25,6 +25,10 @@ struct ShiftKitApp: App {
                         ]
                     )
                 }
+
+                Button("Check for Updates...") {
+                    coordinator.updateManager.checkForUpdates()
+                }
             }
 
             CommandGroup(after: .appSettings) {
