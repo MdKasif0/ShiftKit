@@ -444,7 +444,7 @@ export function Hero() {
                           className={isActive ? "text-white" : "text-[#34312D]"}
                         />
                         <span
-                          className={`text-[8px] sm:text-[9px] font-bold tracking-wider mt-0.5 uppercase ${
+                          className={`text-[7px] sm:text-[9px] font-bold tracking-tight sm:tracking-wider mt-0.5 uppercase ${
                             isActive ? "text-white" : "text-[#34312D]/85"
                           }`}
                         >
@@ -532,7 +532,7 @@ export function Hero() {
                 <span className="font-medium text-[#34312D]">
                   Action: <span className="text-[#D98768] font-semibold">{activeAction.name}</span>
                 </span>
-                <span className="hidden sm:inline text-[#E5D8C7]">•</span>
+                <span className="text-[#E5D8C7] mx-1">•</span>
                 <span className="text-[#465343] font-medium">{activeAction.description}</span>
               </div>
               <div className="font-mono text-[10px] text-[#898177]">

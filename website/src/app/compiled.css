@@ -37,8 +37,6 @@
     --text-4xl--line-height: calc(2.5 / 2.25);
     --text-5xl: 3rem;
     --text-5xl--line-height: 1;
-    --text-6xl: 3.75rem;
-    --text-6xl--line-height: 1;
     --font-weight-medium: 500;
     --font-weight-semibold: 600;
     --font-weight-bold: 700;
@@ -303,8 +301,8 @@
   .z-50 {
     z-index: 50;
   }
-  .mx-0\.5 {
-    margin-inline: calc(var(--spacing) * 0.5);
+  .mx-1 {
+    margin-inline: var(--spacing);
   }
   .mx-auto {
     margin-inline: auto;
@@ -323,6 +321,9 @@
   }
   .mt-4 {
     margin-top: calc(var(--spacing) * 4);
+  }
+  .mr-0\.5 {
+    margin-right: calc(var(--spacing) * 0.5);
   }
   .mb-0\.5 {
     margin-bottom: calc(var(--spacing) * 0.5);
@@ -356,6 +357,9 @@
   }
   .mb-16 {
     margin-bottom: calc(var(--spacing) * 16);
+  }
+  .ml-1 {
+    margin-left: var(--spacing);
   }
   .ml-1\.5 {
     margin-left: calc(var(--spacing) * 1.5);
@@ -1130,6 +1134,9 @@
   .text-\[7\.5px\] {
     font-size: 7.5px;
   }
+  .text-\[7px\] {
+    font-size: 7px;
+  }
   .text-\[8\.5px\] {
     font-size: 8.5px;
   }
@@ -1576,6 +1583,10 @@
     }
     .sm\:text-\[11px\] {
       font-size: 11px;
+    }
+    .sm\:tracking-wider {
+      --tw-tracking: var(--tracking-wider);
+      letter-spacing: var(--tracking-wider);
     }
     .sm\:opacity-95 {
       opacity: 95%;
