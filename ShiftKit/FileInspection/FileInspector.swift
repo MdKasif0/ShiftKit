@@ -63,7 +63,7 @@ public final class FileInspector: FileInspecting {
         var durationSeconds: Double?
         var audioChannels: Int?
         var audioSampleRate: Double?
-        var audioBitrate: Int?
+        let audioBitrate: Int? = nil
         var audioCodec: String?
         var videoFrameRate: Double?
         var videoCodec: String?

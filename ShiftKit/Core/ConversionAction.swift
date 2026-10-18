@@ -1,7 +1,7 @@
 import Foundation
 
 // MARK: - Action Category
-public enum ConversionActionCategory: String, Hashable, Sendable, CaseIterable {
+public enum ConversionActionCategory: String, Hashable, Sendable, CaseIterable, Codable {
     case convert
     case compress
     case cropOrTrim

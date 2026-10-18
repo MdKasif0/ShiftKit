@@ -66,15 +66,15 @@ public struct ConversionCapability: Identifiable, Hashable, Sendable, Codable {
     }
 
     public var sourceFormat: OutputFormat? {
-        OutputFormat.find(byExtension: sourceFormatID) ?? OutputFormat.allCanonical.first { zsh.id == sourceFormatID }
+        OutputFormat.find(byExtension: sourceFormatID) ?? OutputFormat.allCanonical.first { $0.id == sourceFormatID }
     }
 
     public var targetFormat: OutputFormat? {
-        OutputFormat.find(byExtension: targetFormatID) ?? OutputFormat.allCanonical.first { zsh.id == targetFormatID }
+        OutputFormat.find(byExtension: targetFormatID) ?? OutputFormat.allCanonical.first { $0.id == targetFormatID }
     }
 
     public var intermediateFormat: OutputFormat? {
         guard let id = intermediateFormatID else { return nil }
-        return OutputFormat.find(byExtension: id) ?? OutputFormat.allCanonical.first { zsh.id == id }
+        return OutputFormat.find(byExtension: id) ?? OutputFormat.allCanonical.first { $0.id == id }
     }
 }

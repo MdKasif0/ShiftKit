@@ -188,7 +188,7 @@ public final class ConversionRegistry: ConversionRegistering {
         if allMatch && files.count >= 2 {
             return MergeValidationResult(canMerge: true, targetFormat: targetFormat, compatibleFiles: files, incompatibleFiles: [])
         } else {
-            return MergeValidationResult(canMerge: false, targetFormat: targetFormat, compatibleFiles: [], incompatibleFiles: files.map { (zsh, "Incompatible format") }, failureReason: "Cannot merge mixed file types into \(targetFormat.displayName).")
+            return MergeValidationResult(canMerge: false, targetFormat: targetFormat, compatibleFiles: [], incompatibleFiles: files.map { ($0, "Incompatible format") }, failureReason: "Cannot merge mixed file types into \(targetFormat.displayName).")
         }
     }
 
