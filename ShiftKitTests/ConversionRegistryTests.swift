@@ -47,4 +47,107 @@ final class ConversionRegistryTests: XCTestCase {
         XCTAssertTrue(pdfActions.contains(where: { $0.id == "pdf_to_images" }))
         XCTAssertTrue(pdfActions.contains(where: { $0.id == "pdf_merge" }))
     }
+
+    func testRegistryIntegrityAndCapabilityValidation() {
+        let allCaps = registry.registeredCapabilities()
+        XCTAssertFalse(allCaps.isEmpty)
+
+        for cap in allCaps {
+            XCTAssertFalse(cap.id.isEmpty, "Capability ID must not be empty")
+            XCTAssertFalse(cap.displayName.isEmpty, "Capability displayName must not be empty")
+            XCTAssertFalse(cap.requiredEngineID.isEmpty, "Capability requiredEngineID must not be empty")
+            XCTAssertNotNil(cap.sourceFormat, "Source format \(cap.sourceFormatID) must resolve to canonical OutputFormat")
+            XCTAssertNotNil(cap.targetFormat, "Target format \(cap.targetFormatID) must resolve to canonical OutputFormat")
+        }
+    }
+
+    func testImplementedVsPlannedCapabilities() {
+        let implemented = registry.implementedCapabilities()
+        let all = registry.registeredCapabilities()
+
+        XCTAssertTrue(implemented.count < all.count, "Planned capabilities should exist alongside implemented capabilities")
+        XCTAssertTrue(implemented.allSatisfy { $0.isImplemented })
+
+        // Verify planned capabilities are not marked implemented
+        let docCap = all.first { $0.id == "doc_to_pdf" }
+        XCTAssertNotNil(docCap)
+        XCTAssertFalse(docCap?.isImplemented ?? true, "Planned pandoc capability must not be marked implemented")
+
+        let zipCap = all.first { $0.id == "zip_extract" }
+        XCTAssertNotNil(zipCap)
+        XCTAssertFalse(zipCap?.isImplemented ?? true, "Planned archive extraction must not be marked implemented")
+    }
+
+    func testBatchValidationCompatible() {
+        let file1 = InspectedFile(
+            url: URL(fileURLWithPath: "/tmp/photo1.png"),
+            fileType: .image(.png),
+            metadata: FileMetadata(fileSize: 1024, fileExtension: "png")
+        )
+        let file2 = InspectedFile(
+            url: URL(fileURLWithPath: "/tmp/photo2.png"),
+            fileType: .image(.png),
+            metadata: FileMetadata(fileSize: 2048, fileExtension: "png")
+        )
+
+        let result = registry.validateBatch(files: [file1, file2], targetFormat: .webp)
+        XCTAssertTrue(result.allCompatible)
+        XCTAssertEqual(result.supportedFiles.count, 2)
+        XCTAssertTrue(result.unsupportedFiles.isEmpty)
+    }
+
+    func testBatchValidationMixedSelection() {
+        let imageFile = InspectedFile(
+            url: URL(fileURLWithPath: "/tmp/image.png"),
+            fileType: .image(.png),
+            metadata: FileMetadata(fileSize: 1024, fileExtension: "png")
+        )
+        let archiveFile = InspectedFile(
+            url: URL(fileURLWithPath: "/tmp/data.zip"),
+            fileType: .archive,
+            metadata: FileMetadata(fileSize: 5000, fileExtension: "zip")
+        )
+
+        let result = registry.validateBatch(files: [imageFile, archiveFile], targetFormat: .webp)
+        XCTAssertFalse(result.allCompatible)
+        XCTAssertEqual(result.supportedFiles.count, 1)
+        XCTAssertEqual(result.unsupportedFiles.count, 1)
+        XCTAssertEqual(result.unsupportedFiles.first?.file.url, archiveFile.url)
+    }
+
+    func testMergeValidationPDFsCompatible() {
+        let doc1 = InspectedFile(
+            url: URL(fileURLWithPath: "/tmp/doc1.pdf"),
+            fileType: .pdf,
+            metadata: FileMetadata(fileSize: 5000, fileExtension: "pdf")
+        )
+        let doc2 = InspectedFile(
+            url: URL(fileURLWithPath: "/tmp/doc2.pdf"),
+            fileType: .pdf,
+            metadata: FileMetadata(fileSize: 8000, fileExtension: "pdf")
+        )
+
+        let result = registry.validateMerge(files: [doc1, doc2], targetFormat: .pdf)
+        XCTAssertTrue(result.canMerge)
+        XCTAssertEqual(result.compatibleFiles.count, 2)
+        XCTAssertNil(result.failureReason)
+    }
+
+    func testMergeValidationIncompatibleMixed() {
+        let pdf = InspectedFile(
+            url: URL(fileURLWithPath: "/tmp/doc.pdf"),
+            fileType: .pdf,
+            metadata: FileMetadata(fileSize: 5000, fileExtension: "pdf")
+        )
+        let video = InspectedFile(
+            url: URL(fileURLWithPath: "/tmp/movie.mp4"),
+            fileType: .video(.mp4),
+            metadata: FileMetadata(fileSize: 150000, fileExtension: "mp4")
+        )
+
+        let result = registry.validateMerge(files: [pdf, video], targetFormat: .pdf)
+        XCTAssertFalse(result.canMerge)
+        XCTAssertNotNil(result.failureReason)
+        XCTAssertEqual(result.incompatibleFiles.count, 1)
+    }
 }
