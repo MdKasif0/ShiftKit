@@ -13,16 +13,29 @@
     }
 
     body {
-      width: 1320px;
-      height: 840px;
+      width: 1520px;
+      height: 1040px;
+      margin: 0;
+      padding: 100px;
+      box-sizing: border-box;
       overflow: hidden;
       background-color: #FAF8F3;
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #dmg-canvas {
+      width: 1320px;
+      height: 840px;
+      position: relative;
+      overflow: hidden;
+      background-color: #FAF8F3;
       color: #34312D;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      position: relative;
       user-select: none;
     }
 
