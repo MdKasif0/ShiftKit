@@ -40,6 +40,10 @@ public final class MenuBarCoordinator: NSObject, @unchecked Sendable {
         openMainItem.target = self
         menu.addItem(openMainItem)
 
+        let updateItem = NSMenuItem(title: "Check for Updates...", action: #selector(checkForUpdates), keyEquivalent: "u")
+        updateItem.target = self
+        menu.addItem(updateItem)
+
         let prefsItem = NSMenuItem(title: "Preferences...", action: #selector(openPreferences), keyEquivalent: ",")
         prefsItem.target = self
         menu.addItem(prefsItem)
@@ -64,6 +68,11 @@ public final class MenuBarCoordinator: NSObject, @unchecked Sendable {
     @MainActor
     @objc private func openJobQueue() {
         JobQueueWindowController.shared.present()
+    }
+
+    @MainActor
+    @objc private func checkForUpdates() {
+        appCoordinator?.updateManager.checkForUpdates()
     }
 
     @MainActor
