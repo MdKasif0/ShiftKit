@@ -175,7 +175,7 @@ export function Hero() {
           {/* Supporting Text with Realistic Shift Key */}
           <p className="text-sm sm:text-base text-[#34312D]/85 leading-snug font-sans max-w-lg mx-auto mb-3.5">
             Convert and edit files without leaving your workflow. Hold{" "}
-            <kbd className="inline-flex items-center px-1.5 py-0.5 mx-0.5 text-[11px] font-mono font-bold bg-[#F3EEE4] border border-[#E5D8C7] rounded text-[#34312D] shadow-[0_1px_2px_rgba(52,49,45,0.08),inset_0_1px_0_rgba(255,255,255,0.9)]">
+            <kbd className="inline-flex items-center px-1.5 py-0.5 ml-1 mr-0.5 text-[11px] font-mono font-bold bg-[#F3EEE4] border border-[#E5D8C7] rounded text-[#34312D] shadow-[0_1px_2px_rgba(52,49,45,0.08),inset_0_1px_0_rgba(255,255,255,0.9)]">
               ⇧ Shift
             </kbd>, drag a file, and choose what happens next.
           </p>
