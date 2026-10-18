@@ -200,6 +200,27 @@ public struct ConversionAction: Identifiable, Hashable, Sendable {
         badgeTag: "Trim"
     )
 
+    // Additional Video Actions
+    public static let videoToWebM = ConversionAction(
+        id: "vid_to_webm",
+        title: "To WebM",
+        subtitle: "VP9 Modern Web Standard",
+        systemIcon: "globe",
+        category: .convert,
+        targetFormat: "webm",
+        badgeTag: "VP9"
+    )
+
+    public static let videoToMKV = ConversionAction(
+        id: "vid_to_mkv",
+        title: "To MKV",
+        subtitle: "Matroska Multimedia Container",
+        systemIcon: "film.stack",
+        category: .convert,
+        targetFormat: "mkv",
+        badgeTag: "MKV"
+    )
+
     // Audio actions
     public static let audioToMP3 = ConversionAction(
         id: "audio_to_mp3",
@@ -228,6 +249,65 @@ public struct ConversionAction: Identifiable, Hashable, Sendable {
         systemIcon: "arrow.down.forward.and.arrow.up.backward",
         category: .compress,
         badgeTag: "Voice"
+    )
+
+    public static let audioToWAV = ConversionAction(
+        id: "audio_to_wav",
+        title: "To WAV",
+        subtitle: "Uncompressed PCM audio",
+        systemIcon: "waveform",
+        category: .convert,
+        targetFormat: "wav",
+        badgeTag: "PCM"
+    )
+
+    public static let audioToFLAC = ConversionAction(
+        id: "audio_to_flac",
+        title: "To FLAC",
+        subtitle: "Free Lossless Audio Codec",
+        systemIcon: "waveform.path.ecg",
+        category: .convert,
+        targetFormat: "flac",
+        badgeTag: "Lossless"
+    )
+
+    public static let audioToAAC = ConversionAction(
+        id: "audio_to_aac",
+        title: "To AAC",
+        subtitle: "Advanced Audio Coding",
+        systemIcon: "music.note",
+        category: .convert,
+        targetFormat: "aac",
+        badgeTag: "AAC"
+    )
+
+    public static let audioToOGG = ConversionAction(
+        id: "audio_to_ogg",
+        title: "To OGG (Vorbis)",
+        subtitle: "Open media standard",
+        systemIcon: "speaker.wave.2",
+        category: .convert,
+        targetFormat: "ogg",
+        badgeTag: "OGG"
+    )
+
+    public static let audioToOpus = ConversionAction(
+        id: "audio_to_opus",
+        title: "To Opus",
+        subtitle: "Low latency modern codec",
+        systemIcon: "waveform.badge.magnifyingglass",
+        category: .convert,
+        targetFormat: "opus",
+        badgeTag: "Opus"
+    )
+
+    public static let audioTrim = ConversionAction(
+        id: "audio_trim",
+        title: "Trim Audio",
+        subtitle: "Trim duration with precision",
+        systemIcon: "scissors",
+        category: .cropOrTrim,
+        badgeTag: "Trim"
     )
 
     // PDF actions
