@@ -106,6 +106,22 @@ public final class AppCoordinator {
             return
         }
 
+        // If video trim action is selected, present the dedicated visual video trim editor
+        if (action.category == .cropOrTrim || action.id == "vid_trim"), case .video = file.fileType {
+            self.radialMenuCoordinator.dismiss()
+            VideoTrimWindowController.shared.present(for: file) { [weak self] start, end, options, targetFormat in
+                self?.executeTrimmedVideoProcessing(
+                    file: file,
+                    action: action,
+                    start: start,
+                    end: end,
+                    options: options,
+                    targetFormat: targetFormat
+                )
+            }
+            return
+        }
+
         let customDir = URL(fileURLWithPath: settingsStore.outputDirectoryPath)
         let destinationURL = outputManager.resolveDestinationURL(
             for: file.url,
@@ -151,6 +167,49 @@ public final class AppCoordinator {
             title: "Crop Image",
             subtitle: "\(Int(cropRect.width)) × \(Int(cropRect.height)) px",
             systemIcon: "crop",
+            category: .cropOrTrim,
+            targetFormat: targetFormat.primaryExtension,
+            options: requestOptions
+        )
+
+        let request = ConversionRequest(
+            sourceURL: file.url,
+            fileType: file.fileType,
+            action: customAction,
+            destinationURL: destinationURL,
+            options: requestOptions,
+            conversionOptions: options
+        )
+
+        jobManager.enqueue(request: request)
+        self.inspectedFile = nil
+    }
+
+    private func executeTrimmedVideoProcessing(
+        file: InspectedFile,
+        action: ConversionAction,
+        start: Double,
+        end: Double,
+        options: ConversionOptions,
+        targetFormat: OutputFormat
+    ) {
+        let customDir = URL(fileURLWithPath: settingsStore.outputDirectoryPath)
+        let destinationURL = outputManager.resolveDestinationURL(
+            for: file.url,
+            targetExtension: targetFormat.primaryExtension,
+            suffix: "trim",
+            customDirectory: customDir
+        )
+
+        var requestOptions = options.stringDictionary
+        requestOptions["trimStart"] = String(format: "%.3f", start)
+        requestOptions["trimEnd"] = String(format: "%.3f", end)
+
+        let customAction = ConversionAction(
+            id: "vid_trim_custom",
+            title: "Trim Video",
+            subtitle: "\(TrimGeometryEngine.formatTimestamp(start)) – \(TrimGeometryEngine.formatTimestamp(end))",
+            systemIcon: "scissors",
             category: .cropOrTrim,
             targetFormat: targetFormat.primaryExtension,
             options: requestOptions
