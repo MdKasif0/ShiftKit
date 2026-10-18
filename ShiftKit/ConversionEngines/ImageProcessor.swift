@@ -516,7 +516,12 @@ public final class ImageProcessor: Sendable {
             }
         }
 
-        // 2. Products directory (e.g. during xcodebuild test execution)
+        // 2. Resource URL in main app or test runner
+        if let resURL = Bundle.main.resourceURL?.appendingPathComponent("bin/cwebp"), fm.isExecutableFile(atPath: resURL.path) {
+            return resURL
+        }
+
+        // 3. Products directory (e.g. during xcodebuild test execution)
         let testBundle = Bundle(for: ImageProcessor.self)
         let appBundleBin = testBundle.bundleURL
             .deletingLastPathComponent()
@@ -525,17 +530,22 @@ public final class ImageProcessor: Sendable {
             return appBundleBin
         }
 
-        // 3. Known project source directory & system paths
-        var knownPaths: [String] = [
-            fm.currentDirectoryPath + "/ShiftKit/Resources/bin/cwebp",
-            "ShiftKit/Resources/bin/cwebp",
-            "/opt/homebrew/bin/cwebp",
-            "/usr/local/bin/cwebp"
-        ]
-        if let resPath = Bundle.main.resourceURL?.appendingPathComponent("bin/cwebp").path {
-            knownPaths.insert(resPath, at: 0)
+        // 4. Source tree relative path (portable across all dev environments via #filePath)
+        let sourceRelative = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appendingPathComponent("Resources/bin/cwebp")
+        if fm.isExecutableFile(atPath: sourceRelative.path) {
+            return sourceRelative
         }
-        for path in knownPaths {
+
+        // 5. System and brew fallback paths
+        let systemPaths = [
+            "/opt/homebrew/bin/cwebp",
+            "/usr/local/bin/cwebp",
+            "/usr/bin/cwebp"
+        ]
+        for path in systemPaths {
             if fm.isExecutableFile(atPath: path) {
                 return URL(fileURLWithPath: path)
             }

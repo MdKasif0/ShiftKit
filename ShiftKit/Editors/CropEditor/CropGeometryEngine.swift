@@ -57,12 +57,15 @@ public struct CropGeometryEngine: Sendable {
             // Full image with a 5% margin for aesthetic framing
             let marginX = imageSize.width * 0.05
             let marginY = imageSize.height * 0.05
-            return CGRect(
+            let effMinW = min(minCropDimension, max(1, imageSize.width))
+            let effMinH = min(minCropDimension, max(1, imageSize.height))
+            let freeRect = CGRect(
                 x: marginX,
                 y: marginY,
-                width: max(imageSize.width - 2 * marginX, minCropDimension),
-                height: max(imageSize.height - 2 * marginY, minCropDimension)
+                width: max(imageSize.width - 2 * marginX, effMinW),
+                height: max(imageSize.height - 2 * marginY, effMinH)
             )
+            return clampToImageBounds(freeRect)
         }
 
         let imageRatio = imageSize.width / imageSize.height
@@ -90,10 +93,12 @@ public struct CropGeometryEngine: Sendable {
         var newX = currentRect.origin.x + delta.x
         var newY = currentRect.origin.y + delta.y
 
-        newX = max(0, min(newX, imageSize.width - currentRect.width))
-        newY = max(0, min(newY, imageSize.height - currentRect.height))
+        newX = max(0, min(newX, max(0, imageSize.width - currentRect.width)))
+        newY = max(0, min(newY, max(0, imageSize.height - currentRect.height)))
+        let clampedW = min(currentRect.width, imageSize.width - newX)
+        let clampedH = min(currentRect.height, imageSize.height - newY)
 
-        return CGRect(x: newX, y: newY, width: currentRect.width, height: currentRect.height)
+        return CGRect(x: newX, y: newY, width: clampedW, height: clampedH)
     }
 
     /// Resizes the crop rectangle from a specific handle, strictly preserving aspect ratio and image bounds.

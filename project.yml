@@ -30,6 +30,9 @@ targets:
         excludes:
           - "Resources/Info.plist"
           - "Resources/ShiftKit.entitlements"
+          - "Resources/bin"
+      - path: ShiftKit/Resources/bin
+        buildPhase: resources
     info:
       path: ShiftKit/Resources/Info.plist
       properties:

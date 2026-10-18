@@ -265,9 +265,6 @@ public final class OutputManager: OutputManaging, @unchecked Sendable {
 
         switch conflictResolution {
         case .overwrite:
-            guard standard.standardizedFileURL.path != sourceURL.standardizedFileURL.path else {
-                throw ShiftKitError.outputConflict(standard)
-            }
             return standard
 
         case .failWithConflict:

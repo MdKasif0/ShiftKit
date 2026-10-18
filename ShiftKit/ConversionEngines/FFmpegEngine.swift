@@ -449,7 +449,7 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
             binaryURL: binary,
             arguments: args,
             outputURL: outputURL,
-            sourceURL: sourceURL,
+            sourceURL: sourceVideoURL,
             expectedDuration: duration,
             progressHandler: progressHandler
         )
