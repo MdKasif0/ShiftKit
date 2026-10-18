@@ -246,6 +246,56 @@ final class ImageProcessingTests: XCTestCase {
         }
     }
 
+    // MARK: - 11. Percentage Scaling and Dimension Options
+    func testPercentageScalingResizing() async throws {
+        let imgURL = tempDir.appendingPathComponent("scale_test.png")
+        createSyntheticImage(at: imgURL, size: CGSize(width: 600, height: 400), hasAlpha: false)
+
+        let scaledURL = tempDir.appendingPathComponent("scale_test_half.png")
+        let report = try await imageProcessor.process(
+            sourceURL: imgURL,
+            targetURL: scaledURL,
+            targetFormat: .png,
+            options: ConversionOptions(scaleMultiplier: 0.5)
+        )
+
+        XCTAssertEqual(report.outputDimensions.width, 300)
+        XCTAssertEqual(report.outputDimensions.height, 200)
+    }
+
+    // MARK: - 12. Edge Handle Aspect Ratio Constraint
+    func testEdgeHandleAspectRatioConstraints() {
+        let imageSize = CGSize(width: 1000, height: 1000)
+        let engine = CropGeometryEngine(imageSize: imageSize, minCropDimension: 40)
+        let initial = engine.initialCropRect(for: .square)
+
+        let resizedFromRight = engine.resizeCropRect(initial, handle: .right, delta: CGPoint(x: 100, y: 0), preset: .square)
+        XCTAssertEqual(resizedFromRight.width / resizedFromRight.height, 1.0, accuracy: 0.001)
+
+        let resizedFromBottom = engine.resizeCropRect(initial, handle: .bottom, delta: CGPoint(x: 0, y: -50), preset: .square)
+        XCTAssertEqual(resizedFromBottom.width / resizedFromBottom.height, 1.0, accuracy: 0.001)
+    }
+
+    // MARK: - 13. TIFF Archival Conversion
+    func testTIFFArchivalConversion() async throws {
+        let pngURL = tempDir.appendingPathComponent("photo.png")
+        createSyntheticImage(at: pngURL, size: CGSize(width: 250, height: 250), hasAlpha: true)
+
+        let tiffURL = tempDir.appendingPathComponent("photo.tiff")
+        let report = try await imageProcessor.process(
+            sourceURL: pngURL,
+            targetURL: tiffURL,
+            targetFormat: .tiff
+        )
+
+        XCTAssertTrue(FileManager.default.fileExists(atPath: tiffURL.path))
+        XCTAssertEqual(report.outputDimensions.width, 250)
+        XCTAssertEqual(report.outputDimensions.height, 250)
+
+        let detected = detector.detectActualFormat(for: tiffURL)
+        XCTAssertEqual(detected, .tiff)
+    }
+
     // MARK: - Helper Methods
     private func createSyntheticImage(at url: URL, size: CGSize, hasAlpha: Bool) {
         let w = Int(size.width)
