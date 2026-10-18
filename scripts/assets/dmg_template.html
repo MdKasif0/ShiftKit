@@ -293,100 +293,102 @@
   </style>
 </head>
 <body>
-  <!-- Ambient Background -->
-  <div class="ambient-bg"></div>
+  <div id="dmg-canvas">
+    <!-- Ambient Background -->
+    <div class="ambient-bg"></div>
 
-  <!-- Radial Geometry Petal Rings -->
-  <svg class="radial-rings" width="900" height="900" viewBox="0 0 900 900" fill="none">
-    <circle cx="450" cy="450" r="160" stroke="#E5D8C7" stroke-width="1.5" stroke-dasharray="6 6" />
-    <circle cx="450" cy="450" r="260" stroke="#E5D8C7" stroke-width="1.5" />
-    <circle cx="450" cy="450" r="380" stroke="#E5D8C7" stroke-width="1" stroke-dasharray="8 8" />
-    <!-- 6 Petal Lines echoing radial menu -->
-    <line x1="450" y1="190" x2="450" y2="710" stroke="#E5D8C7" stroke-width="1" stroke-dasharray="4 6" opacity="0.6" />
-    <line x1="225" y1="320" x2="675" y2="580" stroke="#E5D8C7" stroke-width="1" stroke-dasharray="4 6" opacity="0.6" />
-    <line x1="225" y1="580" x2="675" y2="320" stroke="#E5D8C7" stroke-width="1" stroke-dasharray="4 6" opacity="0.6" />
-  </svg>
+    <!-- Radial Geometry Petal Rings -->
+    <svg class="radial-rings" width="900" height="900" viewBox="0 0 900 900" fill="none">
+      <circle cx="450" cy="450" r="160" stroke="#E5D8C7" stroke-width="1.5" stroke-dasharray="6 6" />
+      <circle cx="450" cy="450" r="260" stroke="#E5D8C7" stroke-width="1.5" />
+      <circle cx="450" cy="450" r="380" stroke="#E5D8C7" stroke-width="1" stroke-dasharray="8 8" />
+      <!-- 6 Petal Lines echoing radial menu -->
+      <line x1="450" y1="190" x2="450" y2="710" stroke="#E5D8C7" stroke-width="1" stroke-dasharray="4 6" opacity="0.6" />
+      <line x1="225" y1="320" x2="675" y2="580" stroke="#E5D8C7" stroke-width="1" stroke-dasharray="4 6" opacity="0.6" />
+      <line x1="225" y1="580" x2="675" y2="320" stroke="#E5D8C7" stroke-width="1" stroke-dasharray="4 6" opacity="0.6" />
+    </svg>
 
-  <!-- Header -->
-  <div class="header">
-    <div class="top-pill">
-      <span class="dot-terracotta"></span>
-      MADE FOR macOS 14+ • APPLE SILICON & INTEL
-    </div>
-    <div class="brand-row">
-      <div class="app-icon">
-        <img src="../../website/public/app-icon.png" alt="ShiftKit Logo">
+    <!-- Header -->
+    <div class="header">
+      <div class="top-pill">
+        <span class="dot-terracotta"></span>
+        MADE FOR macOS 14+ • APPLE SILICON & INTEL
       </div>
-      <h1 class="title">ShiftKit</h1>
+      <div class="brand-row">
+        <div class="app-icon">
+          <img src="../../website/public/app-icon.png" alt="ShiftKit Logo">
+        </div>
+        <h1 class="title">ShiftKit</h1>
+      </div>
+      <p class="tagline">Every file. One gesture. Native circular file utility.</p>
     </div>
-    <p class="tagline">Every file. One gesture. Native circular file utility.</p>
-  </div>
 
-  <!-- Installation Stage -->
-  <div class="stage">
-    <!-- Left Target: ShiftKit.app -->
-    <div class="drop-card left-card">
-      <div class="target-guide">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#D98768" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.7">
-          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-          <line x1="8" y1="21" x2="16" y2="21"></line>
-          <line x1="12" y1="17" x2="12" y2="21"></line>
+    <!-- Installation Stage -->
+    <div class="stage">
+      <!-- Left Target: ShiftKit.app -->
+      <div class="drop-card left-card">
+        <div class="target-guide">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#D98768" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.7">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+          </svg>
+        </div>
+        <span class="card-label">ShiftKit</span>
+        <span class="card-sub">Application</span>
+      </div>
+
+      <!-- Center Drag Gesture Pathway -->
+      <div class="connection-area">
+        <div class="drag-pill">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+          <span>Drag to Install</span>
+        </div>
+
+        <svg class="arrow-svg" viewBox="0 0 240 48" fill="none">
+          <path d="M 10 24 C 70 8, 170 8, 225 24" stroke="#D98768" stroke-width="3" stroke-dasharray="7 5" stroke-linecap="round" />
+          <polygon points="220,17 236,24 220,31" fill="#D98768" />
         </svg>
+
+        <p class="instruction-text">
+          Drag <strong style="color:#34312D;">ShiftKit</strong> into <strong style="color:#34312D;">Applications</strong> to begin using instant circular gestures.
+        </p>
       </div>
-      <span class="card-label">ShiftKit</span>
-      <span class="card-sub">Application</span>
+
+      <!-- Right Target: Applications Folder -->
+      <div class="drop-card right-card">
+        <div class="target-guide">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#465343" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.6">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </div>
+        <span class="card-label">Applications</span>
+        <span class="card-sub">macOS Folder</span>
+      </div>
     </div>
 
-    <!-- Center Drag Gesture Pathway -->
-    <div class="connection-area">
-      <div class="drag-pill">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="5" y1="12" x2="19" y2="12"></line>
-          <polyline points="12 5 19 12 12 19"></polyline>
-        </svg>
-        <span>Drag to Install</span>
+    <!-- Footer -->
+    <div class="footer">
+      <div class="trust-badges">
+        <div class="trust-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <span>100% On-Device Processing</span>
+        </div>
+        <div class="trust-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <span>Universal Binary</span>
+        </div>
+        <div class="trust-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <span>Zero Cloud Conversion Servers</span>
+        </div>
       </div>
-
-      <svg class="arrow-svg" viewBox="0 0 240 48" fill="none">
-        <path d="M 10 24 C 70 8, 170 8, 225 24" stroke="#D98768" stroke-width="3" stroke-dasharray="7 5" stroke-linecap="round" />
-        <polygon points="220,17 236,24 220,31" fill="#D98768" />
-      </svg>
-
-      <p class="instruction-text">
-        Drag <strong style="color:#34312D;">ShiftKit</strong> into <strong style="color:#34312D;">Applications</strong> to begin using instant circular gestures.
-      </p>
-    </div>
-
-    <!-- Right Target: Applications Folder -->
-    <div class="drop-card right-card">
-      <div class="target-guide">
-        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#465343" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.6">
-          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-        </svg>
+      <div class="sub-footer">
+        Hold <span class="key-cap">⇧ Shift</span> while dragging any file from Finder to invoke the radial action canvas.
       </div>
-      <span class="card-label">Applications</span>
-      <span class="card-sub">macOS Folder</span>
-    </div>
-  </div>
-
-  <!-- Footer -->
-  <div class="footer">
-    <div class="trust-badges">
-      <div class="trust-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
-        <span>100% On-Device Processing</span>
-      </div>
-      <div class="trust-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
-        <span>Universal Binary</span>
-      </div>
-      <div class="trust-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
-        <span>Zero Cloud Conversion Servers</span>
-      </div>
-    </div>
-    <div class="sub-footer">
-      Hold <span class="key-cap">⇧ Shift</span> while dragging any file from Finder to invoke the radial action canvas.
     </div>
   </div>
 </body>
