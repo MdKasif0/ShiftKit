@@ -793,3 +793,11 @@ RegisterWithLaunchServices /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/De
     cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
     builtin-lsregisterurl --record-path /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/XCBuildData/registered-launchservices.txt -- /System/Library/Frameworks/CoreServices.framework/Versions/Current/Frameworks/LaunchServices.framework/Versions/Current/Support/lsregister -f -R -trusted /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app
 
+PruneExplicitPrecompiledModules /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/SDKExplicitPrecompiledModules
+
+** BUILD SUCCEEDED **
+
