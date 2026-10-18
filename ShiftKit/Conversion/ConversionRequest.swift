@@ -8,6 +8,7 @@ public struct ConversionRequest: Identifiable, Hashable, Sendable {
     public let action: ConversionAction
     public let destinationURL: URL?
     public let options: [String: String]
+    public let conversionOptions: ConversionOptions
     public let timestamp: Date
 
     public init(
@@ -17,6 +18,7 @@ public struct ConversionRequest: Identifiable, Hashable, Sendable {
         action: ConversionAction,
         destinationURL: URL? = nil,
         options: [String: String] = [:],
+        conversionOptions: ConversionOptions? = nil,
         timestamp: Date = Date()
     ) {
         self.id = id
@@ -25,6 +27,7 @@ public struct ConversionRequest: Identifiable, Hashable, Sendable {
         self.action = action
         self.destinationURL = destinationURL
         self.options = options
+        self.conversionOptions = conversionOptions ?? ConversionOptions(customParameters: options)
         self.timestamp = timestamp
     }
 }
