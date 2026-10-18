@@ -79,15 +79,26 @@ public final class RadialMenuWindowController: NSObject, @unchecked Sendable {
         let hostingView = NSHostingView(rootView: radialView)
         hostingView.frame = NSRect(origin: .zero, size: menuSize)
 
-        // 3. Initialize & configure panel
+        // 3. Container view with integrated DropDestination overlay
+        let containerView = NSView(frame: NSRect(origin: .zero, size: menuSize))
+        containerView.addSubview(hostingView)
+
+        let dropOverlay = DropDestinationView(frame: NSRect(origin: .zero, size: menuSize))
+        dropOverlay.onFilesDropped = { [weak self] urls, targetIndex in
+            self?.dismiss()
+            DragSessionCoordinator.shared.handleDroppedURLs(urls, onSegmentIndex: targetIndex)
+        }
+        containerView.addSubview(dropOverlay)
+
+        // 4. Initialize & configure panel
         let panel = RadialMenuWindow(contentRect: frame)
-        panel.contentView = hostingView
+        panel.contentView = containerView
         panel.setFrame(frame, display: true)
         panel.alphaValue = 0.0
 
         self.window = panel
 
-        // 4. Smooth fade-in
+        // 5. Smooth fade-in
         panel.orderFrontRegardless()
         NSAnimationContext.runAnimationGroup { context in
             context.duration = 0.15
@@ -96,7 +107,7 @@ public final class RadialMenuWindowController: NSObject, @unchecked Sendable {
 
         panel.makeKey()
 
-        // 5. Install click-outside and key dismissal monitors
+        // 6. Install click-outside and key dismissal monitors
         installDismissalMonitors(panel: panel, onDismiss: onDismiss)
     }
 

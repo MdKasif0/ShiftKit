@@ -11,6 +11,8 @@ public final class AppCoordinator: @unchecked Sendable {
     public let fileInspector: FileInspecting
     public let outputManager: OutputManaging
     public let dragMonitor: DragEventMonitoring
+    public let dragSessionCoordinator: DragSessionCoordinator
+    public let permissionManager: InteractionPermissionManager
 
     public var inspectedFile: InspectedFile?
     public var isSettingsPresented: Bool = false
@@ -41,6 +43,8 @@ public final class AppCoordinator: @unchecked Sendable {
         self.radialMenuCoordinator = radial
         self.fileInspector = inspector
         self.dragMonitor = dragMonitor
+        self.dragSessionCoordinator = DragSessionCoordinator.shared
+        self.permissionManager = InteractionPermissionManager.shared
 
         // Seed preview jobs if empty
         if self.jobManager.completedJobs.isEmpty {
@@ -48,6 +52,9 @@ public final class AppCoordinator: @unchecked Sendable {
         }
 
         self.menuBarCoordinator = MenuBarCoordinator(appCoordinator: self)
+
+        // Initialize drag session coordination
+        self.dragSessionCoordinator.configure(appCoordinator: self)
     }
 
     @MainActor
@@ -60,6 +67,20 @@ public final class AppCoordinator: @unchecked Sendable {
         Task { @MainActor in
             do {
                 let file = try await fileInspector.inspect(url: url)
+                self.inspectedFile = file
+                self.radialMenuCoordinator.present(for: file)
+            } catch {
+                self.statusMessage = "Inspection failed: \(error.localizedDescription)"
+            }
+        }
+    }
+
+    /// Handles multiple files dropped at once
+    public func handleBatchFilesSelected(urls: [URL]) {
+        guard let first = urls.first else { return }
+        Task { @MainActor in
+            do {
+                let file = try await fileInspector.inspect(url: first)
                 self.inspectedFile = file
                 self.radialMenuCoordinator.present(for: file)
             } catch {
@@ -90,6 +111,10 @@ public final class AppCoordinator: @unchecked Sendable {
         // Clear active inspected file
         self.inspectedFile = nil
         self.radialMenuCoordinator.dismiss()
+    }
+
+    public func summonFloatingTargetAtCursor() {
+        dragSessionCoordinator.summonFloatingTargetAtCursor()
     }
 
     public func revealInFinder(url: URL) {
