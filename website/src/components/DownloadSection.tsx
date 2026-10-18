@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Download, Terminal, AlertCircle, CheckCircle2, ArrowRight } from "lucide-react";
 
 export function DownloadSection() {
-  const dmgUrl = process.env.NEXT_PUBLIC_SHIFTKIT_DMG_URL;
+  const dmgUrl = process.env.NEXT_PUBLIC_SHIFTKIT_DMG_URL || "/downloads/ShiftKit-1.0.0.dmg";
   const isDmgAvailable = Boolean(dmgUrl && dmgUrl.trim().length > 0);
 
   return (
