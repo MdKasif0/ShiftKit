@@ -73,7 +73,6 @@ public final class PDFKitEngine: ConversionEngine {
             let outputDir = outputURL.deletingPathExtension()
             try FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
             let splitFiles = try split(inputURL: request.sourceURL, outputDirectory: outputDir, progressHandler: progressHandler)
-            // If outputURL is expected to be a single file, return the first split file or outputDir
             return splitFiles.first ?? outputURL
         }
 
@@ -90,7 +89,7 @@ public final class PDFKitEngine: ConversionEngine {
         // 5. Reorder Pages
         if actionID == "pdf_reorder" {
             let orderStr = request.options["pageOrder"] ?? ""
-            let orderIndices = orderStr.split(separator: ",").compactMap { Int(/bin/zsh.trimmingCharacters(in: .whitespaces)) }
+            let orderIndices = orderStr.split(separator: ",").compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
             guard orderIndices.count == document.pageCount else {
                 throw ShiftKitError.conversionFailed(reason: "Reorder list count (\(orderIndices.count)) must match document page count (\(document.pageCount)).")
             }
@@ -317,7 +316,7 @@ public final class PDFKitEngine: ConversionEngine {
         }
 
         let newDoc = PDFDocument()
-        let validIndices = pageIndices.filter { /bin/zsh >= 0 && /bin/zsh < sourceDoc.pageCount }
+        let validIndices = pageIndices.filter { $0 >= 0 && $0 < sourceDoc.pageCount }
 
         guard !validIndices.isEmpty else {
             throw ShiftKitError.conversionFailed(reason: "No requested page indices exist in document.")
@@ -564,10 +563,7 @@ public final class PDFKitEngine: ConversionEngine {
 
         for idx in 0..<count {
             let pageStr = document.page(at: idx)?.string ?? ""
-            fullText += "--- Page \(idx + 1) ---
-" + pageStr + "
-
-"
+            fullText += "--- Page \(idx + 1) ---\n" + pageStr + "\n\n"
 
             let frac = Double(idx + 1) / Double(count)
             progressHandler?(frac * 0.85, "Extracted text from page \(idx + 1)...")
@@ -716,7 +712,7 @@ public final class PDFKitEngine: ConversionEngine {
         if let kw = attr[PDFDocumentAttribute.keywordsAttribute] as? [String] {
             keywordsList = kw
         } else if let kwStr = attr[PDFDocumentAttribute.keywordsAttribute] as? String {
-            keywordsList = kwStr.split(separator: ",").map { /bin/zsh.trimmingCharacters(in: .whitespaces) }
+            keywordsList = kwStr.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
         }
 
         var pageSizeDesc = ""
@@ -949,7 +945,7 @@ public final class PDFKitEngine: ConversionEngine {
         for token in tokens {
             let trimmed = token.trimmingCharacters(in: .whitespaces)
             if trimmed.contains("-") {
-                let parts = trimmed.split(separator: "-").map { /bin/zsh.trimmingCharacters(in: .whitespaces) }
+                let parts = trimmed.split(separator: "-").map { $0.trimmingCharacters(in: .whitespaces) }
                 if parts.count == 2, let start = Int(parts[0]), let end = Int(parts[1]) {
                     let rangeStart = max(1, min(start, end))
                     let rangeEnd = min(maxCount, max(start, end))
