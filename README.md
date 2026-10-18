@@ -174,7 +174,7 @@ chmod +x scripts/package_dmg.sh
 ```
 
 - **Output**: `dist/ShiftKit-1.0.0.dmg`
-- **File Size**: ~4.6 MB (Compressed)
+- **File Size**: ~5.2 MB (Compressed)
 - **Features**: Includes embedded `ShiftKit.app`, `/Applications` symlink, installation guide, and auto-generated `release_metadata.json` with SHA-256 verification.
 
 ---

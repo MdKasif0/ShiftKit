@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Download, Terminal, AlertCircle, CheckCircle2, ArrowRight } from "lucide-react";
 
 export function DownloadSection() {
@@ -12,9 +13,21 @@ export function DownloadSection() {
     <section id="download" className="py-20 md:py-28 bg-[#FAF8F3]">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="p-8 sm:p-12 rounded-3xl bg-[#F3EEE4] border border-[#E5D8C7] shadow-md text-center space-y-6">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF8F3] border border-[#E5D8C7] text-xs font-mono font-bold text-[#D98768] uppercase tracking-wider">
-            Official Release
-          </span>
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-20 h-20 rounded-2xl shadow-md border border-[#E5D8C7] overflow-hidden bg-[#FAF8F3] p-1.5">
+              <Image
+                src="/app-icon.png"
+                alt="ShiftKit App Icon"
+                width={76}
+                height={76}
+                className="w-full h-full object-contain"
+                priority
+              />
+            </div>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF8F3] border border-[#E5D8C7] text-xs font-mono font-bold text-[#D98768] uppercase tracking-wider">
+              Official Release
+            </span>
+          </div>
 
           <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#34312D]">
             Get ShiftKit for Mac
@@ -91,7 +104,7 @@ export function DownloadSection() {
             </div>
             <div>
               <span className="text-[#465343] block">FILE SIZE</span>
-              <span className="font-bold text-[#34312D] text-sm">4.6 MB (DMG)</span>
+              <span className="font-bold text-[#34312D] text-sm">5.2 MB (DMG)</span>
             </div>
             <div>
               <span className="text-[#465343] block">ARCHITECTURE</span>
@@ -105,7 +118,7 @@ export function DownloadSection() {
 
           <div className="pt-2 text-center">
             <p className="text-[11px] font-mono text-[#34312D]/60 truncate max-w-md mx-auto">
-              SHA-256: daeffa0d79c8a55325e4c84286644b2c993a9843bfb3d77e178f9fdaae5ee0d8
+              SHA-256: 255ca0aa221002447bb4f1c13f1107ddada8a5a6201707f8094549ffcff03e10
             </p>
           </div>
         </div>
