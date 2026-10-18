@@ -62,9 +62,16 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
     public let engineID = "com.shiftkit.engine.ffmpeg"
     public let engineName = "Dedicated Local FFmpeg"
 
-    private static var cachedCapabilities: FFmpegCapabilities?
-    private static var cachedVersionInfo: FFmpegVersionInfo?
-    private static let lock = NSLock()
+    // Cache actor
+    private actor Cache {
+        static let shared = Cache()
+        var capabilities: FFmpegCapabilities?
+        var versionInfo: FFmpegVersionInfo?
+        func getVersion() -> FFmpegVersionInfo? { versionInfo }
+        func setVersion(_ info: FFmpegVersionInfo) { versionInfo = info }
+        func getCapabilities() -> FFmpegCapabilities? { capabilities }
+        func setCapabilities(_ caps: FFmpegCapabilities) { capabilities = caps }
+    }
 
     public init() {}
 
@@ -128,12 +135,9 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
 
     // MARK: - Version & Licensing Audit
     public static func queryVersionInfo() async throws -> FFmpegVersionInfo {
-        lock.lock()
-        if let cached = cachedVersionInfo {
-            lock.unlock()
+        if let cached = await Cache.shared.getVersion() {
             return cached
         }
-        lock.unlock()
 
         guard let binaryURL = locateBinary() else {
             throw ShiftKitError.engineNotAvailable(engineName: "FFmpeg binary not found")
@@ -198,21 +202,16 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
             enabledLibraries: enabledLibs
         )
 
-        lock.lock()
-        cachedVersionInfo = info
-        lock.unlock()
+        await Cache.shared.setVersion(info)
 
         return info
     }
 
     // MARK: - Capabilities Query
     public static func queryCapabilities() async -> FFmpegCapabilities {
-        lock.lock()
-        if let cached = cachedCapabilities {
-            lock.unlock()
+        if let cached = await Cache.shared.getCapabilities() {
             return cached
         }
-        lock.unlock()
 
         guard let binary = locateBinary() else {
             return FFmpegCapabilities()
@@ -290,9 +289,7 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
             hasAudioToolbox: hasAT
         )
 
-        lock.lock()
-        cachedCapabilities = caps
-        lock.unlock()
+        await Cache.shared.setCapabilities(caps)
 
         return caps
     }

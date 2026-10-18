@@ -31,7 +31,8 @@ public final class JobManager: @unchecked Sendable {
         queueLock.unlock()
 
         let task = Task.detached(priority: .userInitiated) { [weak self, jobID = job.id] in
-            await self?.processJob(id: jobID)
+            guard let self else { return }
+            await self.processJob(id: jobID)
         }
 
         queueLock.lock()
