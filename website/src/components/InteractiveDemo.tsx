@@ -589,8 +589,8 @@ export function InteractiveDemo() {
 
                         const isSelected = selectedActionId === action.id;
                         const midR = (R + r) / 2;
-                        const labelX = cx + midR * Math.cos(midRad);
-                        const labelY = cy + midR * Math.sin(midRad);
+                        const labelX = Math.round((cx + midR * Math.cos(midRad)) * 100) / 100;
+                        const labelY = Math.round((cy + midR * Math.sin(midRad)) * 100) / 100;
 
                         return (
                           <g
