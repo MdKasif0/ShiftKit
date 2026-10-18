@@ -81,7 +81,7 @@ export function HowItWorks() {
 
     autoAdvanceTimerRef.current = setInterval(() => {
       setActiveStep((prev) => (prev % 4) + 1);
-    }, 4500);
+    }, 5000);
 
     return () => {
       if (autoAdvanceTimerRef.current) {
@@ -93,6 +93,8 @@ export function HowItWorks() {
 
   const handleStepClick = (stepId: number) => {
     setActiveStep(stepId);
+    // Pause auto-advance on intentional user interaction so they can explore
+    setIsPlaying(false);
   };
 
   const togglePlay = () => {
@@ -136,12 +138,12 @@ export function HowItWorks() {
   ];
 
   return (
-    <section id="how-it-works" aria-label="How ShiftKit Works" className="py-16 md:py-24 bg-[#FAF8F3] scroll-mt-20">
+    <section id="how-it-works" aria-label="How ShiftKit Works" className="py-14 md:py-20 bg-[#FAF8F3] scroll-mt-24">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* ========================================================= */}
         {/* SECTION HEADER                                            */}
         {/* ========================================================= */}
-        <div className="max-w-2xl mx-auto text-center space-y-3 mb-12 sm:mb-16">
+        <div className="max-w-2xl mx-auto text-center space-y-2.5 mb-10 sm:mb-14">
           <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#FAF8F3] border border-[#E5D8C7] shadow-2xs">
             <span className="w-1.5 h-1.5 rounded-full bg-[#D98768]" />
             <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-[#D98768]">
@@ -161,7 +163,7 @@ export function HowItWorks() {
         {/* ========================================================= */}
         {/* 4-STAGE CONNECTED PROGRESSION SELECTOR                     */}
         {/* ========================================================= */}
-        <div className="relative mb-8 sm:mb-10">
+        <div className="relative mb-6 sm:mb-8">
           {/* Connecting Line behind the cards (Desktop) */}
           <div className="hidden lg:block absolute top-1/2 left-12 right-12 -translate-y-1/2 h-[1px] bg-[#E5D8C7] z-0" />
 
@@ -248,17 +250,17 @@ export function HowItWorks() {
           </div>
 
           {/* Interactive Workspace Canvas */}
-          <div className="p-6 sm:p-10 lg:p-12 relative min-h-[420px] flex items-center justify-center overflow-hidden">
+          <div className="p-6 sm:p-8 lg:p-10 relative min-h-[380px] flex items-center justify-center overflow-hidden">
             {/* ----------------------------------------------------- */}
             {/* STAGE 1: HOLD SHIFT WHILE DRAGGING                    */}
             {/* ----------------------------------------------------- */}
             {activeStep === 1 && (
-              <div className="w-full max-w-xl flex flex-col items-center justify-center space-y-8 animate-fadeIn">
+              <div className="w-full max-w-xl flex flex-col items-center justify-center space-y-6 animate-fadeIn">
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-8 w-full">
                   {/* File Card in Drag State */}
                   <div className="relative group">
-                    <div className="w-48 p-4 rounded-2xl bg-[#FFFFFF] border-2 border-[#D98768] shadow-md space-y-3 text-center transform -rotate-2 transition-transform">
-                      <div className="w-full h-28 rounded-xl overflow-hidden border border-[#E5D8C7]">
+                    <div className="w-44 p-3.5 rounded-2xl bg-[#FFFFFF] border-2 border-[#D98768] shadow-md space-y-2.5 text-center transform -rotate-2 transition-transform">
+                      <div className="w-full h-24 rounded-xl overflow-hidden border border-[#E5D8C7]">
                         <img
                           src="/mountain_sample.jpg"
                           alt="Dragging Photo"
@@ -266,14 +268,14 @@ export function HowItWorks() {
                         />
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-[#34312D]">photo.png</p>
-                        <p className="text-xs text-[#898177]">PNG image • 2.4 MB</p>
+                        <p className="text-xs font-bold text-[#34312D]">photo.png</p>
+                        <p className="text-[11px] text-[#898177]">PNG image • 2.4 MB</p>
                       </div>
                     </div>
 
                     {/* Mouse Cursor */}
-                    <div className="absolute -bottom-3 -right-2 pointer-events-none drop-shadow-md">
-                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                    <div className="absolute -bottom-2 -right-2 pointer-events-none drop-shadow-md">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path
                           d="M3 3L10.07 20.97L12.58 13.58L19.97 11.07L3 3Z"
                           fill="#1A1817"
@@ -286,9 +288,9 @@ export function HowItWorks() {
                   </div>
 
                   {/* Drop Target Gesture Guide */}
-                  <div className="flex flex-col items-center space-y-4 text-center">
+                  <div className="flex flex-col items-center space-y-3 text-center">
                     {/* Realistic 3D Tactile Shift Key */}
-                    <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#D4C8B8] border-b-[3px] border-b-[#B8A894] bg-gradient-to-b from-[#FFFFFF] to-[#EFEAE1] shadow-xs ring-2 ring-[#D98768]/20">
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-xl border border-[#D4C8B8] border-b-[3px] border-b-[#B8A894] bg-gradient-to-b from-[#FFFFFF] to-[#EFEAE1] shadow-xs ring-2 ring-[#D98768]/20">
                       <span className="text-sm font-bold text-[#D98768]">⇧</span>
                       <span className="text-xs font-mono font-bold text-[#34312D] tracking-wide">
                         Shift
@@ -301,7 +303,7 @@ export function HowItWorks() {
                   </div>
                 </div>
 
-                <div className="px-4 py-2 rounded-full bg-[#FAF2ED] border border-[#E5D8C7] text-xs font-mono text-[#D98768] flex items-center gap-2 shadow-2xs">
+                <div className="px-4 py-1.5 rounded-full bg-[#FAF2ED] border border-[#E5D8C7] text-xs font-mono text-[#D98768] flex items-center gap-2 shadow-2xs">
                   <span className="w-2 h-2 rounded-full bg-[#D98768] animate-ping" />
                   Gesture detected: Preparing radial menu bloom...
                 </div>
@@ -315,44 +317,44 @@ export function HowItWorks() {
               <div className="w-full relative animate-fadeIn">
                 {/* SVG Connecting Curves for Desktop */}
                 <div className="hidden lg:block absolute inset-0 pointer-events-none z-0">
-                  <svg className="w-full h-full" viewBox="0 0 900 320" fill="none">
+                  <svg className="w-full h-full" viewBox="0 0 900 300" fill="none">
                     {/* Arrow 1: From left file card to radial menu */}
                     <path
-                      d="M 230 110 C 290 110, 320 160, 350 160"
+                      d="M 230 100 C 280 100, 310 145, 345 145"
                       stroke="#D98768"
-                      strokeWidth="1.5"
+                      strokeWidth="1.25"
                       strokeDasharray="4 4"
                       opacity="0.65"
                     />
-                    <polygon points="354,160 348,157 348,163" fill="#D98768" opacity="0.75" />
+                    <polygon points="348,145 342,142 342,148" fill="#D98768" opacity="0.75" />
 
                     {/* Arrow 2: From top of Convert segment to Convert config panel */}
                     <path
-                      d="M 520 85 C 560 85, 590 70, 630 70"
+                      d="M 525 75 C 560 75, 595 65, 630 65"
                       stroke="#D98768"
-                      strokeWidth="1.5"
+                      strokeWidth="1.25"
                       strokeDasharray="4 4"
                       opacity="0.65"
                     />
 
                     {/* Arrow 3: From radial menu to Output card */}
                     <path
-                      d="M 545 220 C 585 220, 630 250, 680 250"
+                      d="M 545 205 C 585 205, 620 235, 660 235"
                       stroke="#D98768"
-                      strokeWidth="1.5"
+                      strokeWidth="1.25"
                       strokeDasharray="4 4"
                       opacity="0.65"
                     />
-                    <polygon points="684,250 678,247 678,253" fill="#D98768" opacity="0.75" />
+                    <polygon points="664,235 658,232 658,238" fill="#D98768" opacity="0.75" />
                   </svg>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center relative z-10">
                   {/* Left Column: Dragged File & Shift Key */}
-                  <div className="lg:col-span-4 flex flex-col items-center lg:items-start space-y-4">
+                  <div className="lg:col-span-4 flex flex-col items-center lg:items-start space-y-3">
                     {/* File Card */}
-                    <div className="w-44 p-3.5 rounded-2xl bg-[#FFFFFF] border border-[#E5D8C7] shadow-xs space-y-2.5 text-center relative">
-                      <div className="w-full h-24 rounded-xl overflow-hidden border border-[#E5D8C7]">
+                    <div className="w-44 p-3 rounded-2xl bg-[#FFFFFF] border border-[#E5D8C7] shadow-xs space-y-2 text-center relative">
+                      <div className="w-full h-22 rounded-xl overflow-hidden border border-[#E5D8C7]">
                         <img
                           src="/mountain_sample.jpg"
                           alt="Selected Photo"
@@ -379,7 +381,7 @@ export function HowItWorks() {
                     </div>
 
                     {/* 3D Tactile macOS Shift Key Indicator */}
-                    <div className="flex items-center gap-3 pt-1">
+                    <div className="flex items-center gap-2.5 pt-0.5">
                       <div className="px-3 py-1.5 rounded-lg border border-[#D4C8B8] border-b-2 border-b-[#B8A894] bg-gradient-to-b from-[#FFFFFF] to-[#EFEAE1] shadow-2xs flex items-center gap-1.5 text-xs font-mono font-bold text-[#34312D]">
                         <span>⇧</span>
                         <span>Shift</span>
@@ -392,7 +394,7 @@ export function HowItWorks() {
 
                   {/* Center Column: The Defining Radial Menu HUD */}
                   <div className="lg:col-span-4 flex items-center justify-center relative">
-                    <div className="relative w-[220px] h-[220px] shrink-0 flex items-center justify-center select-none">
+                    <div className="relative w-[210px] h-[210px] shrink-0 flex items-center justify-center select-none">
                       <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-sm">
                         {/* Outer Guide */}
                         <circle
@@ -470,9 +472,9 @@ export function HowItWorks() {
                   </div>
 
                   {/* Right Column: Dynamic Action Config Popover & Output Preview */}
-                  <div className="lg:col-span-4 flex flex-col space-y-4">
+                  <div className="lg:col-span-4 flex flex-col space-y-3.5">
                     {/* Action Configuration Card */}
-                    <div className="p-4 rounded-2xl bg-[#FFFFFF] border border-[#E5D8C7] shadow-xs space-y-3">
+                    <div className="p-3.5 rounded-2xl bg-[#FFFFFF] border border-[#E5D8C7] shadow-xs space-y-2.5">
                       <div className="flex items-center gap-2">
                         <div className="w-7 h-7 rounded-lg bg-[#FAF2ED] text-[#D98768] flex items-center justify-center">
                           <FileText size={15} />
@@ -484,7 +486,7 @@ export function HowItWorks() {
                       </div>
 
                       {/* Output Format Options */}
-                      <div className="flex items-center gap-1.5 pt-1">
+                      <div className="flex items-center gap-1.5 pt-0.5">
                         {["PNG", "WEBP", "JPEG"].map((fmt) => (
                           <button
                             key={fmt}
@@ -636,7 +638,7 @@ export function HowItWorks() {
           </div>
 
           {/* Window Footer Bar with Contextual Info & Auto-Advance Control */}
-          <div className="px-4 sm:px-6 py-3 bg-[#F3EEE4] border-t border-[#E5D8C7] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+          <div className="px-4 sm:px-6 py-2.5 bg-[#F3EEE4] border-t border-[#E5D8C7] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
             {/* Status Information */}
             <div className="flex items-center gap-2 text-[#34312D]/80">
               <Info size={14} className="text-[#D98768] shrink-0" />
