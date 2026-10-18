@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1320, height=840, initial-scale=1.0">
+  <title>ShiftKit DMG Background</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      width: 1320px;
+      height: 840px;
+      overflow: hidden;
+      background-color: #FAF8F3;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+      color: #34312D;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      user-select: none;
+    }
+
+    /* Ambient Warm Vignette & Subtle Radial Petal Rings */
+    .ambient-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 45%, #FFFFFF 0%, #FAF8F3 65%, #F4EFE6 100%);
+      pointer-events: none;
+    }
+
+    .radial-rings {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -46%);
+      pointer-events: none;
+      opacity: 0.55;
+    }
+
+    /* Decorative Desk / Light Blur Elements */
+    .top-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 9999px;
+      background: #F3EEE4;
+      border: 1px solid #E5D8C7;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #465343;
+      box-shadow: 0 1px 3px rgba(52, 49, 45, 0.04);
+    }
+
+    .dot-terracotta {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #D98768;
+    }
+
+    /* Header Section */
+    .header {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding-top: 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 14px;
+      margin-bottom: 6px;
+    }
+
+    .app-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 14px;
+      box-shadow: 0 8px 20px rgba(52, 49, 45, 0.12), 0 2px 6px rgba(52, 49, 45, 0.06);
+      border: 1px solid rgba(229, 216, 199, 0.8);
+      background: #FFFFFF;
+      overflow: hidden;
+    }
+
+    .app-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .title {
+      font-family: "Georgia", "New York", "Charter", serif;
+      font-size: 44px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #34312D;
+      line-height: 1;
+    }
+
+    .tagline {
+      font-size: 16px;
+      font-weight: 500;
+      color: #465343;
+      letter-spacing: -0.01em;
+      margin-top: 4px;
+    }
+
+    /* Main Drag-and-Drop Installation Stage */
+    .stage {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 90px;
+      margin-top: -10px;
+    }
+
+    .drop-card {
+      width: 250px;
+      height: 250px;
+      border-radius: 32px;
+      background: rgba(255, 255, 255, 0.65);
+      border: 2px dashed #D9C8B5;
+      box-shadow: 0 12px 32px rgba(52, 49, 45, 0.05), inset 0 2px 6px rgba(255, 255, 255, 0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding-bottom: 24px;
+      position: relative;
+      backdrop-filter: blur(10px);
+    }
+
+    .drop-card.left-card {
+      border-color: rgba(217, 135, 104, 0.4);
+    }
+
+    .drop-card.right-card {
+      border-color: rgba(168, 181, 160, 0.6);
+    }
+
+    .target-guide {
+      position: absolute;
+      top: 44px;
+      width: 128px;
+      height: 128px;
+      border-radius: 26px;
+      border: 1.5px dashed rgba(217, 135, 104, 0.3);
+      background: rgba(243, 238, 228, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .right-card .target-guide {
+      border-color: rgba(70, 83, 67, 0.25);
+    }
+
+    .card-label {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: #34312D;
+    }
+
+    .card-sub {
+      font-size: 12px;
+      color: #898177;
+      margin-top: 2px;
+    }
+
+    /* Central Gesture Connection Arrow */
+    .connection-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 24px;
+    }
+
+    .drag-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      border-radius: 9999px;
+      background: #D98768;
+      color: #FAF8F3;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      box-shadow: 0 4px 14px rgba(217, 135, 104, 0.35);
+      margin-bottom: 12px;
+    }
+
+    .arrow-svg {
+      width: 240px;
+      height: 48px;
+      margin-bottom: 8px;
+    }
+
+    .instruction-text {
+      font-size: 13px;
+      color: #465343;
+      font-weight: 500;
+      text-align: center;
+      max-width: 260px;
+      line-height: 1.4;
+    }
+
+    .key-cap {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 5px;
+      background: #F3EEE4;
+      border: 1px solid #E5D8C7;
+      font-family: monospace;
+      font-weight: 700;
+      font-size: 12px;
+      color: #34312D;
+      box-shadow: 0 1px 2px rgba(52, 49, 45, 0.08);
+    }
+
+    /* Footer Details */
+    .footer {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding-bottom: 38px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .trust-badges {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #465343;
+    }
+
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .trust-item svg {
+      width: 14px;
+      height: 14px;
+      color: #D98768;
+    }
+
+    .sub-footer {
+      font-size: 11px;
+      color: #898177;
+      letter-spacing: 0.02em;
+    }
+  </style>
+</head>
+<body>
+  <!-- Ambient Background -->
+  <div class="ambient-bg"></div>
+
+  <!-- Radial Geometry Petal Rings -->
+  <svg class="radial-rings" width="900" height="900" viewBox="0 0 900 900" fill="none">
+    <circle cx="450" cy="450" r="160" stroke="#E5D8C7" stroke-width="1.5" stroke-dasharray="6 6" />
+    <circle cx="450" cy="450" r="260" stroke="#E5D8C7" stroke-width="1.5" />
+    <circle cx="450" cy="450" r="380" stroke="#E5D8C7" stroke-width="1" stroke-dasharray="8 8" />
+    <!-- 6 Petal Lines echoing radial menu -->
+    <line x1="450" y1="190" x2="450" y2="710" stroke="#E5D8C7" stroke-width="1" stroke-dasharray="4 6" opacity="0.6" />
+    <line x1="225" y1="320" x2="675" y2="580" stroke="#E5D8C7" stroke-width="1" stroke-dasharray="4 6" opacity="0.6" />
+    <line x1="225" y1="580" x2="675" y2="320" stroke="#E5D8C7" stroke-width="1" stroke-dasharray="4 6" opacity="0.6" />
+  </svg>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="top-pill">
+      <span class="dot-terracotta"></span>
+      MADE FOR macOS 14+ • APPLE SILICON & INTEL
+    </div>
+    <div class="brand-row">
+      <div class="app-icon">
+        <img src="/website/public/app-icon.png" alt="ShiftKit Logo">
+      </div>
+      <h1 class="title">ShiftKit</h1>
+    </div>
+    <p class="tagline">Every file. One gesture. Native circular file utility.</p>
+  </div>
+
+  <!-- Installation Stage -->
+  <div class="stage">
+    <!-- Left Target: ShiftKit.app -->
+    <div class="drop-card left-card">
+      <div class="target-guide">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#D98768" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.7">
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+          <line x1="8" y1="21" x2="16" y2="21"></line>
+          <line x1="12" y1="17" x2="12" y2="21"></line>
+        </svg>
+      </div>
+      <span class="card-label">ShiftKit</span>
+      <span class="card-sub">Application</span>
+    </div>
+
+    <!-- Center Drag Gesture Pathway -->
+    <div class="connection-area">
+      <div class="drag-pill">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+        <span>Drag to Install</span>
+      </div>
+
+      <svg class="arrow-svg" viewBox="0 0 240 48" fill="none">
+        <path d="M 10 24 C 70 8, 170 8, 225 24" stroke="#D98768" stroke-width="3" stroke-dasharray="7 5" stroke-linecap="round" />
+        <polygon points="220,17 236,24 220,31" fill="#D98768" />
+      </svg>
+
+      <p class="instruction-text">
+        Drag <strong style="color:#34312D;">ShiftKit</strong> into <strong style="color:#34312D;">Applications</strong> to begin using instant circular gestures.
+      </p>
+    </div>
+
+    <!-- Right Target: Applications Folder -->
+    <div class="drop-card right-card">
+      <div class="target-guide">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#465343" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.6">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+        </svg>
+      </div>
+      <span class="card-label">Applications</span>
+      <span class="card-sub">macOS Folder</span>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="trust-badges">
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <span>100% On-Device Processing</span>
+      </div>
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <span>Universal Binary</span>
+      </div>
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <span>Zero Cloud Conversion Servers</span>
+      </div>
+    </div>
+    <div class="sub-footer">
+      Hold <span class="key-cap">⇧ Shift</span> while dragging any file from Finder to invoke the radial action canvas.
+    </div>
+  </div>
+</body>
+</html>
