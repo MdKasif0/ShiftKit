@@ -12,7 +12,7 @@ public final class ImageIOCoreEngine: ConversionEngine {
     public func canHandle(action: ConversionAction, fileType: FileType) -> Bool {
         guard case .image = fileType else { return false }
         switch action.category {
-        case .convert, .compress, .crop, .utility:
+        case .convert, .compress, .cropOrTrim, .metadata, .edit:
             return true
         default:
             return false

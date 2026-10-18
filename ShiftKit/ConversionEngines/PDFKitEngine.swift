@@ -11,7 +11,7 @@ public final class PDFKitEngine: ConversionEngine {
     public func canHandle(action: ConversionAction, fileType: FileType) -> Bool {
         guard case .pdf = fileType else { return false }
         switch action.category {
-        case .convert, .compress, .merge:
+        case .convert, .compress, .merge, .extract:
             return true
         default:
             return false
@@ -29,7 +29,7 @@ public final class PDFKitEngine: ConversionEngine {
             throw ShiftKitError.conversionFailed(reason: "Failed to load PDF document.")
         }
 
-        if request.action.id == "pdf_to_images" {
+        if request.action.id == "pdf_to_images" || request.action.category == .extract {
             progressHandler(0.4, "Rendering PDF pages...")
             guard let firstPage = document.page(at: 0) else {
                 throw ShiftKitError.conversionFailed(reason: "PDF document contains no pages.")
