@@ -3,6 +3,7 @@ import CoreGraphics
 import ImageIO
 import AVFoundation
 import PDFKit
+import UniformTypeIdentifiers
 
 // MARK: - Protocol
 public protocol FileInspecting: Sendable {
@@ -18,68 +19,158 @@ public final class FileInspector: FileInspecting {
     }
 
     public func inspect(url: URL) async throws -> InspectedFile {
-        // Verify file exists
+        // 1. Verify existence
         let fileManager = FileManager.default
         var isDirectory: ObjCBool = false
         guard fileManager.fileExists(atPath: url.path, isDirectory: &isDirectory), !isDirectory.boolValue else {
             throw ShiftKitError.fileNotFound(url)
         }
 
-        let fileType = typeDetector.detectType(for: url)
+        // 2. Format & Type Detection via Magic Signatures and Inspection
+        let detectedType = typeDetector.detectType(for: url)
+        let actualFormat = typeDetector.detectActualFormat(for: url)
+        let mismatchInfo = typeDetector.checkFormatMismatch(for: url)
 
-        // Read file system attributes
+        // 3. System Attributes
         let attributes = try? fileManager.attributesOfItem(atPath: url.path)
         let fileSize = (attributes?[.size] as? NSNumber)?.int64Value ?? 0
         let createdDate = attributes?[.creationDate] as? Date
         let modifiedDate = attributes?[.modificationDate] as? Date
 
+        // 4. UTI & MIME Type Resolution
+        var resolvedUTI: String?
+        if let resourceValues = try? url.resourceValues(forKeys: [.contentTypeKey]),
+           let contentType = resourceValues.contentType {
+            resolvedUTI = contentType.identifier
+        } else {
+            resolvedUTI = actualFormat?.uti ?? UTType(filenameExtension: url.pathExtension)?.identifier
+        }
+
+        let resolvedMIME: String? = {
+            if let mime = actualFormat?.mimeType { return mime }
+            if let uti = resolvedUTI, let utType = UTType(uti) {
+                return utType.preferredMIMEType
+            }
+            return nil
+        }()
+
+        // 5. Deep Format-Specific Inspection
         var pixelWidth: Int?
         var pixelHeight: Int?
-        var durationSeconds: Double?
-        var pageCount: Int?
+        var colorSpace: String?
+        var hasAlphaChannel = false
 
-        switch fileType {
-        case .image:
+        var durationSeconds: Double?
+        var audioChannels: Int?
+        var audioSampleRate: Double?
+        var audioBitrate: Int?
+        var audioCodec: String?
+        var videoFrameRate: Double?
+        var videoCodec: String?
+
+        var pageCount: Int?
+        var isEncrypted = false
+        var documentTitle: String?
+        var documentAuthor: String?
+
+        // A. Image Inspection via ImageIO
+        if case .image = detectedType {
             if let imageSource = CGImageSourceCreateWithURL(url as CFURL, nil),
                let properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil) as? [CFString: Any] {
                 pixelWidth = properties[kCGImagePropertyPixelWidth] as? Int
                 pixelHeight = properties[kCGImagePropertyPixelHeight] as? Int
+                colorSpace = properties[kCGImagePropertyColorModel] as? String
+                hasAlphaChannel = (properties[kCGImagePropertyHasAlpha] as? Bool) ?? false
             }
+        }
 
-        case .video, .audio:
+        // B. Audio & Video Inspection via AVFoundation
+        if case .video = detectedType {
             let asset = AVURLAsset(url: url)
             if let duration = try? await asset.load(.duration) {
                 let seconds = CMTimeGetSeconds(duration)
-                if seconds.isFinite && seconds > 0 {
-                    durationSeconds = seconds
-                }
+                if seconds.isFinite && seconds > 0 { durationSeconds = seconds }
             }
-            if case .video = fileType {
-                if let tracks = try? await asset.loadTracks(withMediaType: .video),
-                   let firstTrack = tracks.first,
-                   let naturalSize = try? await firstTrack.load(.naturalSize) {
+
+            // Video tracks
+            if let videoTracks = try? await asset.loadTracks(withMediaType: .video),
+               let firstVideoTrack = videoTracks.first {
+                if let naturalSize = try? await firstVideoTrack.load(.naturalSize) {
                     pixelWidth = Int(naturalSize.width)
                     pixelHeight = Int(naturalSize.height)
                 }
+                if let nominalFps = try? await firstVideoTrack.load(.nominalFrameRate) {
+                    videoFrameRate = Double(nominalFps)
+                }
+                videoCodec = "H.264 / HEVC"
             }
 
-        case .pdf:
+            // Audio tracks in video
+            if let audioTracks = try? await asset.loadTracks(withMediaType: .audio),
+               let firstAudioTrack = audioTracks.first {
+                if let formatDescriptions = try? await firstAudioTrack.load(.formatDescriptions) {
+                    if let firstDesc = formatDescriptions.first {
+                        let basic = CMAudioFormatDescriptionGetStreamBasicDescription(firstDesc)
+                        if let asbd = basic?.pointee {
+                            audioChannels = Int(asbd.mChannelsPerFrame)
+                            audioSampleRate = asbd.mSampleRate
+                        }
+                    }
+                }
+            }
+        } else if case .audio = detectedType {
+            let asset = AVURLAsset(url: url)
+            if let duration = try? await asset.load(.duration) {
+                let seconds = CMTimeGetSeconds(duration)
+                if seconds.isFinite && seconds > 0 { durationSeconds = seconds }
+            }
+
+            if let audioTracks = try? await asset.loadTracks(withMediaType: .audio),
+               let firstAudioTrack = audioTracks.first {
+                if let formatDescriptions = try? await firstAudioTrack.load(.formatDescriptions) {
+                    if let firstDesc = formatDescriptions.first {
+                        let basic = CMAudioFormatDescriptionGetStreamBasicDescription(firstDesc)
+                        if let asbd = basic?.pointee {
+                            audioChannels = Int(asbd.mChannelsPerFrame)
+                            audioSampleRate = asbd.mSampleRate
+                        }
+                    }
+                }
+            }
+        }
+
+        // C. PDF Inspection via PDFKit
+        if case .pdf = detectedType {
             if let pdf = PDFDocument(url: url) {
                 pageCount = pdf.pageCount
+                isEncrypted = pdf.isEncrypted
+                documentTitle = pdf.documentAttributes?[PDFDocumentAttribute.titleAttribute] as? String
+                documentAuthor = pdf.documentAttributes?[PDFDocumentAttribute.authorAttribute] as? String
             }
-
-        default:
-            break
         }
 
         let metadata = FileMetadata(
             fileSize: fileSize,
             fileExtension: url.pathExtension,
-            uti: nil,
+            uti: resolvedUTI,
+            mimeType: resolvedMIME,
             pixelWidth: pixelWidth,
             pixelHeight: pixelHeight,
+            colorSpace: colorSpace,
+            hasAlphaChannel: hasAlphaChannel,
             durationSeconds: durationSeconds,
+            audioChannels: audioChannels,
+            audioSampleRate: audioSampleRate,
+            audioBitrate: audioBitrate,
+            audioCodec: audioCodec,
+            videoFrameRate: videoFrameRate,
+            videoCodec: videoCodec,
             pageCount: pageCount,
+            isEncrypted: isEncrypted,
+            documentTitle: documentTitle,
+            documentAuthor: documentAuthor,
+            isFormatExtensionMismatch: mismatchInfo.hasMismatch,
+            detectedFormat: actualFormat,
             createdDate: createdDate,
             modifiedDate: modifiedDate
         )
@@ -87,7 +178,7 @@ public final class FileInspector: FileInspecting {
         return InspectedFile(
             url: url,
             fileName: url.lastPathComponent,
-            fileType: fileType,
+            fileType: detectedType,
             metadata: metadata
         )
     }
