@@ -10,6 +10,7 @@
   --color-peach: #F5D5C2;
   --color-sand: #E5D8C7;
   --color-charcoal: #34312D;
+  --font-serif: "New York", "Iowan Old Style", "Charter", "Palatino", "Georgia", serif;
 }
 
 :root {
