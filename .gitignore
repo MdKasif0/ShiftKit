@@ -4,3 +4,8 @@ build/
 *.xcuserstate
 project.xcworkspace
 xcuserdata/
+
+# Sparkle tools and keys
+scripts/bin/
+*.key
+*.priv
