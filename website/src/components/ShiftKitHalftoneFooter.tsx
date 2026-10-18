@@ -38,7 +38,7 @@ const SHIFTKIT_COLUMNS: FooterColumn[] = [
 export function ShiftKitHalftoneFooter() {
   return (
     <HalftoneWordmarkFooter
-      wordmark="shiftkit"
+      wordmark="ShiftKit"
       label="ShiftKit"
       meta="© 2026 · Native macOS Utility"
       columns={SHIFTKIT_COLUMNS}
