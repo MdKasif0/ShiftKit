@@ -1,8 +1,8 @@
 import SwiftUI
+import AppKit
 
 public struct RadialMenuPreviewCard: View {
     @State private var selectedSampleIndex: Int = 0
-    @State private var isShiftActive: Bool = false
     @State private var selectedActionNotice: String?
 
     private let sampleFiles: [InspectedFile] = [
@@ -28,7 +28,6 @@ public struct RadialMenuPreviewCard: View {
         )
     ]
 
-    private let registry = ConversionRegistry()
     public let onActionTriggered: ((InspectedFile, ConversionAction) -> Void)?
 
     public init(onActionTriggered: ((InspectedFile, ConversionAction) -> Void)? = nil) {
@@ -38,13 +37,13 @@ public struct RadialMenuPreviewCard: View {
     public var body: some View {
         ShiftKitCard(padding: 18) {
             VStack(alignment: .leading, spacing: 14) {
-                // Section Title & Selector
+                // Header Bar with File Selector & Floating Window Button
                 HStack(alignment: .center) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Interactive Radial Menu Preview")
+                        Text("Interactive Radial Menu")
                             .font(ShiftKitTypography.headline)
                             .foregroundColor(ShiftKitColors.charcoalBrown)
-                        Text("Test how holding Shift while dragging dynamically configures available operations")
+                        Text("8 Contextual actions with searchable submenus and full keyboard navigation")
                             .font(ShiftKitTypography.caption)
                             .foregroundColor(ShiftKitColors.textMuted)
                     }
@@ -81,35 +80,57 @@ public struct RadialMenuPreviewCard: View {
                         RoundedRectangle(cornerRadius: 8)
                             .stroke(ShiftKitColors.borderSubtle, lineWidth: 1)
                     )
+
+                    // Button to launch native floating AppKit window at mouse
+                    Button {
+                        let current = sampleFiles[selectedSampleIndex]
+                        RadialMenuWindowController.shared.present(
+                            for: current,
+                            at: NSEvent.mouseLocation,
+                            onSelectAction: { action in
+                                onActionTriggered?(current, action)
+                            },
+                            onDismiss: {}
+                        )
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "macwindow.on.rectangle")
+                                .font(.system(size: 10, weight: .semibold))
+                            Text("Launch Floating Ring")
+                                .font(ShiftKitTypography.captionBold)
+                        }
+                    }
+                    .buttonStyle(ShiftKitSecondaryButtonStyle())
+                    .help("Opens the native floating AppKit NSPanel window over your screen")
                 }
 
                 // Interactive Demo Canvas
                 let currentFile = sampleFiles[selectedSampleIndex]
-                let actions = registry.actions(for: currentFile.fileType)
 
                 ZStack {
-                    // Canvas textured background
-                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    // Canvas background
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
                         .fill(ShiftKitColors.warmIvory)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 290)
+                        .frame(height: 380)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
                                 .stroke(ShiftKitColors.sandBeige, lineWidth: 1)
                         )
 
-                    // Centered Radial Menu
+                    // Embedded Radial Menu
                     RadialMenuView(
                         file: currentFile,
-                        actions: actions,
                         onSelectAction: { action in
-                            selectedActionNotice = "Triggered: \(action.title) on \(currentFile.fileName)"
+                            selectedActionNotice = "Queued: \(action.title) (\(currentFile.fileName))"
                             onActionTriggered?(currentFile, action)
                         },
-                        onDismiss: {}
+                        onDismiss: {
+                            selectedActionNotice = nil
+                        }
                     )
 
-                    // Toast notice overlay if triggered
+                    // Notice overlay if triggered
                     if let notice = selectedActionNotice {
                         VStack {
                             Spacer()
@@ -120,7 +141,7 @@ public struct RadialMenuPreviewCard: View {
                                     .font(ShiftKitTypography.captionBold)
                                     .foregroundColor(ShiftKitColors.charcoalBrown)
                             }
-                            .padding(.horizontal, 12)
+                            .padding(.horizontal, 14)
                             .padding(.vertical, 6)
                             .background(ShiftKitColors.surface)
                             .clipShape(Capsule())
@@ -128,7 +149,7 @@ public struct RadialMenuPreviewCard: View {
                                 Capsule().stroke(ShiftKitColors.sandBeige, lineWidth: 1)
                             )
                             .shadow(color: ShiftKitColors.charcoalBrown.opacity(0.08), radius: 6, x: 0, y: 2)
-                            .padding(.bottom, 10)
+                            .padding(.bottom, 12)
                         }
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
@@ -137,10 +158,10 @@ public struct RadialMenuPreviewCard: View {
                 // Interaction Guide Footer
                 HStack {
                     HStack(spacing: 6) {
-                        Image(systemName: "hand.tap")
+                        Image(systemName: "keyboard")
                             .font(.system(size: 11, weight: .medium))
                             .foregroundColor(ShiftKitColors.deepOlive)
-                        Text("Hover slices to preview target action • Click to trigger operation")
+                        Text("Keys 1–8 or Arrows to navigate • Enter to open submenu • Esc to go back")
                             .font(ShiftKitTypography.caption)
                             .foregroundColor(ShiftKitColors.textSecondary)
                     }
@@ -148,7 +169,7 @@ public struct RadialMenuPreviewCard: View {
                     Spacer()
 
                     ShiftKitPill(
-                        "\(actions.count) Operations Available",
+                        "8 Action Slices",
                         icon: "circle.grid.cross",
                         tint: ShiftKitColors.deepOlive,
                         background: ShiftKitColors.softCream

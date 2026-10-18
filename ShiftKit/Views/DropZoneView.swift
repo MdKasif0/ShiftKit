@@ -1,22 +1,25 @@
 import SwiftUI
 import UniformTypeIdentifiers
+import AppKit
 
 public struct DropZoneView: View {
     @Binding var inspectedFile: InspectedFile?
     public let onFileDropped: (URL) -> Void
     public let onSelectAction: (ConversionAction) -> Void
+    public let onOpenRadialWindow: ((InspectedFile) -> Void)?
 
     @State private var isTargeted: Bool = false
-    @State private var isShiftHeld: Bool = false
 
     public init(
         inspectedFile: Binding<InspectedFile?>,
         onFileDropped: @escaping (URL) -> Void,
-        onSelectAction: @escaping (ConversionAction) -> Void
+        onSelectAction: @escaping (ConversionAction) -> Void,
+        onOpenRadialWindow: ((InspectedFile) -> Void)? = nil
     ) {
         self._inspectedFile = inspectedFile
         self.onFileDropped = onFileDropped
         self.onSelectAction = onSelectAction
+        self.onOpenRadialWindow = onOpenRadialWindow
     }
 
     public var body: some View {
@@ -36,12 +39,7 @@ public struct DropZoneView: View {
                     // File inspected state with actions ready
                     VStack(spacing: 12) {
                         HStack(spacing: 12) {
-                            Image(systemName: file.fileType.systemIcon)
-                                .font(.system(size: 24, weight: .medium))
-                                .foregroundColor(ShiftKitColors.deepOlive)
-                                .frame(width: 44, height: 44)
-                                .background(ShiftKitColors.softCream)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                            FilePreviewView(file: file, size: 42)
 
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(file.fileName)
@@ -71,12 +69,23 @@ public struct DropZoneView: View {
                             Spacer()
 
                             Button {
+                                onOpenRadialWindow?(file)
+                            } label: {
+                                HStack(spacing: 5) {
+                                    Image(systemName: "circle.grid.cross")
+                                    Text("Radial Ring")
+                                }
+                            }
+                            .buttonStyle(ShiftKitPrimaryButtonStyle())
+
+                            Button {
                                 inspectedFile = nil
                             } label: {
                                 Image(systemName: "xmark.circle.fill")
                                     .foregroundColor(ShiftKitColors.sandBeige)
                             }
                             .buttonStyle(.plain)
+                            .help("Clear selection")
                         }
 
                         // Quick action bar for the dropped file
@@ -94,7 +103,7 @@ public struct DropZoneView: View {
                                         Text(action.title)
                                     }
                                 }
-                                .buttonStyle(ShiftKitPrimaryButtonStyle())
+                                .buttonStyle(ShiftKitSecondaryButtonStyle())
                             }
                         }
                     }
@@ -106,7 +115,7 @@ public struct DropZoneView: View {
                         ZStack {
                             Circle()
                                 .fill(ShiftKitColors.softCream)
-                                .frame(width: 50, height: 50)
+                                .frame(width: 48, height: 48)
 
                             Image(systemName: isTargeted ? "arrow.down.circle.fill" : "plus.viewfinder")
                                 .font(.system(size: 22, weight: .medium))
@@ -128,7 +137,7 @@ public struct DropZoneView: View {
                         }
                         .buttonStyle(ShiftKitSecondaryButtonStyle())
                     }
-                    .padding(24)
+                    .padding(20)
                 }
             }
             .frame(maxWidth: .infinity)
