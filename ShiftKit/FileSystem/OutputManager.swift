@@ -45,7 +45,7 @@ public protocol OutputManaging: Sendable {
 }
 
 // MARK: - Implementation
-public final class OutputManager: OutputManaging {
+public final class OutputManager: OutputManaging, @unchecked Sendable {
     private let fileManager = FileManager.default
     private let reservationLock = NSLock()
     private var reservedDestinationPaths: Set<String> = []

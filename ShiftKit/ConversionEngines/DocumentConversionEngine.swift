@@ -66,6 +66,10 @@ public final class DocumentConversionEngine: ConversionEngine {
         let srcExt = request.sourceURL.pathExtension.lowercased()
         let targetExt = (request.action.targetFormat ?? outputURL.pathExtension).lowercased()
 
+        guard outputURL.standardizedFileURL.path != request.sourceURL.standardizedFileURL.path else {
+            throw ShiftKitError.conversionFailed(reason: "Output destination cannot overwrite original source file.")
+        }
+
         progressHandler(0.05, "Analyzing document format (\(srcExt.uppercased()) to \(targetExt.uppercased()))...")
 
         // 0. Developer Utilities & Archive Operations

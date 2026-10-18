@@ -26,7 +26,7 @@ public final class FileInspector: FileInspecting {
             throw ShiftKitError.fileNotFound(url)
         }
         guard !isDirectory.boolValue else {
-            throw ShiftKitError.unsupportedFileType("Folders and directories cannot be processed directly as files. Please select individual files or compress to a ZIP archive.")
+            throw ShiftKitError.conversionFailed(reason: "Folders and directories cannot be processed directly as files. Please select individual files or compress to a ZIP archive.")
         }
 
         // 2. Format & Type Detection via Magic Signatures and Inspection

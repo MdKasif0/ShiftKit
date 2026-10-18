@@ -124,9 +124,11 @@ public final class RadialMenuWindowController: NSObject, @unchecked Sendable {
             context.duration = 0.12
             panel.animator().alphaValue = 0.0
         }, completionHandler: { [weak self, weak panel] in
-            panel?.orderOut(nil)
-            if self?.window === panel {
-                self?.window = nil
+            DispatchQueue.main.async {
+                panel?.orderOut(nil)
+                if self?.window === panel {
+                    self?.window = nil
+                }
             }
         })
     }

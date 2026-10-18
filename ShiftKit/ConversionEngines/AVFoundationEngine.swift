@@ -49,45 +49,82 @@ public final class AVFoundationEngine: ConversionEngine {
             outputFileType = .mp4
         }
 
+        guard outputURL.standardizedFileURL.path != request.sourceURL.standardizedFileURL.path else {
+            throw ShiftKitError.conversionFailed(reason: "Output destination cannot overwrite original source file.")
+        }
+
+        let parentDir = outputURL.deletingLastPathComponent()
+        if !FileManager.default.fileExists(atPath: parentDir.path) {
+            try FileManager.default.createDirectory(at: parentDir, withIntermediateDirectories: true)
+        }
+
+        let tempURL = parentDir.appendingPathComponent(".tmp_avf_\(UUID().uuidString.prefix(8)).\(outputURL.pathExtension)")
+        if FileManager.default.fileExists(atPath: tempURL.path) {
+            try? FileManager.default.removeItem(at: tempURL)
+        }
+
         guard let exportSession = AVAssetExportSession(asset: asset, presetName: preset) else {
             throw ShiftKitError.conversionFailed(reason: "Failed to initialize AVAssetExportSession.")
         }
 
-        exportSession.outputURL = outputURL
+        exportSession.outputURL = tempURL
         exportSession.outputFileType = outputFileType
         exportSession.shouldOptimizeForNetworkUse = true
 
         progressHandler(0.3, "Exporting media...")
 
-        // Monitor progress via Task while export is running
-        try await withThrowingTaskGroup(of: Void.self) { group in
-            group.addTask {
-                while exportSession.status == .waiting || exportSession.status == .exporting {
-                    let progress = Double(exportSession.progress)
-                    progressHandler(0.3 + (progress * 0.6), "Encoding media...")
-                    try await Task.sleep(nanoseconds: 200_000_000)
-                }
-            }
+        return try await withTaskCancellationHandler {
+            do {
+                try await withThrowingTaskGroup(of: Void.self) { group in
+                    group.addTask {
+                        while exportSession.status == .waiting || exportSession.status == .exporting {
+                            if Task.isCancelled {
+                                exportSession.cancelExport()
+                                break
+                            }
+                            let progress = Double(exportSession.progress)
+                            progressHandler(0.3 + (progress * 0.6), "Encoding media...")
+                            try await Task.sleep(nanoseconds: 200_000_000)
+                        }
+                    }
 
-            group.addTask {
-                await exportSession.export()
-                if let error = exportSession.error {
-                    throw ShiftKitError.conversionFailed(reason: error.localizedDescription)
+                    group.addTask {
+                        await exportSession.export()
+                        if Task.isCancelled || exportSession.status == .cancelled {
+                            throw ShiftKitError.cancelled
+                        }
+                        if let error = exportSession.error {
+                            throw ShiftKitError.conversionFailed(reason: error.localizedDescription)
+                        }
+                        if exportSession.status == .failed {
+                            throw ShiftKitError.conversionFailed(reason: "AVAssetExportSession encountered an unknown failure.")
+                        }
+                    }
+
+                    try await group.next()
+                    group.cancelAll()
                 }
-                if exportSession.status == .failed {
-                    throw ShiftKitError.conversionFailed(reason: "AVAssetExportSession encountered an unknown failure.")
-                }
-                if exportSession.status == .cancelled {
+
+                if Task.isCancelled {
+                    try? FileManager.default.removeItem(at: tempURL)
                     throw ShiftKitError.cancelled
                 }
+
+                let fm = FileManager.default
+                if fm.fileExists(atPath: outputURL.path) {
+                    try fm.removeItem(at: outputURL)
+                }
+                try fm.moveItem(at: tempURL, to: outputURL)
+
+                progressHandler(1.0, "Completed")
+                return outputURL
+            } catch {
+                try? FileManager.default.removeItem(at: tempURL)
+                throw error
             }
-
-            // Wait for completion task
-            try await group.next()
-            group.cancelAll()
+        } onCancel: {
+            exportSession.cancelExport()
+            try? FileManager.default.removeItem(at: tempURL)
         }
-
-        progressHandler(1.0, "Completed")
-        return outputURL
     }
 }

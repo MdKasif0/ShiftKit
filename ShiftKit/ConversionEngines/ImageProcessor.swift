@@ -526,13 +526,15 @@ public final class ImageProcessor: Sendable {
         }
 
         // 3. Known project source directory & system paths
-        let knownPaths = [
-            Bundle.main.resourceURL?.appendingPathComponent("bin/cwebp").path,
+        var knownPaths: [String] = [
             fm.currentDirectoryPath + "/ShiftKit/Resources/bin/cwebp",
             "ShiftKit/Resources/bin/cwebp",
             "/opt/homebrew/bin/cwebp",
             "/usr/local/bin/cwebp"
-        ].compactMap { $0 }
+        ]
+        if let resPath = Bundle.main.resourceURL?.appendingPathComponent("bin/cwebp").path {
+            knownPaths.insert(resPath, at: 0)
+        }
         for path in knownPaths {
             if fm.isExecutableFile(atPath: path) {
                 return URL(fileURLWithPath: path)

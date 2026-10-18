@@ -365,6 +365,7 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
             binaryURL: binaryURL,
             arguments: arguments,
             outputURL: outputURL,
+            sourceURL: request.sourceURL,
             expectedDuration: expectedDuration,
             progressHandler: progressHandler
         )
@@ -448,6 +449,7 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
             binaryURL: binary,
             arguments: args,
             outputURL: outputURL,
+            sourceURL: sourceURL,
             expectedDuration: duration,
             progressHandler: progressHandler
         )
@@ -522,6 +524,7 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
             binaryURL: binary,
             arguments: args,
             outputURL: outputURL,
+            sourceURL: sourceURL,
             expectedDuration: duration,
             progressHandler: progressHandler
         )
@@ -705,6 +708,7 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
         binaryURL: URL,
         arguments: [String],
         outputURL: URL,
+        sourceURL: URL? = nil,
         expectedDuration: Double?,
         progressHandler: @Sendable @escaping (Double?, String) -> Void
     ) async throws -> URL {
@@ -837,9 +841,11 @@ public final class FFmpegEngine: ConversionEngine, @unchecked Sendable {
                     throw ShiftKitError.corruptMedia(reason: "Output file was 0 bytes.")
                 }
 
-                guard outputURL.standardizedFileURL.path != request.sourceURL.standardizedFileURL.path else {
-                    try? fm.removeItem(at: tempURL)
-                    throw ShiftKitError.conversionFailed(reason: "Output destination cannot overwrite original source file.")
+                if let sourceURL {
+                    guard outputURL.standardizedFileURL.path != sourceURL.standardizedFileURL.path else {
+                        try? fm.removeItem(at: tempURL)
+                        throw ShiftKitError.conversionFailed(reason: "Output destination cannot overwrite original source file.")
+                    }
                 }
 
                 if fm.fileExists(atPath: outputURL.path) {
