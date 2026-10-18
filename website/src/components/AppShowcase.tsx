@@ -316,7 +316,7 @@ export function AppShowcase() {
           </div>
 
           {/* Window Body Canvas */}
-          <div className="p-6 sm:p-10 min-h-[380px] sm:min-h-[420px] flex flex-col justify-between relative bg-gradient-to-b from-[#FAF8F3] to-[#F7F3EA]/70">
+          <div className="p-5 sm:p-8 min-h-[360px] sm:min-h-[400px] flex flex-col justify-between relative bg-gradient-to-b from-[#FAF8F3] to-[#F7F3EA]/70">
             {/* ===================================================== */}
             {/* VIEW 1: RADIAL ACTION HUD (Visual Centerpiece)        */}
             {/* ===================================================== */}
@@ -471,7 +471,7 @@ export function AppShowcase() {
                 </div>
 
                 {/* Editorial Description Beneath Interface */}
-                <div className="text-center max-w-lg mx-auto pt-8 border-t border-[#E5D8C7]/50 mt-6 space-y-1">
+                <div className="text-center max-w-lg mx-auto pt-4 sm:pt-5 border-t border-[#E5D8C7]/50 mt-4 sm:mt-5 space-y-1">
                   <h4 className="font-serif text-lg sm:text-xl font-bold text-[#34312D]">
                     Context-aware radial actions
                   </h4>
@@ -617,7 +617,7 @@ export function AppShowcase() {
                 </div>
 
                 {/* Editorial Description */}
-                <div className="text-center max-w-lg mx-auto pt-6 border-t border-[#E5D8C7]/50 mt-6 space-y-1">
+                <div className="text-center max-w-lg mx-auto pt-4 sm:pt-5 border-t border-[#E5D8C7]/50 mt-4 sm:mt-5 space-y-1">
                   <h4 className="font-serif text-lg sm:text-xl font-bold text-[#34312D]">
                     Non-destructive canvas cropping
                   </h4>
@@ -790,7 +790,7 @@ export function AppShowcase() {
                 </div>
 
                 {/* Editorial Description */}
-                <div className="text-center max-w-lg mx-auto pt-6 border-t border-[#E5D8C7]/50 mt-6 space-y-1">
+                <div className="text-center max-w-lg mx-auto pt-4 sm:pt-5 border-t border-[#E5D8C7]/50 mt-4 sm:mt-5 space-y-1">
                   <h4 className="font-serif text-lg sm:text-xl font-bold text-[#34312D]">
                     Lossless stream copy trimmer
                   </h4>
@@ -914,7 +914,7 @@ export function AppShowcase() {
                 </div>
 
                 {/* Editorial Description */}
-                <div className="text-center max-w-lg mx-auto pt-6 border-t border-[#E5D8C7]/50 mt-6 space-y-1">
+                <div className="text-center max-w-lg mx-auto pt-4 sm:pt-5 border-t border-[#E5D8C7]/50 mt-4 sm:mt-5 space-y-1">
                   <h4 className="font-serif text-lg sm:text-xl font-bold text-[#34312D]">
                     Multi-format document assembly
                   </h4>
@@ -1016,7 +1016,7 @@ export function AppShowcase() {
                 </div>
 
                 {/* Editorial Description */}
-                <div className="text-center max-w-lg mx-auto pt-6 border-t border-[#E5D8C7]/50 mt-6 space-y-1">
+                <div className="text-center max-w-lg mx-auto pt-4 sm:pt-5 border-t border-[#E5D8C7]/50 mt-4 sm:mt-5 space-y-1">
                   <h4 className="font-serif text-lg sm:text-xl font-bold text-[#34312D]">
                     Asynchronous background FIFO engine
                   </h4>
