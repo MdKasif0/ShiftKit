@@ -28,5 +28,13 @@
 	<true/>
 	<key>NSHumanReadableCopyright</key>
 	<string>© 2026 ShiftKit. All rights reserved.</string>
+	<key>SUFeedURL</key>
+	<string>https://raw.githubusercontent.com/MdKasif0/ShiftKit/main/updates/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>rn9Fy9EOgEMZXt8FA0H6v7hLuQzgaAcjPsukDFkle9I=</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUScheduledCheckInterval</key>
+	<integer>86400</integer>
 </dict>
 </plist>
