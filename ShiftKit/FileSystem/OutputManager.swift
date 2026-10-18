@@ -1,6 +1,13 @@
 import Foundation
 import AppKit
 
+// MARK: - Output Location Strategy
+public enum OutputLocationStrategy: Hashable, Sendable {
+    case besideOriginal
+    case dedicatedFolder(URL)
+    case askWhereToSave
+}
+
 // MARK: - Protocol
 public protocol OutputManaging: Sendable {
     func defaultOutputDirectory() -> URL
@@ -10,6 +17,21 @@ public protocol OutputManaging: Sendable {
         suffix: String?,
         customDirectory: URL?
     ) -> URL
+    func resolveDestinationURL(
+        for sourceURL: URL,
+        targetExtension: String?,
+        suffix: String?,
+        strategy: OutputLocationStrategy
+    ) async throws -> URL
+    func createTemporaryOutputURL(for destinationURL: URL) throws -> URL
+    func commitTemporaryOutput(temporaryURL: URL, destinationURL: URL) throws
+    func cleanupTemporaryOutput(temporaryURL: URL)
+    func detectConflicts(
+        sources: [URL],
+        targetExtension: String?,
+        suffix: String?,
+        targetDirectory: URL?
+    ) -> [URL: [URL]]
     func revealInFinder(url: URL)
     func openFile(url: URL)
 }
@@ -38,8 +60,99 @@ public final class OutputManager: OutputManaging {
         customDirectory: URL? = nil
     ) -> URL {
         let targetDir = customDirectory ?? defaultOutputDirectory()
+        return generateCollisionFreeURL(sourceURL: sourceURL, targetDir: targetDir, targetExtension: targetExtension, suffix: suffix)
+    }
 
-        // Ensure directory exists
+    public func resolveDestinationURL(
+        for sourceURL: URL,
+        targetExtension: String? = nil,
+        suffix: String? = nil,
+        strategy: OutputLocationStrategy
+    ) async throws -> URL {
+        switch strategy {
+        case .besideOriginal:
+            let parentDir = sourceURL.deletingLastPathComponent()
+            return generateCollisionFreeURL(sourceURL: sourceURL, targetDir: parentDir, targetExtension: targetExtension, suffix: suffix)
+
+        case .dedicatedFolder(let folderURL):
+            return generateCollisionFreeURL(sourceURL: sourceURL, targetDir: folderURL, targetExtension: targetExtension, suffix: suffix)
+
+        case .askWhereToSave:
+            return try await promptUserForSaveLocation(sourceURL: sourceURL, targetExtension: targetExtension, suffix: suffix)
+        }
+    }
+
+    /// Creates an atomic temporary working file URL in the same directory as the final destination.
+    public func createTemporaryOutputURL(for destinationURL: URL) throws -> URL {
+        let parentDir = destinationURL.deletingLastPathComponent()
+        if !fileManager.fileExists(atPath: parentDir.path) {
+            try fileManager.createDirectory(at: parentDir, withIntermediateDirectories: true)
+        }
+
+        let tempName = ".\(destinationURL.lastPathComponent).tmp-\(UUID().uuidString.prefix(8))"
+        return parentDir.appendingPathComponent(tempName)
+    }
+
+    /// Atomically commits a completed temporary output file to its destination.
+    public func commitTemporaryOutput(temporaryURL: URL, destinationURL: URL) throws {
+        guard fileManager.fileExists(atPath: temporaryURL.path) else {
+            throw ShiftKitError.conversionFailed(reason: "Temporary output file missing at \(temporaryURL.path)")
+        }
+
+        // If target exists, remove it before replacing atomically
+        if fileManager.fileExists(atPath: destinationURL.path) {
+            try fileManager.removeItem(at: destinationURL)
+        }
+
+        try fileManager.moveItem(at: temporaryURL, to: destinationURL)
+    }
+
+    /// Cleans up a temporary output file if a conversion job fails or is cancelled.
+    public func cleanupTemporaryOutput(temporaryURL: URL) {
+        if fileManager.fileExists(atPath: temporaryURL.path) {
+            try? fileManager.removeItem(at: temporaryURL)
+        }
+    }
+
+    /// Detects duplicate destination filenames among a batch of files being processed.
+    public func detectConflicts(
+        sources: [URL],
+        targetExtension: String?,
+        suffix: String?,
+        targetDirectory: URL?
+    ) -> [URL: [URL]] {
+        var destinations: [URL: [URL]] = [:]
+
+        for source in sources {
+            let baseName = source.deletingPathExtension().lastPathComponent
+            let ext = (targetExtension ?? source.pathExtension).lowercased()
+            let baseWithSuffix = (suffix != nil && !suffix!.isEmpty) ? "\(baseName)_\(suffix!)" : baseName
+            let dir = targetDirectory ?? defaultOutputDirectory()
+            let dest = dir.appendingPathComponent("\(baseWithSuffix).\(ext)")
+
+            destinations[dest, default: []].append(source)
+        }
+
+        return destinations.filter { zsh.value.count > 1 }
+    }
+
+    @MainActor
+    public func revealInFinder(url: URL) {
+        NSWorkspace.shared.activateFileViewerSelecting([url])
+    }
+
+    @MainActor
+    public func openFile(url: URL) {
+        NSWorkspace.shared.open(url)
+    }
+
+    // MARK: - Private Helpers
+    private func generateCollisionFreeURL(
+        sourceURL: URL,
+        targetDir: URL,
+        targetExtension: String?,
+        suffix: String?
+    ) -> URL {
         if !fileManager.fileExists(atPath: targetDir.path) {
             try? fileManager.createDirectory(at: targetDir, withIntermediateDirectories: true)
         }
@@ -57,7 +170,7 @@ public final class OutputManager: OutputManaging {
         var candidate = targetDir.appendingPathComponent("\(baseWithSuffix).\(ext)")
         var counter = 1
 
-        // Resolve name collisions safely
+        // Resolve name collisions safely (never overwrite without user prompt)
         while fileManager.fileExists(atPath: candidate.path) {
             candidate = targetDir.appendingPathComponent("\(baseWithSuffix)_\(counter).\(ext)")
             counter += 1
@@ -67,12 +180,30 @@ public final class OutputManager: OutputManaging {
     }
 
     @MainActor
-    public func revealInFinder(url: URL) {
-        NSWorkspace.shared.activateFileViewerSelecting([url])
-    }
+    private func promptUserForSaveLocation(
+        sourceURL: URL,
+        targetExtension: String?,
+        suffix: String?
+    ) async throws -> URL {
+        let baseName = sourceURL.deletingPathExtension().lastPathComponent
+        let ext = (targetExtension ?? sourceURL.pathExtension).lowercased()
+        let suggestedName: String
+        if let suffix, !suffix.isEmpty {
+            suggestedName = "\(baseName)_\(suffix).\(ext)"
+        } else {
+            suggestedName = "\(baseName).\(ext)"
+        }
 
-    @MainActor
-    public func openFile(url: URL) {
-        NSWorkspace.shared.open(url)
+        let savePanel = NSSavePanel()
+        savePanel.canCreateDirectories = true
+        savePanel.nameFieldStringValue = suggestedName
+        savePanel.directoryURL = sourceURL.deletingLastPathComponent()
+
+        let response = savePanel.runModal()
+        guard response == .OK, let selectedURL = savePanel.url else {
+            throw ShiftKitError.cancelled
+        }
+
+        return selectedURL
     }
 }
