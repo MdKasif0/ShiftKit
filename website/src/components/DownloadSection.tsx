@@ -91,7 +91,7 @@ export function DownloadSection() {
             </div>
             <div>
               <span className="text-[#465343] block">FILE SIZE</span>
-              <span className="font-bold text-[#34312D] text-sm">3.8 MB (DMG)</span>
+              <span className="font-bold text-[#34312D] text-sm">4.6 MB (DMG)</span>
             </div>
             <div>
               <span className="text-[#465343] block">ARCHITECTURE</span>
@@ -105,7 +105,7 @@ export function DownloadSection() {
 
           <div className="pt-2 text-center">
             <p className="text-[11px] font-mono text-[#34312D]/60 truncate max-w-md mx-auto">
-              SHA-256: 5ed8b40ab399b8ef420fa6c13c5061a4721a1ca79f8d13ffa01d3c1bb9198327
+              SHA-256: daeffa0d79c8a55325e4c84286644b2c993a9843bfb3d77e178f9fdaae5ee0d8
             </p>
           </div>
         </div>

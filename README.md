@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/MdKasif0/ShiftKit/main/website/public/favicon.svg" width="88" height="88" alt="ShiftKit Emblem" />
+  <img src="https://raw.githubusercontent.com/MdKasif0/ShiftKit/main/website/public/app-icon.png" width="96" height="96" alt="ShiftKit App Icon" />
 </p>
 
 <p align="center">
@@ -174,7 +174,7 @@ chmod +x scripts/package_dmg.sh
 ```
 
 - **Output**: `dist/ShiftKit-1.0.0.dmg`
-- **File Size**: ~3.8 MB (Compressed)
+- **File Size**: ~4.6 MB (Compressed)
 - **Features**: Includes embedded `ShiftKit.app`, `/Applications` symlink, installation guide, and auto-generated `release_metadata.json` with SHA-256 verification.
 
 ---

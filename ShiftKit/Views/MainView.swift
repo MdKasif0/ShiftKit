@@ -19,19 +19,10 @@ public struct MainView: View {
                 HStack(alignment: .center) {
                     HStack(spacing: 10) {
                         // App Brand Icon
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                .fill(ShiftKitColors.softCream)
-                                .frame(width: 32, height: 32)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                        .stroke(ShiftKitColors.border, lineWidth: 1)
-                                )
-
-                            Image(systemName: "arrow.triangle.swap")
-                                .font(.system(size: 15, weight: .semibold))
-                                .foregroundColor(ShiftKitColors.deepOlive)
-                        }
+                        Image(nsImage: NSApp.applicationIconImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 34, height: 34)
 
                         VStack(alignment: .leading, spacing: 1) {
                             HStack(spacing: 6) {
