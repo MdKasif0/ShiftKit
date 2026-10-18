@@ -91,6 +91,21 @@ public final class AppCoordinator {
 
     /// Dispatches an operation for execution
     public func executeAction(_ action: ConversionAction, on file: InspectedFile) {
+        // If image crop action is selected, present the dedicated visual crop editor
+        if (action.category == .cropOrTrim || action.id == "img_crop_square"), case .image = file.fileType {
+            self.radialMenuCoordinator.dismiss()
+            CropEditorWindowController.shared.present(for: file) { [weak self] cropRect, options, targetFormat in
+                self?.executeCroppedImageProcessing(
+                    file: file,
+                    action: action,
+                    cropRect: cropRect,
+                    options: options,
+                    targetFormat: targetFormat
+                )
+            }
+            return
+        }
+
         let customDir = URL(fileURLWithPath: settingsStore.outputDirectoryPath)
         let destinationURL = outputManager.resolveDestinationURL(
             for: file.url,
@@ -111,6 +126,47 @@ public final class AppCoordinator {
         // Clear active inspected file
         self.inspectedFile = nil
         self.radialMenuCoordinator.dismiss()
+    }
+
+    private func executeCroppedImageProcessing(
+        file: InspectedFile,
+        action: ConversionAction,
+        cropRect: CGRect,
+        options: ConversionOptions,
+        targetFormat: OutputFormat
+    ) {
+        let customDir = URL(fileURLWithPath: settingsStore.outputDirectoryPath)
+        let destinationURL = outputManager.resolveDestinationURL(
+            for: file.url,
+            targetExtension: targetFormat.primaryExtension,
+            suffix: "crop",
+            customDirectory: customDir
+        )
+
+        var requestOptions = options.stringDictionary
+        requestOptions["cropRect"] = NSStringFromRect(cropRect)
+
+        let customAction = ConversionAction(
+            id: "img_crop_custom",
+            title: "Crop Image",
+            subtitle: "\(Int(cropRect.width)) × \(Int(cropRect.height)) px",
+            systemIcon: "crop",
+            category: .cropOrTrim,
+            targetFormat: targetFormat.primaryExtension,
+            options: requestOptions
+        )
+
+        let request = ConversionRequest(
+            sourceURL: file.url,
+            fileType: file.fileType,
+            action: customAction,
+            destinationURL: destinationURL,
+            options: requestOptions,
+            conversionOptions: options
+        )
+
+        jobManager.enqueue(request: request)
+        self.inspectedFile = nil
     }
 
     public func summonFloatingTargetAtCursor() {

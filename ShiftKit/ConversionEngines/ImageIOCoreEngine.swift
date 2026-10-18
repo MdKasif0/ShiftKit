@@ -30,7 +30,7 @@ public final class ImageIOCoreEngine: ConversionEngine {
         // Parse crop rectangle if passed in options or request
         let cropRect: CGRect? = {
             if let rectStr = request.options["cropRect"] {
-                return NSCoder.cgRect(for: rectStr)
+                return NSRectFromString(rectStr)
             }
             if request.action.id == "img_crop_square" {
                 // Read image dimensions to center a square
