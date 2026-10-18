@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=1320, height=840, initial-scale=1.0">
+  <meta name="viewport" content="width=760, height=520, initial-scale=1.0">
   <title>ShiftKit DMG Background</title>
   <style>
     * {
@@ -13,10 +13,10 @@
     }
 
     body {
-      width: 1520px;
-      height: 1040px;
+      width: 760px;
+      height: 520px;
       margin: 0;
-      padding: 100px;
+      padding: 50px;
       box-sizing: border-box;
       overflow: hidden;
       background-color: #FAF8F3;
@@ -27,8 +27,8 @@
     }
 
     #dmg-canvas {
-      width: 1320px;
-      height: 840px;
+      width: 660px;
+      height: 420px;
       position: relative;
       overflow: hidden;
       background-color: #FAF8F3;
@@ -43,7 +43,7 @@
     .ambient-bg {
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at 50% 45%, #FFFFFF 0%, #FAF8F3 65%, #F4EFE6 100%);
+      background: radial-gradient(circle at 50% 45%, #FFFFFF 0%, #FAF8F3 68%, #F2ECE0 100%);
       pointer-events: none;
     }
 
@@ -53,31 +53,7 @@
       left: 50%;
       transform: translate(-50%, -46%);
       pointer-events: none;
-      opacity: 0.55;
-    }
-
-    /* Decorative Desk / Light Blur Elements */
-    .top-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 16px;
-      border-radius: 9999px;
-      background: #F3EEE4;
-      border: 1px solid #E5D8C7;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: #465343;
-      box-shadow: 0 1px 3px rgba(52, 49, 45, 0.04);
-    }
-
-    .dot-terracotta {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background-color: #D98768;
+      opacity: 0.6;
     }
 
     /* Header Section */
@@ -85,28 +61,53 @@
       position: relative;
       z-index: 10;
       text-align: center;
-      padding-top: 48px;
+      padding-top: 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
 
+    .top-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      background: #F3EEE4;
+      border: 1px solid #E5D8C7;
+      font-size: 8.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #465343;
+    }
+
+    .dot-terracotta {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background-color: #D98768;
+    }
+
     .brand-row {
       display: flex;
       align-items: center;
-      gap: 16px;
-      margin-top: 14px;
-      margin-bottom: 6px;
+      gap: 9px;
+      margin-top: 7px;
+      margin-bottom: 2px;
     }
 
     .app-icon {
-      width: 58px;
-      height: 58px;
-      border-radius: 14px;
-      box-shadow: 0 8px 20px rgba(52, 49, 45, 0.12), 0 2px 6px rgba(52, 49, 45, 0.06);
+      width: 30px;
+      height: 30px;
+      border-radius: 7px;
+      box-shadow: 0 4px 10px rgba(52, 49, 45, 0.12), 0 1px 3px rgba(52, 49, 45, 0.06);
       border: 1px solid rgba(229, 216, 199, 0.8);
       background: #FFFFFF;
       overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .app-icon img {
@@ -117,7 +118,7 @@
 
     .title {
       font-family: "Georgia", "New York", "Charter", serif;
-      font-size: 44px;
+      font-size: 24px;
       font-weight: 700;
       letter-spacing: -0.02em;
       color: #34312D;
@@ -125,11 +126,11 @@
     }
 
     .tagline {
-      font-size: 16px;
+      font-size: 10.5px;
       font-weight: 500;
-      color: #465343;
+      color: #5C6A58;
       letter-spacing: -0.01em;
-      margin-top: 4px;
+      margin-top: 2px;
     }
 
     /* Main Drag-and-Drop Installation Stage */
@@ -139,63 +140,63 @@
       width: 100%;
       display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 0 90px;
-      margin-top: -10px;
+      justify-content: space-between;
+      padding: 0 65px;
+      margin-top: -6px;
     }
 
     .drop-card {
-      width: 250px;
-      height: 250px;
-      border-radius: 32px;
-      background: rgba(255, 255, 255, 0.65);
-      border: 2px dashed #D9C8B5;
-      box-shadow: 0 12px 32px rgba(52, 49, 45, 0.05), inset 0 2px 6px rgba(255, 255, 255, 0.8);
+      width: 140px;
+      height: 140px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1.5px dashed #D9C8B5;
+      box-shadow: 0 6px 18px rgba(52, 49, 45, 0.04), inset 0 1px 4px rgba(255, 255, 255, 0.9);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-end;
-      padding-bottom: 24px;
+      padding-bottom: 12px;
       position: relative;
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(8px);
     }
 
     .drop-card.left-card {
-      border-color: rgba(217, 135, 104, 0.4);
+      border-color: rgba(217, 135, 104, 0.45);
     }
 
     .drop-card.right-card {
-      border-color: rgba(168, 181, 160, 0.6);
+      border-color: rgba(168, 181, 160, 0.65);
     }
 
     .target-guide {
       position: absolute;
-      top: 44px;
-      width: 128px;
-      height: 128px;
-      border-radius: 26px;
-      border: 1.5px dashed rgba(217, 135, 104, 0.3);
-      background: rgba(243, 238, 228, 0.4);
+      top: 18px;
+      width: 74px;
+      height: 74px;
+      border-radius: 16px;
+      border: 1px dashed rgba(217, 135, 104, 0.35);
+      background: rgba(243, 238, 228, 0.45);
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
     .right-card .target-guide {
-      border-color: rgba(70, 83, 67, 0.25);
+      border-color: rgba(70, 83, 67, 0.3);
     }
 
     .card-label {
-      font-size: 15px;
+      font-size: 11px;
       font-weight: 700;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.01em;
       color: #34312D;
     }
 
     .card-sub {
-      font-size: 12px;
+      font-size: 8.5px;
       color: #898177;
-      margin-top: 2px;
+      margin-top: 1px;
     }
 
     /* Central Gesture Connection Arrow */
@@ -205,51 +206,51 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 0 24px;
+      padding: 0 16px;
     }
 
     .drag-pill {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 10px 24px;
+      gap: 5px;
+      padding: 5px 14px;
       border-radius: 9999px;
       background: #D98768;
       color: #FAF8F3;
-      font-size: 14px;
+      font-size: 9.5px;
       font-weight: 700;
       letter-spacing: 0.04em;
       text-transform: uppercase;
-      box-shadow: 0 4px 14px rgba(217, 135, 104, 0.35);
-      margin-bottom: 12px;
+      box-shadow: 0 3px 10px rgba(217, 135, 104, 0.35);
+      margin-bottom: 6px;
     }
 
     .arrow-svg {
-      width: 240px;
-      height: 48px;
-      margin-bottom: 8px;
+      width: 140px;
+      height: 26px;
+      margin-bottom: 5px;
     }
 
     .instruction-text {
-      font-size: 13px;
+      font-size: 9px;
       color: #465343;
       font-weight: 500;
       text-align: center;
-      max-width: 260px;
-      line-height: 1.4;
+      max-width: 190px;
+      line-height: 1.35;
     }
 
     .key-cap {
       display: inline-block;
-      padding: 2px 7px;
-      border-radius: 5px;
+      padding: 1px 4px;
+      border-radius: 4px;
       background: #F3EEE4;
       border: 1px solid #E5D8C7;
       font-family: monospace;
       font-weight: 700;
-      font-size: 12px;
+      font-size: 8.5px;
       color: #34312D;
-      box-shadow: 0 1px 2px rgba(52, 49, 45, 0.08);
+      box-shadow: 0 1px 2px rgba(52, 49, 45, 0.06);
     }
 
     /* Footer Details */
@@ -257,38 +258,42 @@
       position: relative;
       z-index: 10;
       text-align: center;
-      padding-bottom: 38px;
+      padding-bottom: 16px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 8px;
+      gap: 5px;
     }
 
     .trust-badges {
       display: flex;
       align-items: center;
-      gap: 20px;
-      font-size: 12px;
+      gap: 14px;
+      font-size: 8.5px;
       font-weight: 600;
       color: #465343;
+      background: rgba(255, 255, 255, 0.5);
+      padding: 3px 12px;
+      border-radius: 9999px;
+      border: 1px solid rgba(229, 216, 199, 0.6);
     }
 
     .trust-item {
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
     }
 
     .trust-item svg {
-      width: 14px;
-      height: 14px;
-      color: #D98768;
+      width: 10px;
+      height: 10px;
+      stroke: #D98768;
     }
 
     .sub-footer {
-      font-size: 11px;
+      font-size: 8px;
       color: #898177;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.01em;
     }
   </style>
 </head>
@@ -298,14 +303,14 @@
     <div class="ambient-bg"></div>
 
     <!-- Radial Geometry Petal Rings -->
-    <svg class="radial-rings" width="900" height="900" viewBox="0 0 900 900" fill="none">
-      <circle cx="450" cy="450" r="160" stroke="#E5D8C7" stroke-width="1.5" stroke-dasharray="6 6" />
-      <circle cx="450" cy="450" r="260" stroke="#E5D8C7" stroke-width="1.5" />
-      <circle cx="450" cy="450" r="380" stroke="#E5D8C7" stroke-width="1" stroke-dasharray="8 8" />
-      <!-- 6 Petal Lines echoing radial menu -->
-      <line x1="450" y1="190" x2="450" y2="710" stroke="#E5D8C7" stroke-width="1" stroke-dasharray="4 6" opacity="0.6" />
-      <line x1="225" y1="320" x2="675" y2="580" stroke="#E5D8C7" stroke-width="1" stroke-dasharray="4 6" opacity="0.6" />
-      <line x1="225" y1="580" x2="675" y2="320" stroke="#E5D8C7" stroke-width="1" stroke-dasharray="4 6" opacity="0.6" />
+    <svg class="radial-rings" width="520" height="520" viewBox="0 0 520 520" fill="none">
+      <circle cx="260" cy="260" r="90" stroke="#E5D8C7" stroke-width="1.2" stroke-dasharray="4 4" />
+      <circle cx="260" cy="260" r="150" stroke="#E5D8C7" stroke-width="1.2" />
+      <circle cx="260" cy="260" r="220" stroke="#E5D8C7" stroke-width="1" stroke-dasharray="6 6" />
+      <!-- Radial Rays -->
+      <line x1="260" y1="100" x2="260" y2="420" stroke="#E5D8C7" stroke-width="1" stroke-dasharray="3 5" opacity="0.6" />
+      <line x1="130" y1="185" x2="390" y2="335" stroke="#E5D8C7" stroke-width="1" stroke-dasharray="3 5" opacity="0.6" />
+      <line x1="130" y1="335" x2="390" y2="185" stroke="#E5D8C7" stroke-width="1" stroke-dasharray="3 5" opacity="0.6" />
     </svg>
 
     <!-- Header -->
@@ -328,7 +333,7 @@
       <!-- Left Target: ShiftKit.app -->
       <div class="drop-card left-card">
         <div class="target-guide">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#D98768" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.7">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D98768" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.75">
             <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
             <line x1="8" y1="21" x2="16" y2="21"></line>
             <line x1="12" y1="17" x2="12" y2="21"></line>
@@ -341,16 +346,16 @@
       <!-- Center Drag Gesture Pathway -->
       <div class="connection-area">
         <div class="drag-pill">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="5" y1="12" x2="19" y2="12"></line>
             <polyline points="12 5 19 12 12 19"></polyline>
           </svg>
           <span>Drag to Install</span>
         </div>
 
-        <svg class="arrow-svg" viewBox="0 0 240 48" fill="none">
-          <path d="M 10 24 C 70 8, 170 8, 225 24" stroke="#D98768" stroke-width="3" stroke-dasharray="7 5" stroke-linecap="round" />
-          <polygon points="220,17 236,24 220,31" fill="#D98768" />
+        <svg class="arrow-svg" viewBox="0 0 140 26" fill="none">
+          <path d="M 6 13 C 45 4, 95 4, 130 13" stroke="#D98768" stroke-width="2" stroke-dasharray="5 3.5" stroke-linecap="round" />
+          <polygon points="127,9 137,13 127,17" fill="#D98768" />
         </svg>
 
         <p class="instruction-text">
@@ -361,7 +366,7 @@
       <!-- Right Target: Applications Folder -->
       <div class="drop-card right-card">
         <div class="target-guide">
-          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#465343" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.6">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#465343" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.65">
             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
           </svg>
         </div>
@@ -383,7 +388,7 @@
         </div>
         <div class="trust-item">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          <span>Zero Cloud Conversion Servers</span>
+          <span>Zero Cloud Conversion</span>
         </div>
       </div>
       <div class="sub-footer">
