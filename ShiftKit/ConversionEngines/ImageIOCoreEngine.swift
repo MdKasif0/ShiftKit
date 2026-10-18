@@ -24,63 +24,43 @@ public final class ImageIOCoreEngine: ConversionEngine {
         outputURL: URL,
         progressHandler: @Sendable @escaping (Double, String) -> Void
     ) async throws -> URL {
-        progressHandler(0.1, "Reading image source...")
+        let targetExt = request.action.targetFormat?.lowercased() ?? outputURL.pathExtension.lowercased()
+        let targetFormat = OutputFormat.find(byExtension: targetExt) ?? .png
 
-        guard let imageSource = CGImageSourceCreateWithURL(request.sourceURL as CFURL, nil) else {
-            throw ShiftKitError.conversionFailed(reason: "Failed to create ImageIO source from URL.")
-        }
-
-        progressHandler(0.3, "Decoding image...")
-
-        guard let image = CGImageSourceCreateImageAtIndex(imageSource, 0, nil) else {
-            throw ShiftKitError.conversionFailed(reason: "Failed to decode image frame.")
-        }
-
-        // Determine destination UTI
-        let targetFormat = request.action.targetFormat?.lowercased() ?? outputURL.pathExtension.lowercased()
-        let destinationUTType: UTType = {
-            switch targetFormat {
-            case "png": return .png
-            case "jpg", "jpeg": return .jpeg
-            case "webp": return UTType("org.webmproject.webp") ?? .jpeg
-            case "tiff", "tif": return .tiff
-            case "heic": return .heic
-            default: return .png
+        // Parse crop rectangle if passed in options or request
+        let cropRect: CGRect? = {
+            if let rectStr = request.options["cropRect"] {
+                return NSCoder.cgRect(for: rectStr)
             }
+            if request.action.id == "img_crop_square" {
+                // Read image dimensions to center a square
+                if let source = CGImageSourceCreateWithURL(request.sourceURL as CFURL, nil),
+                   let props = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
+                   let w = props[kCGImagePropertyPixelWidth] as? Int,
+                   let h = props[kCGImagePropertyPixelHeight] as? Int {
+                    let side = CGFloat(min(w, h))
+                    let x = (CGFloat(w) - side) / 2.0
+                    let y = (CGFloat(h) - side) / 2.0
+                    return CGRect(x: x, y: y, width: side, height: side)
+                }
+            }
+            return nil
         }()
 
-        progressHandler(0.6, "Applying transformation...")
-
-        // Process options (e.g. compression quality, strip metadata)
-        var options: [CFString: Any] = [:]
-        if let qualityStr = request.options["quality"] ?? request.action.options["quality"],
-           let quality = Double(qualityStr) {
-            options[kCGImageDestinationLossyCompressionQuality] = quality
-        } else if destinationUTType == .jpeg {
-            options[kCGImageDestinationLossyCompressionQuality] = 0.85
+        var convOptions = request.conversionOptions
+        if request.action.id == "img_strip_exif" {
+            convOptions.stripMetadata = true
         }
 
-        progressHandler(0.8, "Writing output file...")
+        let report = try await ImageProcessor.shared.process(
+            sourceURL: request.sourceURL,
+            targetURL: outputURL,
+            targetFormat: targetFormat,
+            cropRect: cropRect,
+            options: convOptions,
+            progressHandler: progressHandler
+        )
 
-        guard let destination = CGImageDestinationCreateWithURL(
-            outputURL as CFURL,
-            destinationUTType.identifier as CFString,
-            1,
-            nil
-        ) else {
-            throw ShiftKitError.conversionFailed(reason: "Failed to create image destination at \(outputURL.path).")
-        }
-
-        // Strip metadata if requested, otherwise preserve orientation
-        let imageProperties: CFDictionary? = (request.action.id == "img_strip_exif") ? nil : (options as CFDictionary)
-
-        CGImageDestinationAddImage(destination, image, imageProperties)
-
-        guard CGImageDestinationFinalize(destination) else {
-            throw ShiftKitError.conversionFailed(reason: "Failed to finalize and write image destination.")
-        }
-
-        progressHandler(1.0, "Completed")
-        return outputURL
+        return report.outputURL
     }
 }
