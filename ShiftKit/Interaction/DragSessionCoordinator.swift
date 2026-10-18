@@ -49,8 +49,13 @@ public final class DragSessionCoordinator {
                 guard let self else { return }
                 if isShift && self.currentState == .idle {
                     self.currentState = .shiftHeld
-                } else if !isShift && self.currentState == .shiftHeld {
-                    self.currentState = .idle
+                } else if !isShift {
+                    if case .dropDestinationActive = self.currentState {
+                        self.currentState = .idle
+                        RadialMenuWindowController.shared.dismiss()
+                    } else if self.currentState == .shiftHeld {
+                        self.currentState = .idle
+                    }
                 }
             }
         }
@@ -68,6 +73,7 @@ public final class DragSessionCoordinator {
                 guard let self else { return }
                 if case .dropDestinationActive = self.currentState {
                     self.currentState = .idle
+                    RadialMenuWindowController.shared.dismiss()
                 }
             }
         }
@@ -82,7 +88,13 @@ public final class DragSessionCoordinator {
 
     /// Handles a detected Shift + drag interaction originating from Finder or Desktop.
     public func handleShiftDragAt(_ mouseLocation: CGPoint) {
-        guard currentState != .dropDestinationActive(location: mouseLocation) else { return }
+        // If drop destination is already presented or active, do not recreate!
+        if case .dropDestinationActive = currentState {
+            return
+        }
+        if RadialMenuWindowController.shared.isVisible {
+            return
+        }
         currentState = .dropDestinationActive(location: mouseLocation)
 
         // Present floating drop destination window at cursor
@@ -128,20 +140,33 @@ public final class DragSessionCoordinator {
                 guard let appCoordinator = self.appCoordinator else { return }
                 do {
                     let inspected = try await appCoordinator.fileInspector.inspect(url: first.resolvedURL)
-                    let registry = ConversionRegistry()
-                    let segments = registry.segments(for: inspected.fileType)
+                    let registry = ConversionRegistry.shared
+                    let segments = registry.segments(for: inspected)
 
                     if let segmentIdx = onSegmentIndex, segmentIdx >= 0 && segmentIdx < segments.count {
-                        // Directly execute the first action of the targeted slice!
+                        self.currentState = .idle
                         let targetSegment = segments[segmentIdx]
                         if let action = targetSegment.subActions.first {
                             for file in validatedFiles {
                                 let item = try await appCoordinator.fileInspector.inspect(url: file.resolvedURL)
                                 appCoordinator.executeAction(action, on: item)
                             }
+                        } else {
+                            let fallbackAction = ConversionAction(
+                                id: targetSegment.id,
+                                title: targetSegment.title,
+                                subtitle: targetSegment.subtitle,
+                                systemIcon: targetSegment.systemIcon,
+                                category: targetSegment.category
+                            )
+                            for file in validatedFiles {
+                                let item = try await appCoordinator.fileInspector.inspect(url: file.resolvedURL)
+                                appCoordinator.executeAction(fallbackAction, on: item)
+                            }
                         }
                     } else {
-                        // Dropped on center hub -> open radial menu to let user pick action
+                        // Dropped on center hub -> open radial menu for this inspected file to let user choose action
+                        self.currentState = .idle
                         appCoordinator.inspectedFile = inspected
                         appCoordinator.radialMenuCoordinator.presentFloatingWindow(for: inspected) { action in
                             for file in validatedFiles {
@@ -165,6 +190,31 @@ public final class DragSessionCoordinator {
 
     private func handleActionTriggered(_ action: ConversionAction) {
         currentState = .idle
+        if let first = lastValidatedFiles.first {
+            Task { @MainActor in
+                if let item = try? await appCoordinator?.fileInspector.inspect(url: first.resolvedURL) {
+                    appCoordinator?.executeAction(action, on: item)
+                }
+            }
+        } else {
+            chooseFileForAction(action)
+        }
+    }
+
+    private func chooseFileForAction(_ action: ConversionAction) {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = false
+        panel.allowsMultipleSelection = false
+        panel.prompt = "Choose File"
+        panel.message = "Select a file to run \(action.title)"
+        if panel.runModal() == .OK, let url = panel.url {
+            Task { @MainActor in
+                if let item = try? await appCoordinator?.fileInspector.inspect(url: url) {
+                    appCoordinator?.executeAction(action, on: item)
+                }
+            }
+        }
     }
 
     private func makeFallbackInspectedFile(at location: CGPoint) -> InspectedFile {

@@ -51,6 +51,7 @@ public final class GlobalEventMonitor: @unchecked Sendable {
         // 1. Modifier flags changed (Shift key detection)
         globalFlagsMonitor = NSEvent.addGlobalMonitorForEvents(matching: .flagsChanged) { [weak self] event in
             guard let self else { return }
+            if self.eventTap != nil { return }
             let isShift = event.modifierFlags.contains(.shift)
             if isShift && self.isDragging {
                 let loc = NSEvent.mouseLocation
@@ -63,6 +64,7 @@ public final class GlobalEventMonitor: @unchecked Sendable {
         // 2. Mouse dragged (observed while moving items across apps)
         globalDragMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDragged]) { [weak self] event in
             guard let self else { return }
+            if self.eventTap != nil { return }
             self.isDragging = true
             let isShift = event.modifierFlags.contains(.shift)
             if isShift {
@@ -153,22 +155,18 @@ public final class GlobalEventMonitor: @unchecked Sendable {
             self.isDragging = true
             let flags = event.flags
             if flags.contains(.maskShift) {
-                let loc = event.location
-                let screenH = NSScreen.main?.frame.height ?? 1080
-                let appKitPoint = CGPoint(x: loc.x, y: screenH - loc.y)
+                let loc = NSEvent.mouseLocation
                 DispatchQueue.main.async {
-                    self.onShiftDragDetected?(appKitPoint)
+                    self.onShiftDragDetected?(loc)
                 }
             }
 
         case .flagsChanged:
             let flags = event.flags
             if flags.contains(.maskShift) && self.isDragging {
-                let loc = event.location
-                let screenH = NSScreen.main?.frame.height ?? 1080
-                let appKitPoint = CGPoint(x: loc.x, y: screenH - loc.y)
+                let loc = NSEvent.mouseLocation
                 DispatchQueue.main.async {
-                    self.onShiftDragDetected?(appKitPoint)
+                    self.onShiftDragDetected?(loc)
                 }
             }
 

@@ -35,6 +35,10 @@ public final class RadialMenuWindow: NSPanel {
 public final class RadialMenuWindowController: NSObject, @unchecked Sendable {
     public static let shared = RadialMenuWindowController()
 
+    public var isVisible: Bool {
+        window?.isVisible == true
+    }
+
     private var window: RadialMenuWindow?
     private var localClickMonitor: Any?
     private var globalClickMonitor: Any?
@@ -53,8 +57,17 @@ public final class RadialMenuWindowController: NSObject, @unchecked Sendable {
         onSelectAction: @escaping (ConversionAction) -> Void,
         onDismiss: @escaping () -> Void
     ) {
-        // Immediately clean up any previous window to prevent overlapping instances
-        if let existing = window {
+        // If window is already visible and active:
+        // When user is dragging with Shift, avoid tearing down and re-blooming on every mouse pixel movement
+        if let currentWindow = window, currentWindow.isVisible {
+            if file.fileName == "Drop Target" {
+                return
+            }
+            // Transitioning from Drop Target to a real inspected file
+            removeDismissalMonitors()
+            currentWindow.orderOut(nil)
+            self.window = nil
+        } else if let existing = window {
             removeDismissalMonitors()
             existing.orderOut(nil)
             self.window = nil
@@ -82,17 +95,17 @@ public final class RadialMenuWindowController: NSObject, @unchecked Sendable {
 
         let hostingView = NSHostingView(rootView: radialView)
         hostingView.frame = NSRect(origin: .zero, size: menuSize)
+        hostingView.autoresizingMask = [.width, .height]
 
-        // 3. Container view with integrated DropDestination overlay
-        let containerView = NSView(frame: NSRect(origin: .zero, size: menuSize))
+        // 3. DropDestination container view
+        // hostingView is placed inside DropDestinationView (not underneath a blocking overlay),
+        // allowing full click, hover, and keyboard interactivity while handling native drag-and-drop
+        let containerView = DropDestinationView(frame: NSRect(origin: .zero, size: menuSize))
         containerView.addSubview(hostingView)
-
-        let dropOverlay = DropDestinationView(frame: NSRect(origin: .zero, size: menuSize))
-        dropOverlay.onFilesDropped = { [weak self] urls, targetIndex in
+        containerView.onFilesDropped = { [weak self] urls, targetIndex in
             self?.dismiss()
             DragSessionCoordinator.shared.handleDroppedURLs(urls, onSegmentIndex: targetIndex)
         }
-        containerView.addSubview(dropOverlay)
 
         // 4. Initialize & configure panel
         let panel = RadialMenuWindow(contentRect: frame)
@@ -109,7 +122,10 @@ public final class RadialMenuWindowController: NSObject, @unchecked Sendable {
             panel.animator().alphaValue = 1.0
         }
 
-        panel.makeKey()
+        // Only make key window when presenting for active user inspection (not during passive drag monitoring)
+        if file.fileName != "Drop Target" {
+            panel.makeKey()
+        }
 
         // 6. Install click-outside and key dismissal monitors
         installDismissalMonitors(panel: panel, onDismiss: onDismiss)

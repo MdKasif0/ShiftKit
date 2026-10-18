@@ -11,6 +11,11 @@ public final class DropDestinationView: NSView {
 
     private let layoutEngine = MenuLayoutEngine.shared
     private let geometry: MenuGeometry
+    private var isDragActive: Bool = false
+
+    override public var isFlipped: Bool {
+        true
+    }
 
     public init(frame: NSRect, geometry: MenuGeometry = MenuGeometry()) {
         self.geometry = geometry
@@ -28,8 +33,19 @@ public final class DropDestinationView: NSView {
         registerForDraggedTypes([
             .fileURL,
             .URL,
-            NSPasteboard.PasteboardType("public.file-url")
+            NSPasteboard.PasteboardType("public.file-url"),
+            NSPasteboard.PasteboardType("NSFilenamesPboardType"),
+            NSPasteboard.PasteboardType("com.apple.finder.node")
         ])
+    }
+
+    override public func hitTest(_ point: NSPoint) -> NSView? {
+        // When actively tracking a file drag, return self so DropDestinationView receives all dragging events.
+        // During normal mouse clicks, hover, and gestures, return super.hitTest so hostingView (SwiftUI) receives all interactions!
+        if isDragActive {
+            return self
+        }
+        return super.hitTest(point)
     }
 
     // MARK: - NSDraggingDestination Implementation
@@ -37,6 +53,7 @@ public final class DropDestinationView: NSView {
         guard hasAcceptableFiles(sender: sender) else {
             return []
         }
+        isDragActive = true
         updateHoverTarget(sender: sender)
         return .copy
     }
@@ -45,15 +62,18 @@ public final class DropDestinationView: NSView {
         guard hasAcceptableFiles(sender: sender) else {
             return []
         }
+        isDragActive = true
         updateHoverTarget(sender: sender)
         return .copy
     }
 
     override public func draggingExited(_ sender: NSDraggingInfo?) {
+        isDragActive = false
         onDragExited?()
     }
 
     override public func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
+        isDragActive = false
         let urls = extractFileURLs(from: sender.draggingPasteboard)
         guard !urls.isEmpty else { return false }
 
@@ -73,8 +93,19 @@ public final class DropDestinationView: NSView {
 
     // MARK: - Helpers
     private func hasAcceptableFiles(sender: NSDraggingInfo) -> Bool {
-        let types = sender.draggingPasteboard.types ?? []
-        return types.contains(.fileURL) || types.contains(.URL)
+        let pasteboard = sender.draggingPasteboard
+        let types = pasteboard.types ?? []
+        let acceptable: [NSPasteboard.PasteboardType] = [
+            .fileURL,
+            .URL,
+            NSPasteboard.PasteboardType("public.file-url"),
+            NSPasteboard.PasteboardType("NSFilenamesPboardType"),
+            NSPasteboard.PasteboardType("com.apple.finder.node")
+        ]
+        if types.contains(where: { acceptable.contains($0) }) {
+            return true
+        }
+        return pasteboard.canReadObject(forClasses: [NSURL.self], options: nil)
     }
 
     private func updateHoverTarget(sender: NSDraggingInfo) {
@@ -92,9 +123,16 @@ public final class DropDestinationView: NSView {
     }
 
     private func extractFileURLs(from pasteboard: NSPasteboard) -> [URL] {
-        guard let items = pasteboard.readObjects(forClasses: [NSURL.self], options: nil) as? [URL] else {
-            return []
+        var results: [URL] = []
+        if let items = pasteboard.readObjects(forClasses: [NSURL.self], options: nil) as? [URL] {
+            results.append(contentsOf: items.filter { $0.isFileURL })
         }
-        return items.filter { $0.isFileURL }
+        if results.isEmpty, let filenames = pasteboard.propertyList(forType: NSPasteboard.PasteboardType("NSFilenamesPboardType")) as? [String] {
+            results.append(contentsOf: filenames.map { URL(fileURLWithPath: $0) })
+        }
+        if results.isEmpty, let str = pasteboard.string(forType: .fileURL), let url = URL(string: str), url.isFileURL {
+            results.append(url)
+        }
+        return results
     }
 }
