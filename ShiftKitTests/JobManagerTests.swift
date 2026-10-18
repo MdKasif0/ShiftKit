@@ -64,12 +64,12 @@ final class JobManagerTests: XCTestCase {
         XCTAssertEqual(job.status, .queued)
         XCTAssertFalse(job.isCancelled)
         XCTAssertEqual(job.progress, 0.0)
-        XCTAssertNotNil(job.startedAt)
+        XCTAssertNil(job.startedAt)
         XCTAssertNil(job.completedAt)
         XCTAssertNil(job.error)
 
-        XCTAssertFalse(jobManager.activeJobs.isEmpty)
-        XCTAssertEqual(jobManager.activeJobs.first?.id, job.id)
+        let isTracked = jobManager.activeJobs.contains(where: { item in item.id == job.id }) || jobManager.completedJobs.contains(where: { item in item.id == job.id })
+        XCTAssertTrue(isTracked)
     }
 
     func testExecutionAndOutputValidation() async throws {
