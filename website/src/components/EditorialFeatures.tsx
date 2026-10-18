@@ -73,7 +73,6 @@ export function EditorialFeatures() {
       fill: "#D98768",
       stroke: "#C47456",
       textColor: "#FAF8F3",
-      iconColor: "#FAF8F3",
     },
     {
       name: "Compress",
@@ -83,7 +82,6 @@ export function EditorialFeatures() {
       fill: "#FFFFFF",
       stroke: "#E5D8C7",
       textColor: "#34312D",
-      iconColor: "#898177",
     },
     {
       name: "Extract",
@@ -93,7 +91,6 @@ export function EditorialFeatures() {
       fill: "#FFFFFF",
       stroke: "#E5D8C7",
       textColor: "#34312D",
-      iconColor: "#898177",
     },
     {
       name: "Merge",
@@ -103,7 +100,6 @@ export function EditorialFeatures() {
       fill: "#FFFFFF",
       stroke: "#E5D8C7",
       textColor: "#34312D",
-      iconColor: "#898177",
     },
     {
       name: "Edit",
@@ -113,7 +109,6 @@ export function EditorialFeatures() {
       fill: "#FFFFFF",
       stroke: "#E5D8C7",
       textColor: "#34312D",
-      iconColor: "#898177",
     },
     {
       name: "Crop",
@@ -123,12 +118,11 @@ export function EditorialFeatures() {
       fill: "#FFFFFF",
       stroke: "#E5D8C7",
       textColor: "#34312D",
-      iconColor: "#898177",
     },
   ];
 
   return (
-    <section id="features" aria-label="ShiftKit Features" className="py-16 md:py-24 bg-[#FAF8F3]">
+    <section id="features" aria-label="ShiftKit Features" className="py-16 md:py-24 bg-[#FAF8F3] scroll-mt-20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* ========================================================= */}
         {/* SECTION HEADER                                            */}
@@ -211,9 +205,9 @@ export function EditorialFeatures() {
                   </div>
 
                   {/* Visual Conversion Canvas */}
-                  <div className="p-4 sm:p-6 flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4 relative overflow-x-auto">
+                  <div className="p-4 sm:p-6 flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4 relative">
                     {/* Source File Card */}
-                    <div className="w-[130px] p-3 rounded-xl bg-[#FFFFFF] border border-[#E5D8C7] shadow-2xs space-y-2 text-center shrink-0 relative group">
+                    <div className="w-[125px] sm:w-[130px] p-3 rounded-xl bg-[#FFFFFF] border border-[#E5D8C7] shadow-2xs space-y-2 text-center shrink-0 relative group">
                       <div className="w-full h-18 rounded-lg overflow-hidden border border-[#E5D8C7] relative">
                         <img
                           src="/mountain_sample.jpg"
@@ -244,9 +238,9 @@ export function EditorialFeatures() {
 
                     {/* Connector Arrow 1 */}
                     <div className="hidden md:flex items-center text-[#D98768] shrink-0">
-                      <svg width="32" height="12" viewBox="0 0 32 12" fill="none">
+                      <svg width="28" height="12" viewBox="0 0 28 12" fill="none">
                         <path
-                          d="M0 6H26M26 6L20 1M26 6L20 11"
+                          d="M0 6H22M22 6L17 1M22 6L17 11"
                           stroke="currentColor"
                           strokeWidth="1.5"
                           strokeDasharray="3 3"
@@ -255,7 +249,7 @@ export function EditorialFeatures() {
                     </div>
 
                     {/* Center: Radial Action Menu HUD */}
-                    <div className="relative w-[180px] h-[180px] shrink-0 flex items-center justify-center">
+                    <div className="relative w-[176px] h-[176px] shrink-0 flex items-center justify-center">
                       <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-sm select-none">
                         {/* Outer Guide Ring */}
                         <circle
@@ -276,10 +270,7 @@ export function EditorialFeatures() {
                           const pathData = createDonutSegment(100, 100, 48, 92, startAngle, endAngle);
 
                           // Position for label and icon
-                          const iconPos = polarToCartesian(100, 100, 75, seg.centerAngle);
-                          const textPos = polarToCartesian(100, 100, 62, seg.centerAngle);
-
-                          const IconComponent = seg.icon;
+                          const textPos = polarToCartesian(100, 100, 68, seg.centerAngle);
 
                           return (
                             <g key={seg.name} className="transition-all duration-200">
@@ -331,9 +322,9 @@ export function EditorialFeatures() {
 
                     {/* Connector Arrow 2 */}
                     <div className="hidden md:flex items-center text-[#D98768] shrink-0">
-                      <svg width="32" height="12" viewBox="0 0 32 12" fill="none">
+                      <svg width="28" height="12" viewBox="0 0 28 12" fill="none">
                         <path
-                          d="M0 6H26M26 6L20 1M26 6L20 11"
+                          d="M0 6H22M22 6L17 1M22 6L17 11"
                           stroke="currentColor"
                           strokeWidth="1.5"
                           strokeDasharray="3 3"
@@ -342,7 +333,7 @@ export function EditorialFeatures() {
                     </div>
 
                     {/* Output File Card */}
-                    <div className="w-[130px] p-3 rounded-xl bg-[#FFFFFF] border-2 border-[#A8B5A0] shadow-2xs space-y-2 text-center shrink-0">
+                    <div className="w-[125px] sm:w-[130px] p-3 rounded-xl bg-[#FFFFFF] border-2 border-[#A8B5A0] shadow-2xs space-y-2 text-center shrink-0">
                       <div className="w-full h-18 rounded-lg overflow-hidden border border-[#A8B5A0] relative">
                         <img
                           src="/mountain_sample.jpg"
@@ -403,7 +394,7 @@ export function EditorialFeatures() {
                 </h3>
 
                 <p className="text-xs sm:text-sm text-[#34312D]/80 leading-relaxed">
-                  Crop images to exact dimensions before saving. Choose from 1:1 square, 16:9 widescreen, 4:3 document ratio, or freeform framing with live pixel readouts.
+                  Crop images to exact dimensions with live measurements, flexible framing, and convenient aspect-ratio presets.
                 </p>
               </div>
 
@@ -672,30 +663,30 @@ export function EditorialFeatures() {
 
               {/* Visual Preview: Before & After Sanitization Table */}
               <div className="p-3 rounded-xl bg-[#FAF8F3] border border-[#E5D8C7] space-y-2">
-                <div className="grid grid-cols-11 items-center gap-1 text-[10.5px]">
+                <div className="grid grid-cols-12 items-center gap-1.5 text-[10.5px]">
                   {/* Before Column */}
-                  <div className="col-span-5 space-y-1.5">
+                  <div className="col-span-7 space-y-1.5">
                     <span className="text-[9px] font-mono uppercase font-bold text-[#898177] block mb-1">
                       Before
                     </span>
-                    <div className="flex items-center gap-1.5 text-[#34312D] truncate">
+                    <div className="flex items-center gap-1.5 text-[#34312D]">
                       <MapPin size={11} className="text-[#898177] shrink-0" />
-                      <span className="text-[9px] text-[#898177]">Location</span>
+                      <span className="text-[9px] text-[#898177] shrink-0">Location</span>
                       <span className="text-[9px] font-medium text-[#34312D] truncate ml-auto">San Francisco, CA</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-[#34312D] truncate">
+                    <div className="flex items-center gap-1.5 text-[#34312D]">
                       <Camera size={11} className="text-[#898177] shrink-0" />
-                      <span className="text-[9px] text-[#898177]">Camera</span>
+                      <span className="text-[9px] text-[#898177] shrink-0">Camera</span>
                       <span className="text-[9px] font-medium text-[#34312D] truncate ml-auto">iPhone 15 Pro</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-[#34312D] truncate">
+                    <div className="flex items-center gap-1.5 text-[#34312D]">
                       <Calendar size={11} className="text-[#898177] shrink-0" />
-                      <span className="text-[9px] text-[#898177]">Capture Date</span>
+                      <span className="text-[9px] text-[#898177] shrink-0">Capture Date</span>
                       <span className="text-[9px] font-medium text-[#34312D] truncate ml-auto">Oct 14, 2024</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-[#34312D] truncate">
+                    <div className="flex items-center gap-1.5 text-[#34312D]">
                       <User size={11} className="text-[#898177] shrink-0" />
-                      <span className="text-[9px] text-[#898177]">Author</span>
+                      <span className="text-[9px] text-[#898177] shrink-0">Author</span>
                       <span className="text-[9px] font-medium text-[#34312D] truncate ml-auto">John Appleseed</span>
                     </div>
                   </div>
@@ -706,28 +697,28 @@ export function EditorialFeatures() {
                   </div>
 
                   {/* After Column */}
-                  <div className="col-span-5 space-y-1.5">
+                  <div className="col-span-4 space-y-1.5">
                     <span className="text-[9px] font-mono uppercase font-bold text-[#465343] block mb-1">
                       After
                     </span>
-                    <div className="flex items-center gap-1.5 text-[#898177]">
+                    <div className="flex items-center gap-1 text-[#898177]">
                       <MapPin size={11} className="text-[#898177] shrink-0" />
-                      <span className="text-[9px] text-[#898177]">Location</span>
+                      <span className="text-[9px] text-[#898177] shrink-0">Location</span>
                       <span className="text-[9px] font-mono text-[#898177] ml-auto">—</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-[#898177]">
+                    <div className="flex items-center gap-1 text-[#898177]">
                       <Camera size={11} className="text-[#898177] shrink-0" />
-                      <span className="text-[9px] text-[#898177]">Camera</span>
+                      <span className="text-[9px] text-[#898177] shrink-0">Camera</span>
                       <span className="text-[9px] font-mono text-[#898177] ml-auto">—</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-[#898177]">
+                    <div className="flex items-center gap-1 text-[#898177]">
                       <Calendar size={11} className="text-[#898177] shrink-0" />
-                      <span className="text-[9px] text-[#898177]">Capture Date</span>
+                      <span className="text-[9px] text-[#898177] shrink-0">Capture</span>
                       <span className="text-[9px] font-mono text-[#898177] ml-auto">—</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-[#898177]">
+                    <div className="flex items-center gap-1 text-[#898177]">
                       <User size={11} className="text-[#898177] shrink-0" />
-                      <span className="text-[9px] text-[#898177]">Author</span>
+                      <span className="text-[9px] text-[#898177] shrink-0">Author</span>
                       <span className="text-[9px] font-mono text-[#898177] ml-auto">—</span>
                     </div>
                   </div>
@@ -752,56 +743,44 @@ export function EditorialFeatures() {
               {/* Visual Preview: Miniature Concurrent Queue */}
               <div className="p-2.5 rounded-xl bg-[#FAF8F3] border border-[#E5D8C7] space-y-2 text-xs">
                 {/* Row 1: Converting */}
-                <div className="p-2 rounded-lg bg-[#FFFFFF] border border-[#E5D8C7] flex items-center justify-between gap-2 shadow-2xs">
-                  <div className="flex items-center gap-2 truncate">
-                    <FileImage size={14} className="text-[#D98768] shrink-0" />
-                    <div className="truncate">
-                      <span className="font-semibold text-[#34312D] text-[11px] block truncate">vacation.jpg</span>
-                    </div>
-                  </div>
-                  <span className="text-[10px] text-[#898177] shrink-0">Convert to WebP</span>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <div className="w-12 h-1.5 rounded-full bg-[#E5D8C7] overflow-hidden">
+                <div className="p-2 rounded-lg bg-[#FFFFFF] border border-[#E5D8C7] flex items-center gap-2 shadow-2xs">
+                  <FileImage size={13} className="text-[#D98768] shrink-0" />
+                  <span className="font-semibold text-[#34312D] text-[10.5px] shrink-0">vacation.jpg</span>
+                  <span className="text-[9.5px] text-[#898177] truncate hidden sm:inline">Convert to WebP</span>
+                  <div className="flex items-center gap-1.5 ml-auto shrink-0">
+                    <div className="w-10 h-1.5 rounded-full bg-[#E5D8C7] overflow-hidden">
                       <div className="w-[78%] h-full bg-[#D98768] rounded-full" />
                     </div>
                     <span className="font-mono text-[9px] text-[#898177]">78%</span>
-                    <button type="button" className="text-[#898177] hover:text-[#34312D] cursor-pointer">
+                    <button type="button" className="text-[#898177] hover:text-[#34312D] cursor-pointer" aria-label="Cancel vacation.jpg">
                       <X size={10} />
                     </button>
                   </div>
                 </div>
 
                 {/* Row 2: Trimming */}
-                <div className="p-2 rounded-lg bg-[#FFFFFF] border border-[#E5D8C7] flex items-center justify-between gap-2 shadow-2xs">
-                  <div className="flex items-center gap-2 truncate">
-                    <Film size={14} className="text-[#465343] shrink-0" />
-                    <div className="truncate">
-                      <span className="font-semibold text-[#34312D] text-[11px] block truncate">interview.mov</span>
-                    </div>
-                  </div>
-                  <span className="text-[10px] text-[#898177] shrink-0">Trim Video</span>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <div className="w-12 h-1.5 rounded-full bg-[#E5D8C7] overflow-hidden">
+                <div className="p-2 rounded-lg bg-[#FFFFFF] border border-[#E5D8C7] flex items-center gap-2 shadow-2xs">
+                  <Film size={13} className="text-[#465343] shrink-0" />
+                  <span className="font-semibold text-[#34312D] text-[10.5px] shrink-0">interview.mov</span>
+                  <span className="text-[9.5px] text-[#898177] truncate hidden sm:inline">Trim Video</span>
+                  <div className="flex items-center gap-1.5 ml-auto shrink-0">
+                    <div className="w-10 h-1.5 rounded-full bg-[#E5D8C7] overflow-hidden">
                       <div className="w-[42%] h-full bg-[#D98768] rounded-full" />
                     </div>
                     <span className="font-mono text-[9px] text-[#898177]">42%</span>
-                    <button type="button" className="text-[#898177] hover:text-[#34312D] cursor-pointer">
+                    <button type="button" className="text-[#898177] hover:text-[#34312D] cursor-pointer" aria-label="Cancel interview.mov">
                       <X size={10} />
                     </button>
                   </div>
                 </div>
 
                 {/* Row 3: Complete */}
-                <div className="p-2 rounded-lg bg-[#FFFFFF] border border-[#E5D8C7] flex items-center justify-between gap-2 shadow-2xs">
-                  <div className="flex items-center gap-2 truncate">
-                    <FileText size={14} className="text-[#898177] shrink-0" />
-                    <div className="truncate">
-                      <span className="font-semibold text-[#34312D] text-[11px] block truncate">report.pdf</span>
-                    </div>
-                  </div>
-                  <span className="text-[10px] text-[#898177] shrink-0">Compress PDF</span>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <div className="w-12 h-1.5 rounded-full bg-[#A8B5A0] overflow-hidden">
+                <div className="p-2 rounded-lg bg-[#FFFFFF] border border-[#E5D8C7] flex items-center gap-2 shadow-2xs">
+                  <FileText size={13} className="text-[#898177] shrink-0" />
+                  <span className="font-semibold text-[#34312D] text-[10.5px] shrink-0">report.pdf</span>
+                  <span className="text-[9.5px] text-[#898177] truncate hidden sm:inline">Compress PDF</span>
+                  <div className="flex items-center gap-1.5 ml-auto shrink-0">
+                    <div className="w-10 h-1.5 rounded-full bg-[#A8B5A0] overflow-hidden">
                       <div className="w-full h-full bg-[#465343] rounded-full" />
                     </div>
                     <span className="w-3 flex justify-center text-[#465343]">
