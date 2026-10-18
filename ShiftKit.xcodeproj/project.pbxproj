@@ -97,6 +97,7 @@
 		E3E0C5915889D53328C419FB /* InteractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D1DFAB425E1B7006A4E6408 /* InteractionTests.swift */; };
 		E5A46E79E8AF8011B1FBF298 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 560D37292CE3C8701EC53AE3 /* SettingsView.swift */; };
 		EBAF210ACFA4993E3D7E8A4F /* FileMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B7AD1EA09F94BB2420D826 /* FileMetadata.swift */; };
+		ED096ABF6243940AFBFA7262 /* AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 5212D735B1D2A82FF989EE2D /* AppIcon.icns */; };
 		F10484E544D4E3B2999C79D2 /* AsyncSemaphore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 330801777BD5AEA49D65E1D6 /* AsyncSemaphore.swift */; };
 		F83BC60E40E7E1AA6A493EE8 /* PDFMetadataInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34ACBCB466476A94A5294D2C /* PDFMetadataInfo.swift */; };
 		FB2E279D3852F2A36579D3B7 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376EE32A1427FD0089C032C8 /* AppCoordinator.swift */; };
@@ -156,6 +157,7 @@
 		4657A82A3841A538192A4C5C /* InteractionPermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractionPermissionManager.swift; sourceTree = "<group>"; };
 		4CFA9529129CC3134F8D36C4 /* PDFKitEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFKitEngine.swift; sourceTree = "<group>"; };
 		4D1DFAB425E1B7006A4E6408 /* InteractionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractionTests.swift; sourceTree = "<group>"; };
+		5212D735B1D2A82FF989EE2D /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = AppIcon.icns; sourceTree = "<group>"; };
 		560D37292CE3C8701EC53AE3 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		57CF78A1AA08172D0D1BF3AC /* MediaMetadataInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaMetadataInfo.swift; sourceTree = "<group>"; };
 		5D7BB0BD1B8B0D8E6D399A49 /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
@@ -265,6 +267,7 @@
 		1D7B10E5E3A7EBCF617EE42D /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				5212D735B1D2A82FF989EE2D /* AppIcon.icns */,
 				0A94B6204DB4C21E55FD7958 /* bin */,
 			);
 			path = Resources;
@@ -509,6 +512,7 @@
 			buildConfigurationList = 2BCF35DBC7A09A51204221C3 /* Build configuration list for PBXNativeTarget "ShiftKit" */;
 			buildPhases = (
 				113DA548D42DE3C86DDFB520 /* Sources */,
+				9D0DD02B0B9FCE53D75ABD8F /* Resources */,
 			);
 			buildRules = (
 			);
@@ -577,6 +581,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		9D0DD02B0B9FCE53D75ABD8F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ED096ABF6243940AFBFA7262 /* AppIcon.icns in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		113DA548D42DE3C86DDFB520 /* Sources */ = {
@@ -706,6 +721,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = ShiftKit/Resources/ShiftKit.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = ShiftKit/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -876,6 +892,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = ShiftKit/Resources/ShiftKit.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = ShiftKit/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
