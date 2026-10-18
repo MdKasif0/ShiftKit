@@ -3,8 +3,8 @@ import Foundation
 // MARK: - Job Status
 public enum JobStatus: Hashable, Sendable {
     case queued
-    case processing(progress: Double, stage: String)
-    case completed(outputURL: URL, duration: TimeInterval)
+    case processing(progress: Double?, stage: String)
+    case completed(outputURL: URL, duration: TimeInterval, outputSize: Int64)
     case failed(error: ShiftKitError)
     case cancelled
 
@@ -22,8 +22,12 @@ public enum JobStatus: Hashable, Sendable {
         case .queued:
             return "Queued"
         case .processing(let progress, let stage):
-            let percent = Int((progress * 100).clamped(to: 0...100))
-            return "\(stage) (\(percent)%)"
+            if let progress {
+                let percent = Int((progress * 100).clamped(to: 0...100))
+                return "\(stage) (\(percent)%)"
+            } else {
+                return "\(stage) (Processing...)"
+            }
         case .completed:
             return "Completed"
         case .failed(let err):
@@ -68,8 +72,15 @@ public struct ConversionJob: Identifiable, Hashable, Sendable {
     }
 
     public var outputURL: URL? {
-        if case .completed(let url, _) = status {
+        if case .completed(let url, _, _) = status {
             return url
+        }
+        return nil
+    }
+
+    public var outputSize: Int64? {
+        if case .completed(_, _, let size) = status, size > 0 {
+            return size
         }
         return nil
     }

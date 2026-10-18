@@ -1,6 +1,38 @@
 import Foundation
 import CoreGraphics
 
+// MARK: - Video Compression Presets
+public enum VideoCompressionPreset: String, CaseIterable, Hashable, Sendable, Codable {
+    case smallerFile
+    case balanced
+    case highQuality
+    case custom
+
+    public var displayName: String {
+        switch self {
+        case .smallerFile: return "Smaller File"
+        case .balanced: return "Balanced"
+        case .highQuality: return "High Quality"
+        case .custom: return "Custom"
+        }
+    }
+
+    public var subtitle: String {
+        switch self {
+        case .smallerFile: return "Max compression (720p/1080p, CRF 28)"
+        case .balanced: return "Optimal quality vs size (CRF 22)"
+        case .highQuality: return "Near-lossless visual fidelity (CRF 18)"
+        case .custom: return "Custom bitrate, scale, and fps"
+        }
+    }
+}
+
+// MARK: - Subtitle Handling Action
+public enum SubtitleHandlingAction: String, CaseIterable, Hashable, Sendable, Codable {
+    case copy
+    case strip
+}
+
 // MARK: - Conversion Options
 /// Configurable options passed to conversion engines to control compression, dimensions, quality, and fidelity.
 public struct ConversionOptions: Hashable, Sendable, Codable {
@@ -19,13 +51,26 @@ public struct ConversionOptions: Hashable, Sendable, Codable {
     public var matteColorHex: String?          // Hex fallback (e.g. "#FFFFFF") when stripping alpha
     
     // Audio Properties
-    public var audioBitrateKbps: Int?          // e.g. 192, 256, 320 kbps
+    public var audioBitrateKbps: Int?          // e.g. 128, 192, 256, 320 kbps
     public var audioSampleRateHz: Double?      // e.g. 44100.0, 48000.0
-    public var audioChannels: Int?             // 1 = mono, 2 = stereo
+    public var audioChannels: Int?             // 1 = mono, 2 = stereo, 6 = 5.1
+    public var volumeMultiplier: Double?       // 1.0 = normal, 1.5 = +50%, 0.5 = -50%
+    public var audioTags: [String: String]?    // title, artist, album, genre, date, track, etc.
     
     // Video Properties
-    public var videoFrameRate: Double?         // e.g. 30.0, 60.0 fps
+    public var videoFrameRate: Double?         // e.g. 24.0, 30.0, 60.0 fps
     public var videoResolutionPreset: String?  // e.g. "1080p", "720p", "4k"
+    public var videoCompressionPreset: VideoCompressionPreset?
+    public var videoCRF: Int?                  // e.g. 18, 22, 28
+    public var videoBitrateKbps: Int?          // e.g. 2500, 5000 kbps
+    public var subtitleAction: SubtitleHandlingAction?
+    
+    // Trimming & Clipping
+    public var trimStartTime: Double?          // Start time in seconds
+    public var trimEndTime: Double?            // End time in seconds
+    
+    // Concatenation
+    public var concatSourceURLs: [URL]?        // Additional files to join
     
     // Metadata & Structure
     public var stripMetadata: Bool             // Strip EXIF, GPS, camera metadata
@@ -46,8 +91,17 @@ public struct ConversionOptions: Hashable, Sendable, Codable {
         audioBitrateKbps: Int? = nil,
         audioSampleRateHz: Double? = nil,
         audioChannels: Int? = nil,
+        volumeMultiplier: Double? = nil,
+        audioTags: [String: String]? = nil,
         videoFrameRate: Double? = nil,
         videoResolutionPreset: String? = nil,
+        videoCompressionPreset: VideoCompressionPreset? = nil,
+        videoCRF: Int? = nil,
+        videoBitrateKbps: Int? = nil,
+        subtitleAction: SubtitleHandlingAction? = nil,
+        trimStartTime: Double? = nil,
+        trimEndTime: Double? = nil,
+        concatSourceURLs: [URL]? = nil,
         stripMetadata: Bool = false,
         pageIndices: [Int]? = nil,
         customParameters: [String: String] = [:]
@@ -63,8 +117,17 @@ public struct ConversionOptions: Hashable, Sendable, Codable {
         self.audioBitrateKbps = audioBitrateKbps
         self.audioSampleRateHz = audioSampleRateHz
         self.audioChannels = audioChannels
+        self.volumeMultiplier = volumeMultiplier
+        self.audioTags = audioTags
         self.videoFrameRate = videoFrameRate
         self.videoResolutionPreset = videoResolutionPreset
+        self.videoCompressionPreset = videoCompressionPreset
+        self.videoCRF = videoCRF
+        self.videoBitrateKbps = videoBitrateKbps
+        self.subtitleAction = subtitleAction
+        self.trimStartTime = trimStartTime
+        self.trimEndTime = trimEndTime
+        self.concatSourceURLs = concatSourceURLs
         self.stripMetadata = stripMetadata
         self.pageIndices = pageIndices
         self.customParameters = customParameters
@@ -78,6 +141,8 @@ public struct ConversionOptions: Hashable, Sendable, Codable {
         isLosslessPreferred: true,
         preserveAlpha: true,
         audioBitrateKbps: 320,
+        videoCompressionPreset: .highQuality,
+        videoCRF: 18,
         stripMetadata: false
     )
 
@@ -87,6 +152,8 @@ public struct ConversionOptions: Hashable, Sendable, Codable {
         maxDimension: 2048,
         preserveAlpha: true,
         audioBitrateKbps: 192,
+        videoCompressionPreset: .balanced,
+        videoCRF: 22,
         stripMetadata: true
     )
 
@@ -96,6 +163,8 @@ public struct ConversionOptions: Hashable, Sendable, Codable {
         maxDimension: 1280,
         preserveAlpha: false,
         audioBitrateKbps: 128,
+        videoCompressionPreset: .smallerFile,
+        videoCRF: 28,
         stripMetadata: true
     )
 
@@ -119,6 +188,44 @@ public struct ConversionOptions: Hashable, Sendable, Codable {
     public func strippingMetadata(_ strip: Bool = true) -> ConversionOptions {
         var copy = self
         copy.stripMetadata = strip
+        return copy
+    }
+
+    public func withTrim(start: Double, end: Double) -> ConversionOptions {
+        var copy = self
+        copy.trimStartTime = start
+        copy.trimEndTime = end
+        return copy
+    }
+
+    public func withVolume(_ volume: Double) -> ConversionOptions {
+        var copy = self
+        copy.volumeMultiplier = volume
+        return copy
+    }
+
+    public func withAudioTags(_ tags: [String: String]) -> ConversionOptions {
+        var copy = self
+        copy.audioTags = tags
+        return copy
+    }
+
+    public func withVideoCompression(_ preset: VideoCompressionPreset) -> ConversionOptions {
+        var copy = self
+        copy.videoCompressionPreset = preset
+        switch preset {
+        case .smallerFile:
+            copy.videoCRF = 28
+            copy.audioBitrateKbps = 96
+        case .balanced:
+            copy.videoCRF = 22
+            copy.audioBitrateKbps = 160
+        case .highQuality:
+            copy.videoCRF = 18
+            copy.audioBitrateKbps = 256
+        case .custom:
+            break
+        }
         return copy
     }
 
@@ -147,8 +254,32 @@ public struct ConversionOptions: Hashable, Sendable, Codable {
         if let audioBitrateKbps {
             dict["audioBitrate"] = "\(audioBitrateKbps)k"
         }
+        if let audioSampleRateHz {
+            dict["audioSampleRate"] = "\(Int(audioSampleRateHz))"
+        }
+        if let audioChannels {
+            dict["audioChannels"] = "\(audioChannels)"
+        }
+        if let volumeMultiplier {
+            dict["volume"] = String(format: "%.2f", volumeMultiplier)
+        }
         if let videoResolutionPreset {
             dict["preset"] = videoResolutionPreset
+        }
+        if let videoCompressionPreset {
+            dict["compressionPreset"] = videoCompressionPreset.rawValue
+        }
+        if let videoCRF {
+            dict["crf"] = "\(videoCRF)"
+        }
+        if let trimStartTime {
+            dict["trimStart"] = String(format: "%.3f", trimStartTime)
+        }
+        if let trimEndTime {
+            dict["trimEnd"] = String(format: "%.3f", trimEndTime)
+        }
+        if let subtitleAction {
+            dict["subtitles"] = subtitleAction.rawValue
         }
         return dict
     }

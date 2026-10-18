@@ -75,7 +75,7 @@ public final class ImageProcessor: Sendable {
         targetFormat: OutputFormat,
         cropRect: CGRect? = nil,         // in true pixel coordinates
         options: ConversionOptions = .default,
-        progressHandler: @Sendable @escaping (Double, String) -> Void = { _, _ in }
+        progressHandler: @Sendable @escaping (Double?, String) -> Void = { _, _ in }
     ) async throws -> ImageProcessingReport {
         progressHandler(0.1, "Reading image source...")
 

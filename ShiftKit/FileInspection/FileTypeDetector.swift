@@ -5,40 +5,31 @@ import UniformTypeIdentifiers
 public protocol FileTypeDetecting: Sendable {
     func detectType(for url: URL) -> FileType
     func detectActualFormat(for url: URL) -> OutputFormat?
-    func checkFormatMismatch(for url: URL) -> (hasMismatch: Bool, actualFormat: OutputFormat?, declaredExtension: String)
     func sniffHeader(data: Data) -> OutputFormat?
+    func checkFormatMismatch(for url: URL) -> (hasMismatch: Bool, actualFormat: OutputFormat?, declaredExtension: String)
 }
 
 // MARK: - Implementation
 public final class FileTypeDetector: FileTypeDetecting {
     public init() {}
 
-    /// Detects the semantic FileType for a given URL, giving priority to actual inspected header bytes over file extensions.
+    /// Primary detection combining header inspection, UTI, and extension fallback.
     public func detectType(for url: URL) -> FileType {
-        // 1. Attempt inspection of header bytes if the file exists
-        if let actualFormat = detectActualFormat(for: url) {
-            return mapFormatToFileType(actualFormat)
+        if let actual = detectActualFormat(for: url) {
+            return mapFormatToFileType(actual)
         }
-
-        // 2. Fallback to extension & UTI if file is not on disk or header is generic
-        let pathExtension = url.pathExtension.lowercased()
-        return detectTypeFromExtensionAndUTI(pathExtension: pathExtension)
+        return detectTypeFromExtensionAndUTI(pathExtension: url.pathExtension.lowercased())
     }
 
-    /// Detects the canonical OutputFormat by inspecting binary magic signatures from disk.
+    /// Sniffs the beginning of the actual file to inspect binary magic numbers.
     public func detectActualFormat(for url: URL) -> OutputFormat? {
-        guard FileManager.default.fileExists(atPath: url.path) else {
-            // File does not exist yet; fallback to extension-based guess
+        guard let fileHandle = try? FileHandle(forReadingFrom: url) else {
             return OutputFormat.find(byExtension: url.pathExtension)
         }
 
-        guard let handle = try? FileHandle(forReadingFrom: url) else {
-            return OutputFormat.find(byExtension: url.pathExtension)
-        }
-        defer { try? handle.close() }
+        defer { try? fileHandle.close() }
 
-        // Read first 64 bytes for magic number identification
-        guard let headerData = try? handle.read(upToCount: 64), !headerData.isEmpty else {
+        guard let headerData = try? fileHandle.read(upToCount: 64), !headerData.isEmpty else {
             return OutputFormat.find(byExtension: url.pathExtension)
         }
 
@@ -62,7 +53,7 @@ public final class FileTypeDetector: FileTypeDetecting {
         let count = data.count
         guard count >= 3 else { return nil }
 
-        let bytes = [UInt8](data.prefix(32))
+        let bytes = [UInt8](data.prefix(64))
 
         // PNG: 89 50 4E 47 0D 0A 1A 0A
         if count >= 8, bytes[0] == 0x89, bytes[1] == 0x50, bytes[2] == 0x4E, bytes[3] == 0x47,
@@ -93,6 +84,18 @@ public final class FileTypeDetector: FileTypeDetecting {
             return .wav
         }
 
+        // AVI: RIFF .... AVI 
+        if count >= 12, bytes[0] == 0x52, bytes[1] == 0x49, bytes[2] == 0x46, bytes[3] == 0x46,
+           bytes[8] == 0x41, bytes[9] == 0x56, bytes[10] == 0x49, bytes[11] == 0x20 {
+            return .avi
+        }
+
+        // AIFF: FORM .... AIFF
+        if count >= 12, bytes[0] == 0x46, bytes[1] == 0x4F, bytes[2] == 0x52, bytes[3] == 0x4D,
+           bytes[8] == 0x41, bytes[9] == 0x49, bytes[10] == 0x46, bytes[11] == 0x46 {
+            return .aiff
+        }
+
         // TIFF: 49 49 2A 00 (little endian) or 4D 4D 00 2A (big endian)
         if count >= 4 {
             if (bytes[0] == 0x49 && bytes[1] == 0x49 && bytes[2] == 0x2A && bytes[3] == 0x00) ||
@@ -114,6 +117,32 @@ public final class FileTypeDetector: FileTypeDetecting {
         // FLAC: 66 4C 61 43 ("fLaC")
         if count >= 4, bytes[0] == 0x66, bytes[1] == 0x4C, bytes[2] == 0x61, bytes[3] == 0x43 {
             return .flac
+        }
+
+        // OGG / Opus: 4F 67 67 53 ("OggS")
+        if count >= 4, bytes[0] == 0x4F, bytes[1] == 0x67, bytes[2] == 0x67, bytes[3] == 0x53 {
+            // Check if OpusHead is present within header
+            if let str = String(data: data.prefix(40), encoding: .ascii), str.contains("OpusHead") {
+                return .opus
+            }
+            return .ogg
+        }
+
+        // EBML (Matroska / WebM): 1A 45 DF A3
+        if count >= 4, bytes[0] == 0x1A, bytes[1] == 0x45, bytes[2] == 0xDF, bytes[3] == 0xA3 {
+            if let str = String(data: data.prefix(64), encoding: .ascii) {
+                if str.contains("webm") {
+                    return .webm
+                } else {
+                    return .mkv
+                }
+            }
+            return .mkv
+        }
+
+        // AAC ADTS Sync Word: 0xFFF (0xFF followed by 0xF0..0xFF)
+        if count >= 2, bytes[0] == 0xFF, (bytes[1] & 0xF6) == 0xF0 {
+            return .aac
         }
 
         // MP3: ID3 header (49 44 33) or sync bytes (FF FB / FF F3 / FF F2)
@@ -164,11 +193,17 @@ public final class FileTypeDetector: FileTypeDetecting {
         case "gif": return .image(.gif)
         case "mp4": return .video(.mp4)
         case "mov": return .video(.mov)
+        case "mkv": return .video(.mkv)
         case "webm": return .video(.webm)
+        case "avi": return .video(.avi)
         case "mp3": return .audio(.mp3)
         case "m4a": return .audio(.m4a)
+        case "aac": return .audio(.aac)
         case "wav": return .audio(.wav)
         case "flac": return .audio(.flac)
+        case "aiff": return .audio(.aiff)
+        case "ogg": return .audio(.ogg)
+        case "opus": return .audio(.opus)
         case "pdf": return .pdf
         case "zip": return .archive
         case "csv": return .document(.csv)
@@ -206,7 +241,8 @@ public final class FileTypeDetector: FileTypeDetecting {
         case "aac": return .audio(.aac)
         case "flac": return .audio(.flac)
         case "aiff", "aif": return .audio(.aiff)
-        case "ogg": return .audio(.ogg)
+        case "ogg", "oga": return .audio(.ogg)
+        case "opus": return .audio(.opus)
 
         // PDF
         case "pdf": return .pdf

@@ -1,8 +1,7 @@
 import Foundation
-import UniformTypeIdentifiers
 
 // MARK: - Output Format Specification
-public struct OutputFormat: Identifiable, Hashable, Sendable, Codable {
+public struct OutputFormat: Identifiable, Hashable, Sendable {
     public let id: String
     public let displayName: String
     public let uti: String
@@ -29,8 +28,8 @@ public struct OutputFormat: Identifiable, Hashable, Sendable, Codable {
         self.id = id
         self.displayName = displayName
         self.uti = uti
-        self.primaryExtension = primaryExtension.lowercased()
-        self.recognizedExtensions = recognizedExtensions.map { $0.lowercased() }
+        self.primaryExtension = primaryExtension
+        self.recognizedExtensions = recognizedExtensions
         self.mimeType = mimeType
         self.category = category
         self.supportsAlpha = supportsAlpha
@@ -38,7 +37,7 @@ public struct OutputFormat: Identifiable, Hashable, Sendable, Codable {
         self.isContainerLossy = isContainerLossy
     }
 
-    // MARK: - Canonical Formats
+    // MARK: - Canonical Image Formats
     public static let png = OutputFormat(
         id: "png",
         displayName: "PNG Image",
@@ -117,9 +116,10 @@ public struct OutputFormat: Identifiable, Hashable, Sendable, Codable {
         isContainerLossy: true
     )
 
+    // MARK: - Canonical Video Formats
     public static let mp4 = OutputFormat(
         id: "mp4",
-        displayName: "MP4 Video (H.264)",
+        displayName: "MP4 Video",
         uti: "public.mpeg-4",
         primaryExtension: "mp4",
         recognizedExtensions: ["mp4", "m4v"],
@@ -143,6 +143,19 @@ public struct OutputFormat: Identifiable, Hashable, Sendable, Codable {
         isContainerLossy: false
     )
 
+    public static let mkv = OutputFormat(
+        id: "mkv",
+        displayName: "Matroska Video",
+        uti: "org.matroska.mkv",
+        primaryExtension: "mkv",
+        recognizedExtensions: ["mkv"],
+        mimeType: "video/x-matroska",
+        category: .video,
+        supportsAlpha: true,
+        supportsAnimation: true,
+        isContainerLossy: false
+    )
+
     public static let webm = OutputFormat(
         id: "webm",
         displayName: "WebM Video",
@@ -156,6 +169,20 @@ public struct OutputFormat: Identifiable, Hashable, Sendable, Codable {
         isContainerLossy: true
     )
 
+    public static let avi = OutputFormat(
+        id: "avi",
+        displayName: "AVI Video",
+        uti: "public.avi",
+        primaryExtension: "avi",
+        recognizedExtensions: ["avi"],
+        mimeType: "video/x-msvideo",
+        category: .video,
+        supportsAlpha: false,
+        supportsAnimation: true,
+        isContainerLossy: true
+    )
+
+    // MARK: - Canonical Audio Formats
     public static let mp3 = OutputFormat(
         id: "mp3",
         displayName: "MP3 Audio",
@@ -174,8 +201,21 @@ public struct OutputFormat: Identifiable, Hashable, Sendable, Codable {
         displayName: "M4A Audio (AAC)",
         uti: "com.apple.m4a-audio",
         primaryExtension: "m4a",
-        recognizedExtensions: ["m4a", "aac"],
+        recognizedExtensions: ["m4a"],
         mimeType: "audio/mp4",
+        category: .audio,
+        supportsAlpha: false,
+        supportsAnimation: false,
+        isContainerLossy: true
+    )
+
+    public static let aac = OutputFormat(
+        id: "aac",
+        displayName: "AAC Audio",
+        uti: "public.aac-audio",
+        primaryExtension: "aac",
+        recognizedExtensions: ["aac"],
+        mimeType: "audio/aac",
         category: .audio,
         supportsAlpha: false,
         supportsAnimation: false,
@@ -208,6 +248,46 @@ public struct OutputFormat: Identifiable, Hashable, Sendable, Codable {
         isContainerLossy: false
     )
 
+    public static let aiff = OutputFormat(
+        id: "aiff",
+        displayName: "AIFF Audio",
+        uti: "public.aiff-audio",
+        primaryExtension: "aiff",
+        recognizedExtensions: ["aiff", "aif"],
+        mimeType: "audio/aiff",
+        category: .audio,
+        supportsAlpha: false,
+        supportsAnimation: false,
+        isContainerLossy: false
+    )
+
+    public static let ogg = OutputFormat(
+        id: "ogg",
+        displayName: "OGG Audio (Vorbis)",
+        uti: "org.xiph.ogg",
+        primaryExtension: "ogg",
+        recognizedExtensions: ["ogg", "oga"],
+        mimeType: "audio/ogg",
+        category: .audio,
+        supportsAlpha: false,
+        supportsAnimation: false,
+        isContainerLossy: true
+    )
+
+    public static let opus = OutputFormat(
+        id: "opus",
+        displayName: "Opus Audio",
+        uti: "org.xiph.opus",
+        primaryExtension: "opus",
+        recognizedExtensions: ["opus"],
+        mimeType: "audio/opus",
+        category: .audio,
+        supportsAlpha: false,
+        supportsAnimation: false,
+        isContainerLossy: true
+    )
+
+    // MARK: - Documents & Archives
     public static let pdf = OutputFormat(
         id: "pdf",
         displayName: "PDF Document",
@@ -301,8 +381,8 @@ public struct OutputFormat: Identifiable, Hashable, Sendable, Codable {
 
     public static let allCanonical: [OutputFormat] = [
         .png, .jpeg, .webp, .heic, .tiff, .gif,
-        .mp4, .mov, .webm,
-        .mp3, .m4a, .wav, .flac,
+        .mp4, .mov, .mkv, .webm, .avi,
+        .mp3, .m4a, .aac, .wav, .flac, .aiff, .ogg, .opus,
         .pdf, .docx, .rtf, .csv, .json, .txt, .zip
     ]
 

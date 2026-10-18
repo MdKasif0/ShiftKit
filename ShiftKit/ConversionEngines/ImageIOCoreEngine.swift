@@ -22,7 +22,7 @@ public final class ImageIOCoreEngine: ConversionEngine {
     public func execute(
         request: ConversionRequest,
         outputURL: URL,
-        progressHandler: @Sendable @escaping (Double, String) -> Void
+        progressHandler: @Sendable @escaping (Double?, String) -> Void
     ) async throws -> URL {
         let targetExt = request.action.targetFormat?.lowercased() ?? outputURL.pathExtension.lowercased()
         let targetFormat = OutputFormat.find(byExtension: targetExt) ?? .png

@@ -8,6 +8,6 @@ public protocol ConversionEngine: Sendable {
     func execute(
         request: ConversionRequest,
         outputURL: URL,
-        progressHandler: @Sendable @escaping (Double, String) -> Void
+        progressHandler: @Sendable @escaping (Double?, String) -> Void
     ) async throws -> URL
 }

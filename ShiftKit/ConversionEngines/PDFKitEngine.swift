@@ -21,7 +21,7 @@ public final class PDFKitEngine: ConversionEngine {
     public func execute(
         request: ConversionRequest,
         outputURL: URL,
-        progressHandler: @Sendable @escaping (Double, String) -> Void
+        progressHandler: @Sendable @escaping (Double?, String) -> Void
     ) async throws -> URL {
         progressHandler(0.1, "Opening PDF document...")
 

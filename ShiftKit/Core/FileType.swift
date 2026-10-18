@@ -85,6 +85,7 @@ public enum AudioSubtype: String, CaseIterable, Hashable, Sendable {
     case flac
     case aiff
     case ogg
+    case opus
     case other
 }
 
