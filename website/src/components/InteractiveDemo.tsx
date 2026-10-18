@@ -194,8 +194,8 @@ export function InteractiveDemo() {
 
   return (
     <section
-      id="how-it-works"
-      aria-label="How ShiftKit Works"
+      id="interactive-flow"
+      aria-label="ShiftKit Interactive Workflow"
       className="relative py-12 md:py-18 bg-[#F3EEE4] border-y border-[#E5D8C7] overflow-hidden"
     >
       <div id="interactive-demo" className="absolute -top-20" aria-hidden="true" />

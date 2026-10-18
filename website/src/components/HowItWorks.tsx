@@ -17,9 +17,6 @@ import {
   ChevronDown,
   Info,
   Check,
-  MousePointer,
-  Sparkles,
-  Zap,
 } from "lucide-react";
 
 export function HowItWorks() {
@@ -37,7 +34,7 @@ export function HowItWorks() {
       title: "Hold Shift & Drag",
       subtitle: "Select one or more files",
       description:
-        "Select files in Finder and hold Shift while dragging. ShiftKit detects the gesture securely via macOS Accessibility APIs.",
+        "Select files in Finder and hold Shift while dragging. ShiftKit detects the gesture securely via native macOS Accessibility APIs.",
       statusText: "Hold Shift and drag a file to begin",
     },
     {
@@ -165,7 +162,7 @@ export function HowItWorks() {
         {/* 4-STAGE CONNECTED PROGRESSION SELECTOR                     */}
         {/* ========================================================= */}
         <div className="relative mb-8 sm:mb-10">
-          {/* Subtle Connecting Line behind the cards (Desktop) */}
+          {/* Connecting Line behind the cards (Desktop) */}
           <div className="hidden lg:block absolute top-1/2 left-12 right-12 -translate-y-1/2 h-[1px] bg-[#E5D8C7] z-0" />
 
           {/* Cards Grid */}
@@ -239,7 +236,7 @@ export function HowItWorks() {
               <span className="w-2.5 h-2.5 rounded-full bg-[#E6BF68] border border-[#CDA750]" />
               <span className="w-2.5 h-2.5 rounded-full bg-[#8EA87D] border border-[#7A9569]" />
               <span className="ml-2 text-xs font-mono text-[#898177]">
-                ShiftKit • Workflow Preview
+                ShiftKit · Workflow Preview
               </span>
             </div>
 
@@ -251,7 +248,7 @@ export function HowItWorks() {
           </div>
 
           {/* Interactive Workspace Canvas */}
-          <div className="p-6 sm:p-10 lg:p-12 relative min-h-[420px] flex items-center justify-center">
+          <div className="p-6 sm:p-10 lg:p-12 relative min-h-[420px] flex items-center justify-center overflow-hidden">
             {/* ----------------------------------------------------- */}
             {/* STAGE 1: HOLD SHIFT WHILE DRAGGING                    */}
             {/* ----------------------------------------------------- */}
@@ -315,182 +312,217 @@ export function HowItWorks() {
             {/* STAGE 2: CHOOSE FROM RADIAL CANVAS (HERO SCREENSHOT)   */}
             {/* ----------------------------------------------------- */}
             {activeStep === 2 && (
-              <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center animate-fadeIn">
-                {/* Left Column: Dragged File & Shift Key */}
-                <div className="lg:col-span-4 flex flex-col items-center lg:items-start space-y-4">
-                  {/* File Card */}
-                  <div className="w-44 p-3.5 rounded-2xl bg-[#FFFFFF] border border-[#E5D8C7] shadow-xs space-y-2.5 text-center relative">
-                    <div className="w-full h-24 rounded-xl overflow-hidden border border-[#E5D8C7]">
-                      <img
-                        src="/mountain_sample.jpg"
-                        alt="Selected Photo"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-[#34312D]">photo.png</p>
-                      <p className="text-[11px] text-[#898177]">PNG image • 2.4 MB</p>
+              <div className="w-full relative animate-fadeIn">
+                {/* SVG Connecting Curves for Desktop */}
+                <div className="hidden lg:block absolute inset-0 pointer-events-none z-0">
+                  <svg className="w-full h-full" viewBox="0 0 900 320" fill="none">
+                    {/* Arrow 1: From left file card to radial menu */}
+                    <path
+                      d="M 230 110 C 290 110, 320 160, 350 160"
+                      stroke="#D98768"
+                      strokeWidth="1.5"
+                      strokeDasharray="4 4"
+                      opacity="0.65"
+                    />
+                    <polygon points="354,160 348,157 348,163" fill="#D98768" opacity="0.75" />
+
+                    {/* Arrow 2: From top of Convert segment to Convert config panel */}
+                    <path
+                      d="M 520 85 C 560 85, 590 70, 630 70"
+                      stroke="#D98768"
+                      strokeWidth="1.5"
+                      strokeDasharray="4 4"
+                      opacity="0.65"
+                    />
+
+                    {/* Arrow 3: From radial menu to Output card */}
+                    <path
+                      d="M 545 220 C 585 220, 630 250, 680 250"
+                      stroke="#D98768"
+                      strokeWidth="1.5"
+                      strokeDasharray="4 4"
+                      opacity="0.65"
+                    />
+                    <polygon points="684,250 678,247 678,253" fill="#D98768" opacity="0.75" />
+                  </svg>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+                  {/* Left Column: Dragged File & Shift Key */}
+                  <div className="lg:col-span-4 flex flex-col items-center lg:items-start space-y-4">
+                    {/* File Card */}
+                    <div className="w-44 p-3.5 rounded-2xl bg-[#FFFFFF] border border-[#E5D8C7] shadow-xs space-y-2.5 text-center relative">
+                      <div className="w-full h-24 rounded-xl overflow-hidden border border-[#E5D8C7]">
+                        <img
+                          src="/mountain_sample.jpg"
+                          alt="Selected Photo"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-[#34312D]">photo.png</p>
+                        <p className="text-[11px] text-[#898177]">PNG image • 2.4 MB</p>
+                      </div>
+
+                      {/* Mouse Pointer */}
+                      <div className="absolute -bottom-2 -right-2 pointer-events-none drop-shadow-md">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                          <path
+                            d="M3 3L10.07 20.97L12.58 13.58L19.97 11.07L3 3Z"
+                            fill="#1A1817"
+                            stroke="#FFFFFF"
+                            strokeWidth="1.5"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </div>
                     </div>
 
-                    {/* Mouse Pointer */}
-                    <div className="absolute -bottom-2 -right-2 pointer-events-none drop-shadow-md">
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                        <path
-                          d="M3 3L10.07 20.97L12.58 13.58L19.97 11.07L3 3Z"
-                          fill="#1A1817"
-                          stroke="#FFFFFF"
+                    {/* 3D Tactile macOS Shift Key Indicator */}
+                    <div className="flex items-center gap-3 pt-1">
+                      <div className="px-3 py-1.5 rounded-lg border border-[#D4C8B8] border-b-2 border-b-[#B8A894] bg-gradient-to-b from-[#FFFFFF] to-[#EFEAE1] shadow-2xs flex items-center gap-1.5 text-xs font-mono font-bold text-[#34312D]">
+                        <span>⇧</span>
+                        <span>Shift</span>
+                      </div>
+                      <span className="text-[11px] text-[#898177]">
+                        Hold Shift and drag a file
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Center Column: The Defining Radial Menu HUD */}
+                  <div className="lg:col-span-4 flex items-center justify-center relative">
+                    <div className="relative w-[220px] h-[220px] shrink-0 flex items-center justify-center select-none">
+                      <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-sm">
+                        {/* Outer Guide */}
+                        <circle
+                          cx="100"
+                          cy="100"
+                          r="96"
+                          fill="none"
+                          stroke="#E5D8C7"
+                          strokeWidth="1"
+                          strokeDasharray="3 3"
+                        />
+
+                        {/* 6 Radial Segments */}
+                        {radialActions.map((action) => {
+                          const isSelected = selectedAction === action.name;
+                          const halfSpan = 27; // 54° sector with 6° gaps
+                          const startAngle = action.centerAngle - halfSpan;
+                          const endAngle = action.centerAngle + halfSpan;
+                          const pathData = createDonutSegment(100, 100, 48, 92, startAngle, endAngle);
+
+                          const textPos = polarToCartesian(100, 100, 68, action.centerAngle);
+
+                          return (
+                            <g
+                              key={action.name}
+                              onClick={() => setSelectedAction(action.name)}
+                              className="cursor-pointer transition-all duration-200"
+                            >
+                              <path
+                                d={pathData}
+                                fill={isSelected ? "#D98768" : "#FFFFFF"}
+                                stroke={isSelected ? "#C47456" : "#E5D8C7"}
+                                strokeWidth={isSelected ? "1.5" : "1"}
+                                className="hover:opacity-90"
+                              />
+                              {/* Segment Label */}
+                              <text
+                                x={textPos.x}
+                                y={textPos.y + 3}
+                                textAnchor="middle"
+                                fill={isSelected ? "#FAF8F3" : "#34312D"}
+                                fontSize="9.5"
+                                fontWeight={isSelected ? "bold" : "600"}
+                                fontFamily="system-ui, -apple-system, sans-serif"
+                              >
+                                {action.name}
+                              </text>
+                            </g>
+                          );
+                        })}
+
+                        {/* Center Hub Outer Ring */}
+                        <circle
+                          cx="100"
+                          cy="100"
+                          r="44"
+                          fill="#FAF8F3"
+                          stroke="#E5D8C7"
                           strokeWidth="1.5"
-                          strokeLinejoin="round"
                         />
                       </svg>
+
+                      {/* Center Hub Content */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+                        <div className="w-8 h-8 rounded-md overflow-hidden border border-[#E5D8C7] mb-0.5 shadow-2xs">
+                          <img
+                            src="/mountain_sample.jpg"
+                            alt="Center Hub"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <span className="text-[9px] font-mono font-bold text-[#34312D]">photo.png</span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* 3D Tactile macOS Shift Key Indicator */}
-                  <div className="flex items-center gap-3 pt-1">
-                    <div className="px-3 py-1.5 rounded-lg border border-[#D4C8B8] border-b-2 border-b-[#B8A894] bg-gradient-to-b from-[#FFFFFF] to-[#EFEAE1] shadow-2xs flex items-center gap-1.5 text-xs font-mono font-bold text-[#34312D]">
-                      <span>⇧</span>
-                      <span>Shift</span>
-                    </div>
-                    <span className="text-[11px] text-[#898177]">
-                      Hold Shift and drag a file
-                    </span>
-                  </div>
-                </div>
+                  {/* Right Column: Dynamic Action Config Popover & Output Preview */}
+                  <div className="lg:col-span-4 flex flex-col space-y-4">
+                    {/* Action Configuration Card */}
+                    <div className="p-4 rounded-2xl bg-[#FFFFFF] border border-[#E5D8C7] shadow-xs space-y-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-[#FAF2ED] text-[#D98768] flex items-center justify-center">
+                          <FileText size={15} />
+                        </div>
+                        <div>
+                          <h4 className="text-xs font-bold text-[#34312D]">Convert image</h4>
+                          <p className="text-[11px] text-[#898177]">Choose an output format.</p>
+                        </div>
+                      </div>
 
-                {/* Center Column: The Defining Radial Menu HUD */}
-                <div className="lg:col-span-4 flex items-center justify-center relative">
-                  <div className="relative w-[210px] h-[210px] shrink-0 flex items-center justify-center select-none">
-                    <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-sm">
-                      {/* Outer Guide */}
-                      <circle
-                        cx="100"
-                        cy="100"
-                        r="96"
-                        fill="none"
-                        stroke="#E5D8C7"
-                        strokeWidth="1"
-                        strokeDasharray="3 3"
-                      />
-
-                      {/* 6 Radial Segments */}
-                      {radialActions.map((action) => {
-                        const isSelected = selectedAction === action.name;
-                        const halfSpan = 27; // 54° sector with 6° gaps
-                        const startAngle = action.centerAngle - halfSpan;
-                        const endAngle = action.centerAngle + halfSpan;
-                        const pathData = createDonutSegment(100, 100, 48, 92, startAngle, endAngle);
-
-                        const textPos = polarToCartesian(100, 100, 68, action.centerAngle);
-                        const iconPos = polarToCartesian(100, 100, 80, action.centerAngle);
-
-                        return (
-                          <g
-                            key={action.name}
-                            onClick={() => setSelectedAction(action.name)}
-                            className="cursor-pointer transition-all duration-200"
+                      {/* Output Format Options */}
+                      <div className="flex items-center gap-1.5 pt-1">
+                        {["PNG", "WEBP", "JPEG"].map((fmt) => (
+                          <button
+                            key={fmt}
+                            type="button"
+                            onClick={() => setSelectedFormat(fmt)}
+                            className={`px-3 py-1 rounded-md text-xs font-mono font-semibold transition-all cursor-pointer ${
+                              selectedFormat === fmt
+                                ? "bg-[#D98768] text-[#FAF8F3] shadow-2xs"
+                                : "bg-[#FAF8F3] text-[#34312D] border border-[#E5D8C7] hover:bg-[#E5D8C7]"
+                            }`}
                           >
-                            <path
-                              d={pathData}
-                              fill={isSelected ? "#D98768" : "#FFFFFF"}
-                              stroke={isSelected ? "#C47456" : "#E5D8C7"}
-                              strokeWidth={isSelected ? "1.5" : "1"}
-                              className="hover:opacity-90"
-                            />
-                            {/* Segment Label */}
-                            <text
-                              x={textPos.x}
-                              y={textPos.y + 3}
-                              textAnchor="middle"
-                              fill={isSelected ? "#FAF8F3" : "#34312D"}
-                              fontSize="9.5"
-                              fontWeight={isSelected ? "bold" : "600"}
-                              fontFamily="system-ui, -apple-system, sans-serif"
-                            >
-                              {action.name}
-                            </text>
-                          </g>
-                        );
-                      })}
-
-                      {/* Center Hub Outer Ring */}
-                      <circle
-                        cx="100"
-                        cy="100"
-                        r="44"
-                        fill="#FAF8F3"
-                        stroke="#E5D8C7"
-                        strokeWidth="1.5"
-                      />
-                    </svg>
-
-                    {/* Center Hub Content */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
-                      <div className="w-8 h-8 rounded-md overflow-hidden border border-[#E5D8C7] mb-0.5 shadow-2xs">
-                        <img
-                          src="/mountain_sample.jpg"
-                          alt="Center Hub"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <span className="text-[9px] font-mono font-bold text-[#34312D]">photo.png</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right Column: Dynamic Action Config Popover & Output Preview */}
-                <div className="lg:col-span-4 flex flex-col space-y-4">
-                  {/* Action Configuration Card */}
-                  <div className="p-4 rounded-2xl bg-[#FFFFFF] border border-[#E5D8C7] shadow-xs space-y-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-[#FAF2ED] text-[#D98768] flex items-center justify-center">
-                        <FileText size={15} />
-                      </div>
-                      <div>
-                        <h4 className="text-xs font-bold text-[#34312D]">Convert image</h4>
-                        <p className="text-[11px] text-[#898177]">Choose an output format.</p>
+                            {fmt}
+                          </button>
+                        ))}
+                        <div className="w-6 h-6 rounded-md bg-[#FAF8F3] border border-[#E5D8C7] flex items-center justify-center text-[#898177]">
+                          <ChevronDown size={12} />
+                        </div>
                       </div>
                     </div>
 
-                    {/* Output Format Options */}
-                    <div className="flex items-center gap-1.5 pt-1">
-                      {["PNG", "WEBP", "JPEG"].map((fmt) => (
-                        <button
-                          key={fmt}
-                          type="button"
-                          onClick={() => setSelectedFormat(fmt)}
-                          className={`px-3 py-1 rounded-md text-xs font-mono font-semibold transition-all cursor-pointer ${
-                            selectedFormat === fmt
-                              ? "bg-[#D98768] text-[#FAF8F3] shadow-2xs"
-                              : "bg-[#FAF8F3] text-[#34312D] border border-[#E5D8C7] hover:bg-[#E5D8C7]"
-                          }`}
-                        >
-                          {fmt}
-                        </button>
-                      ))}
-                      <div className="w-6 h-6 rounded-md bg-[#FAF8F3] border border-[#E5D8C7] flex items-center justify-center text-[#898177]">
-                        <ChevronDown size={12} />
+                    {/* Output Preview Card */}
+                    <div className="p-3 rounded-xl bg-[#FFFFFF] border border-[#E5D8C7] shadow-2xs flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-10 h-8 rounded-lg overflow-hidden border border-[#E5D8C7]">
+                          <img
+                            src="/mountain_sample.jpg"
+                            alt="WebP Output"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-[#34312D]">photo.webp</p>
+                          <p className="text-[10px] text-[#898177]">WEBP image</p>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Output Preview Card */}
-                  <div className="p-3 rounded-xl bg-[#FFFFFF] border border-[#E5D8C7] shadow-2xs flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-10 h-8 rounded-lg overflow-hidden border border-[#E5D8C7]">
-                        <img
-                          src="/mountain_sample.jpg"
-                          alt="WebP Output"
-                          className="w-full h-full object-cover"
-                        />
+                      <div className="w-5 h-5 rounded-full bg-[#465343] text-white flex items-center justify-center">
+                        <Check size={11} strokeWidth={3} />
                       </div>
-                      <div>
-                        <p className="text-xs font-bold text-[#34312D]">photo.webp</p>
-                        <p className="text-[10px] text-[#898177]">WEBP image</p>
-                      </div>
-                    </div>
-                    <div className="w-5 h-5 rounded-full bg-[#465343] text-white flex items-center justify-center">
-                      <Check size={11} strokeWidth={3} />
                     </div>
                   </div>
                 </div>
