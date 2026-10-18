@@ -571,6 +571,19 @@ public final class ConversionRegistry: ConversionRegistering {
                 isImplemented: true
             ))
 
+            // Standard Compression Capability
+            caps.append(ConversionCapability(
+                id: "vid_compress",
+                displayName: "Compress Video (1080p Balanced)",
+                category: .video,
+                actionCategory: .compress,
+                sourceFormatID: src.id,
+                targetFormatID: "mp4",
+                requiredEngineID: "com.shiftkit.engine.ffmpeg",
+                knownLimitations: ["Optimized 1080p web compression"],
+                isImplemented: true
+            ))
+
             // Compression Presets
             caps.append(ConversionCapability(
                 id: "vid_compress_smaller",
@@ -616,6 +629,18 @@ public final class ConversionRegistry: ConversionRegistering {
                 actionCategory: .cropOrTrim,
                 sourceFormatID: src.id,
                 targetFormatID: src.id,
+                requiredEngineID: "com.shiftkit.engine.ffmpeg",
+                isImplemented: true
+            ))
+
+            // Standard Audio Extraction Capability
+            caps.append(ConversionCapability(
+                id: "vid_extract_audio",
+                displayName: "Extract Audio Track",
+                category: .video,
+                actionCategory: .extract,
+                sourceFormatID: src.id,
+                targetFormatID: "m4a",
                 requiredEngineID: "com.shiftkit.engine.ffmpeg",
                 isImplemented: true
             ))
