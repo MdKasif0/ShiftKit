@@ -57,6 +57,13 @@ extension Color {
         let blue = Double(hex & 0xFF) / 255.0
         self.init(.sRGB, red: red, green: green, blue: blue, opacity: alpha)
     }
+
+    public init(hex hexString: String, alpha: Double = 1.0) {
+        let clean = hexString.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int: UInt64 = 0
+        Scanner(string: clean).scanHexInt64(&int)
+        self.init(hex: UInt32(int), alpha: alpha)
+    }
 }
 
 extension NSColor {
@@ -65,5 +72,12 @@ extension NSColor {
         let green = CGFloat((hex >> 8) & 0xFF) / 255.0
         let blue = CGFloat(hex & 0xFF) / 255.0
         self.init(srgbRed: red, green: green, blue: blue, alpha: alpha)
+    }
+
+    public convenience init(hex hexString: String, alpha: CGFloat = 1.0) {
+        let clean = hexString.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int: UInt64 = 0
+        Scanner(string: clean).scanHexInt64(&int)
+        self.init(hex: UInt32(int), alpha: alpha)
     }
 }

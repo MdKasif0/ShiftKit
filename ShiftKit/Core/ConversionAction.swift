@@ -338,6 +338,223 @@ public struct ConversionAction: Identifiable, Hashable, Sendable {
         category: .merge,
         badgeTag: "Merge"
     )
+
+    public static let imageToPDF = ConversionAction(
+        id: "img_to_pdf",
+        title: "Create PDF",
+        subtitle: "Package image(s) into PDF document",
+        systemIcon: "doc.richtext",
+        category: .convert,
+        targetFormat: "pdf",
+        badgeTag: "PDF"
+    )
+
+    public static let pdfToJPEG = ConversionAction(
+        id: "pdf_to_jpeg",
+        title: "Pages to JPEG",
+        subtitle: "Render pages as compressed JPEG",
+        systemIcon: "photo.stack",
+        category: .convert,
+        targetFormat: "jpeg",
+        badgeTag: "JPEG Pages"
+    )
+
+    public static let pdfSplit = ConversionAction(
+        id: "pdf_split",
+        title: "Split Pages",
+        subtitle: "Extract each page to separate file",
+        systemIcon: "arrow.up.and.down.and.arrow.left.and.right",
+        category: .extract,
+        targetFormat: "pdf",
+        badgeTag: "Split"
+    )
+
+    public static let pdfExtractPages = ConversionAction(
+        id: "pdf_extract_pages",
+        title: "Extract Pages",
+        subtitle: "Extract selected page range",
+        systemIcon: "doc.badge.arrow.up",
+        category: .extract,
+        targetFormat: "pdf",
+        badgeTag: "Extract"
+    )
+
+    public static let pdfRotate = ConversionAction(
+        id: "pdf_rotate_90",
+        title: "Rotate 90° Clockwise",
+        subtitle: "Rotate document orientation",
+        systemIcon: "rotate.right",
+        category: .edit,
+        badgeTag: "Rotate",
+        options: ["degrees": "90"]
+    )
+
+    public static let pdfExtractText = ConversionAction(
+        id: "pdf_extract_text",
+        title: "Extract Text",
+        subtitle: "Extract text stream to .txt",
+        systemIcon: "doc.plaintext",
+        category: .extract,
+        targetFormat: "txt",
+        badgeTag: "Text"
+    )
+
+    public static let pdfWatermark = ConversionAction(
+        id: "pdf_watermark",
+        title: "Add Watermark",
+        subtitle: "Stamp diagonal watermark text",
+        systemIcon: "text.and.command.macparagraph",
+        category: .edit,
+        badgeTag: "Watermark"
+    )
+
+    public static let pdfStripMetadata = ConversionAction(
+        id: "pdf_strip_metadata",
+        title: "Clean PDF Metadata",
+        subtitle: "Strip author, producer & edit info",
+        systemIcon: "eye.slash",
+        category: .metadata,
+        badgeTag: "Privacy"
+    )
+
+    // Document & Developer Actions
+    public static let docToPDF = ConversionAction(
+        id: "doc_to_pdf",
+        title: "To PDF Document",
+        subtitle: "Paginate to standard PDF",
+        systemIcon: "doc.richtext",
+        category: .convert,
+        targetFormat: "pdf",
+        badgeTag: "PDF"
+    )
+
+    public static let docToDOCX = ConversionAction(
+        id: "doc_to_docx",
+        title: "To Word (.docx)",
+        subtitle: "Microsoft Word container",
+        systemIcon: "doc.text",
+        category: .convert,
+        targetFormat: "docx",
+        badgeTag: "DOCX"
+    )
+
+    public static let docToHTML = ConversionAction(
+        id: "doc_to_html",
+        title: "To HTML Document",
+        subtitle: "Web-ready semantic HTML",
+        systemIcon: "globe",
+        category: .convert,
+        targetFormat: "html",
+        badgeTag: "HTML"
+    )
+
+    public static let docToRTF = ConversionAction(
+        id: "doc_to_rtf",
+        title: "To Rich Text (.rtf)",
+        subtitle: "Universal formatted rich text",
+        systemIcon: "doc.richtext",
+        category: .convert,
+        targetFormat: "rtf",
+        badgeTag: "RTF"
+    )
+
+    public static let docToTXT = ConversionAction(
+        id: "doc_to_txt",
+        title: "To Plain Text (.txt)",
+        subtitle: "Strip formatting to text",
+        systemIcon: "doc.plaintext",
+        category: .convert,
+        targetFormat: "txt",
+        badgeTag: "TXT"
+    )
+
+    public static let csvToJSON = ConversionAction(
+        id: "csv_to_json",
+        title: "CSV to JSON",
+        subtitle: "Parse table to JSON records",
+        systemIcon: "curlybraces",
+        category: .convert,
+        targetFormat: "json",
+        badgeTag: "JSON"
+    )
+
+    public static let jsonToCSV = ConversionAction(
+        id: "json_to_csv",
+        title: "JSON to CSV Table",
+        subtitle: "Flatten JSON objects to table",
+        systemIcon: "tablecells",
+        category: .convert,
+        targetFormat: "csv",
+        badgeTag: "CSV"
+    )
+
+    public static let jsonToYAML = ConversionAction(
+        id: "json_to_yaml",
+        title: "JSON to YAML",
+        subtitle: "Convert to YAML document",
+        systemIcon: "list.bullet.indent",
+        category: .convert,
+        targetFormat: "yaml",
+        badgeTag: "YAML"
+    )
+
+    public static let yamlToJSON = ConversionAction(
+        id: "yaml_to_json",
+        title: "YAML to JSON",
+        subtitle: "Convert to formatted JSON",
+        systemIcon: "curlybraces",
+        category: .convert,
+        targetFormat: "json",
+        badgeTag: "JSON"
+    )
+
+    public static let jsonFormat = ConversionAction(
+        id: "json_format",
+        title: "Format & Validate JSON",
+        subtitle: "Pretty-print indented syntax",
+        systemIcon: "checkmark.seal",
+        category: .edit,
+        targetFormat: "json",
+        badgeTag: "Beautify"
+    )
+
+    public static let zipCreate = ConversionAction(
+        id: "zip_create",
+        title: "Compress to ZIP",
+        subtitle: "Standard local ZIP archive",
+        systemIcon: "archivebox",
+        category: .compress,
+        targetFormat: "zip",
+        badgeTag: "ZIP"
+    )
+
+    public static let zipExtract = ConversionAction(
+        id: "zip_extract",
+        title: "Extract Archive",
+        subtitle: "Safe extraction (Zip Slip protected)",
+        systemIcon: "archivebox.arrow.up",
+        category: .extract,
+        badgeTag: "Extract"
+    )
+
+    public static let hashSHA256 = ConversionAction(
+        id: "hash_sha256",
+        title: "Compute SHA-256",
+        subtitle: "Cryptographic integrity hash",
+        systemIcon: "number.square",
+        category: .metadata,
+        badgeTag: "SHA-256"
+    )
+
+    public static let base64Encode = ConversionAction(
+        id: "base64_encode",
+        title: "Base64 Encode",
+        subtitle: "Export file as Base64 text",
+        systemIcon: "character.textbox",
+        category: .convert,
+        targetFormat: "txt",
+        badgeTag: "Base64"
+    )
 }
 
 // MARK: - Radial Segment Item (8 Contextual Slices)

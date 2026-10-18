@@ -19,7 +19,8 @@ public final class ConversionRouter: ConversionRouting {
             ImageIOCoreEngine(),
             PDFKitEngine(),
             AVFoundationEngine(),
-            FFmpegEngine()
+            FFmpegEngine(),
+            DocumentConversionEngine()
         ],
         registry: ConversionRegistering = ConversionRegistry.shared,
         outputManager: OutputManaging = OutputManager()

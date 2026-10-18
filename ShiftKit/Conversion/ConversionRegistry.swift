@@ -760,7 +760,7 @@ public final class ConversionRegistry: ConversionRegistering {
         }
 
         // ==========================================
-        // 4. PDF (PDFKit Engine)
+        // 4. PDF (Native PDFKit Engine)
         // ==========================================
         caps.append(ConversionCapability(
             id: "pdf_compress",
@@ -775,11 +775,22 @@ public final class ConversionRegistry: ConversionRegistering {
 
         caps.append(ConversionCapability(
             id: "pdf_to_images",
-            displayName: "Render to Images",
+            displayName: "Render Pages to PNG",
             category: .pdf,
             actionCategory: .convert,
             sourceFormatID: "pdf",
             targetFormatID: "png",
+            requiredEngineID: "com.shiftkit.engine.pdfkit",
+            isImplemented: true
+        ))
+
+        caps.append(ConversionCapability(
+            id: "pdf_to_jpeg",
+            displayName: "Render Pages to JPEG",
+            category: .pdf,
+            actionCategory: .convert,
+            sourceFormatID: "pdf",
+            targetFormatID: "jpeg",
             requiredEngineID: "com.shiftkit.engine.pdfkit",
             isImplemented: true
         ))
@@ -795,21 +806,163 @@ public final class ConversionRegistry: ConversionRegistering {
             isImplemented: true
         ))
 
-        // ==========================================
-        // 5-8. PLANNED CAPABILITIES (Documents, Structured Data, Archives)
-        // (Marked isImplemented: false so they are NOT advertised as ready)
-        // ==========================================
         caps.append(ConversionCapability(
-            id: "doc_to_pdf",
-            displayName: "Document to PDF",
-            category: .document,
-            actionCategory: .convert,
-            sourceFormatID: "docx",
+            id: "pdf_split",
+            displayName: "Split PDF Pages",
+            category: .pdf,
+            actionCategory: .extract,
+            sourceFormatID: "pdf",
             targetFormatID: "pdf",
-            requiredEngineID: "com.shiftkit.engine.pandoc",
-            isImplemented: false
+            requiredEngineID: "com.shiftkit.engine.pdfkit",
+            isImplemented: true
         ))
 
+        caps.append(ConversionCapability(
+            id: "pdf_extract_pages",
+            displayName: "Extract Selected Pages",
+            category: .pdf,
+            actionCategory: .extract,
+            sourceFormatID: "pdf",
+            targetFormatID: "pdf",
+            requiredEngineID: "com.shiftkit.engine.pdfkit",
+            isImplemented: true
+        ))
+
+        caps.append(ConversionCapability(
+            id: "pdf_reorder",
+            displayName: "Reorder PDF Pages",
+            category: .pdf,
+            actionCategory: .edit,
+            sourceFormatID: "pdf",
+            targetFormatID: "pdf",
+            requiredEngineID: "com.shiftkit.engine.pdfkit",
+            isImplemented: true
+        ))
+
+        caps.append(ConversionCapability(
+            id: "pdf_rotate_90",
+            displayName: "Rotate PDF Pages",
+            category: .pdf,
+            actionCategory: .edit,
+            sourceFormatID: "pdf",
+            targetFormatID: "pdf",
+            requiredEngineID: "com.shiftkit.engine.pdfkit",
+            isImplemented: true
+        ))
+
+        caps.append(ConversionCapability(
+            id: "pdf_crop",
+            displayName: "Crop PDF Pages",
+            category: .pdf,
+            actionCategory: .cropOrTrim,
+            sourceFormatID: "pdf",
+            targetFormatID: "pdf",
+            requiredEngineID: "com.shiftkit.engine.pdfkit",
+            isImplemented: true
+        ))
+
+        caps.append(ConversionCapability(
+            id: "pdf_extract_text",
+            displayName: "Extract Text Stream",
+            category: .pdf,
+            actionCategory: .extract,
+            sourceFormatID: "pdf",
+            targetFormatID: "txt",
+            requiredEngineID: "com.shiftkit.engine.pdfkit",
+            isImplemented: true
+        ))
+
+        caps.append(ConversionCapability(
+            id: "pdf_watermark",
+            displayName: "Add Watermark",
+            category: .pdf,
+            actionCategory: .edit,
+            sourceFormatID: "pdf",
+            targetFormatID: "pdf",
+            requiredEngineID: "com.shiftkit.engine.pdfkit",
+            isImplemented: true
+        ))
+
+        caps.append(ConversionCapability(
+            id: "pdf_strip_metadata",
+            displayName: "Clean PDF Metadata",
+            category: .pdf,
+            actionCategory: .metadata,
+            sourceFormatID: "pdf",
+            targetFormatID: "pdf",
+            requiredEngineID: "com.shiftkit.engine.pdfkit",
+            isLossless: true,
+            isImplemented: true
+        ))
+
+        // Images to PDF capabilities
+        let supportedImagesForPDF: [OutputFormat] = [.png, .jpeg, .webp, .heic, .tiff]
+        for img in supportedImagesForPDF {
+            caps.append(ConversionCapability(
+                id: "img_to_pdf",
+                displayName: "Create PDF from \(img.displayName)",
+                category: .image,
+                actionCategory: .convert,
+                sourceFormatID: img.id,
+                targetFormatID: "pdf",
+                requiredEngineID: "com.shiftkit.engine.pdfkit",
+                isImplemented: true
+            ))
+        }
+
+        // ==========================================
+        // 5. DOCUMENTS (Universal Document Engine)
+        // ==========================================
+        let nativeDocFormats: [OutputFormat] = [.docx, .rtf, .html, .txt, .odt]
+
+        // Document to PDF
+        for doc in nativeDocFormats {
+            caps.append(ConversionCapability(
+                id: "doc_to_pdf",
+                displayName: "\(doc.displayName) to PDF",
+                category: .document,
+                actionCategory: .convert,
+                sourceFormatID: doc.id,
+                targetFormatID: "pdf",
+                requiredEngineID: "com.shiftkit.engine.document",
+                isImplemented: true
+            ))
+        }
+
+        // Native Document cross-conversions
+        for src in nativeDocFormats {
+            for dst in nativeDocFormats where dst.id != src.id {
+                caps.append(ConversionCapability(
+                    id: "doc_\(src.id)_to_\(dst.id)",
+                    displayName: "\(src.displayName) to \(dst.displayName)",
+                    category: .document,
+                    actionCategory: .convert,
+                    sourceFormatID: src.id,
+                    targetFormatID: dst.id,
+                    requiredEngineID: "com.shiftkit.engine.document",
+                    isImplemented: true
+                ))
+            }
+        }
+
+        // Markdown conversions
+        let mdTargets: [OutputFormat] = [.html, .pdf, .docx, .rtf, .txt]
+        for target in mdTargets {
+            caps.append(ConversionCapability(
+                id: "md_to_\(target.id)",
+                displayName: "Markdown to \(target.displayName)",
+                category: .text,
+                actionCategory: .convert,
+                sourceFormatID: "markdown",
+                targetFormatID: target.id,
+                requiredEngineID: "com.shiftkit.engine.document",
+                isImplemented: true
+            ))
+        }
+
+        // ==========================================
+        // 6. STRUCTURED DATA & DEVELOPER UTILITIES
+        // ==========================================
         caps.append(ConversionCapability(
             id: "csv_to_json",
             displayName: "CSV Table to JSON",
@@ -817,19 +970,124 @@ public final class ConversionRegistry: ConversionRegistering {
             actionCategory: .convert,
             sourceFormatID: "csv",
             targetFormatID: "json",
-            requiredEngineID: "com.shiftkit.engine.data",
-            isImplemented: false
+            requiredEngineID: "com.shiftkit.engine.document",
+            isImplemented: true
+        ))
+
+        caps.append(ConversionCapability(
+            id: "json_to_csv",
+            displayName: "JSON Array to CSV",
+            category: .structuredData,
+            actionCategory: .convert,
+            sourceFormatID: "json",
+            targetFormatID: "csv",
+            requiredEngineID: "com.shiftkit.engine.document",
+            isImplemented: true
+        ))
+
+        caps.append(ConversionCapability(
+            id: "csv_to_html",
+            displayName: "CSV Table to HTML",
+            category: .structuredData,
+            actionCategory: .convert,
+            sourceFormatID: "csv",
+            targetFormatID: "html",
+            requiredEngineID: "com.shiftkit.engine.document",
+            isImplemented: true
+        ))
+
+        caps.append(ConversionCapability(
+            id: "csv_to_pdf",
+            displayName: "CSV Table to PDF",
+            category: .structuredData,
+            actionCategory: .convert,
+            sourceFormatID: "csv",
+            targetFormatID: "pdf",
+            requiredEngineID: "com.shiftkit.engine.document",
+            isImplemented: true
+        ))
+
+        caps.append(ConversionCapability(
+            id: "json_to_yaml",
+            displayName: "JSON to YAML",
+            category: .structuredData,
+            actionCategory: .convert,
+            sourceFormatID: "json",
+            targetFormatID: "yaml",
+            requiredEngineID: "com.shiftkit.engine.document",
+            isImplemented: true
+        ))
+
+        caps.append(ConversionCapability(
+            id: "yaml_to_json",
+            displayName: "YAML to JSON",
+            category: .structuredData,
+            actionCategory: .convert,
+            sourceFormatID: "yaml",
+            targetFormatID: "json",
+            requiredEngineID: "com.shiftkit.engine.document",
+            isImplemented: true
+        ))
+
+        // Safe ZIP Archive Operations
+        caps.append(ConversionCapability(
+            id: "zip_create",
+            displayName: "Create ZIP Archive",
+            category: .archive,
+            actionCategory: .compress,
+            sourceFormatID: "any",
+            targetFormatID: "zip",
+            requiredEngineID: "com.shiftkit.engine.document",
+            isImplemented: true
         ))
 
         caps.append(ConversionCapability(
             id: "zip_extract",
-            displayName: "Extract Archive",
+            displayName: "Extract Archive Safely",
             category: .archive,
             actionCategory: .extract,
             sourceFormatID: "zip",
             targetFormatID: "zip",
-            requiredEngineID: "com.shiftkit.engine.archive",
-            isImplemented: false
+            requiredEngineID: "com.shiftkit.engine.document",
+            isImplemented: true
+        ))
+
+        // External Formats (LibreOffice / Pandoc)
+        let isLibreOfficeReady = DocumentConversionEngine.isLibreOfficeAvailable
+        caps.append(ConversionCapability(
+            id: "pptx_to_pdf",
+            displayName: "PowerPoint to PDF",
+            category: .document,
+            actionCategory: .convert,
+            sourceFormatID: "pptx",
+            targetFormatID: "pdf",
+            requiredEngineID: "com.shiftkit.engine.document",
+            knownLimitations: isLibreOfficeReady ? [] : ["Requires LibreOffice (soffice) installed locally"],
+            isImplemented: isLibreOfficeReady
+        ))
+
+        caps.append(ConversionCapability(
+            id: "xlsx_to_pdf",
+            displayName: "Excel Spreadsheet to PDF",
+            category: .structuredData,
+            actionCategory: .convert,
+            sourceFormatID: "xlsx",
+            targetFormatID: "pdf",
+            requiredEngineID: "com.shiftkit.engine.document",
+            knownLimitations: isLibreOfficeReady ? [] : ["Requires LibreOffice (soffice) installed locally"],
+            isImplemented: isLibreOfficeReady
+        ))
+
+        caps.append(ConversionCapability(
+            id: "xlsx_to_csv",
+            displayName: "Excel Spreadsheet to CSV",
+            category: .structuredData,
+            actionCategory: .convert,
+            sourceFormatID: "xlsx",
+            targetFormatID: "csv",
+            requiredEngineID: "com.shiftkit.engine.document",
+            knownLimitations: isLibreOfficeReady ? [] : ["Requires LibreOffice (soffice) installed locally"],
+            isImplemented: isLibreOfficeReady
         ))
 
         return caps

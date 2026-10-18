@@ -770,7 +770,7 @@ public final class PDFKitEngine: ConversionEngine {
 
         progressHandler?(0.2, "Updating PDF metadata...")
 
-        var newAttr: [PDFDocumentAttribute: Any] = stripRemaining ? [:] : (document.documentAttributes ?? [:])
+        var newAttr: [AnyHashable: Any] = stripRemaining ? [:] : (document.documentAttributes ?? [:])
 
         if stripRemaining {
             newAttr.removeAll()

@@ -1,4 +1,7 @@
-2026-10-18 17:09:27.125 xcodebuild[76944:3663958]  DVTErrorPresenter: Unable to load simulator devices.
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild build -scheme ShiftKit -destination platform=macOS -derivedDataPath ./build/DerivedData
+
+2026-10-18 17:22:20.504 xcodebuild[77596:3673021]  DVTErrorPresenter: Unable to load simulator devices.
 Domain: DVTCoreSimulatorAdditionsErrorDomain
 Code: 3
 Failure Reason: The version of the CoreSimulator framework installed on this Mac is out-of-date and not supported by this version of Xcode.
@@ -9,10 +12,7 @@ Domain: DVTCoreSimulatorAdditionsErrorDomain
 Code: 3
 --
 
-2026-10-18 17:09:27.125 xcodebuild[76944:3663958]  iOSSimulator: [SimServiceContext sharedServiceContextForDeveloperDir:error:] returned nil (Error Domain=DVTCoreSimulatorAdditionsErrorDomain Code=3 "CoreSimulator is out of date. Current version (1171.7.0) is older than build version (1174.9.2)." UserInfo={NSLocalizedDescription=CoreSimulator is out of date. Current version (1171.7.0) is older than build version (1174.9.2).}). Simulator device support disabled.
-Command line invocation:
-    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild build -scheme ShiftKit -destination platform=macOS -derivedDataPath ./build/DerivedData
-
+2026-10-18 17:22:20.504 xcodebuild[77596:3673021]  iOSSimulator: [SimServiceContext sharedServiceContextForDeveloperDir:error:] returned nil (Error Domain=DVTCoreSimulatorAdditionsErrorDomain Code=3 "CoreSimulator is out of date. Current version (1171.7.0) is older than build version (1174.9.2)." UserInfo={NSLocalizedDescription=CoreSimulator is out of date. Current version (1171.7.0) is older than build version (1174.9.2).}). Simulator device support disabled.
 --- xcodebuild: WARNING: Using the first of multiple matching destinations:
 { platform:macOS, arch:arm64, id:00008142-001E70E92611401C, name:My Mac }
 { platform:macOS, arch:x86_64, id:00008142-001E70E92611401C, name:My Mac }
@@ -41,8 +41,8 @@ ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeD
 
 ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
 
-Build description signature: 7c77fde95e33a9be9cf7ef5185e5290d
-Build description path: /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/XCBuildData/7c77fde95e33a9be9cf7ef5185e5290d.xcbuilddata
+Build description signature: b006a194f466937883b5935d8d14dc38
+Build description path: /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/XCBuildData/b006a194f466937883b5935d8d14dc38.xcbuilddata
 ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/SDKStatCaches.noindex/macosx27.0-26A425-7231f6df4def33e022ae2eb8f782df1a.sdkstatcache
     cd /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit.xcodeproj
     /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -o /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/SDKStatCaches.noindex/macosx27.0-26A425-7231f6df4def33e022ae2eb8f782df1a.sdkstatcache
@@ -67,97 +67,173 @@ SwiftExplicitDependencyCompileModuleFromInterface arm64 /Users/mdkasifuddin/Deve
 
 SwiftExplicitDependencyCompileModuleFromInterface arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/SDKExplicitPrecompiledModules/AppKit-1UXKT9AHNSDGE.swiftmodule
 
+SwiftExplicitDependencyCompileModuleFromInterface arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/SDKExplicitPrecompiledModules/SwiftUI-3MZ2PH6BAOTFP.swiftmodule
+
 SwiftExplicitDependencyCompileModuleFromInterface arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/SDKExplicitPrecompiledModules/AVKit-1VELR2LVMBUDI.swiftmodule
 
 SwiftExplicitDependencyCompileModuleFromInterface arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/SDKExplicitPrecompiledModules/PDFKit-8E694M4SAQEF.swiftmodule
 
-SwiftExplicitDependencyCompileModuleFromInterface arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/SDKExplicitPrecompiledModules/SwiftUI-3MZ2PH6BAOTFP.swiftmodule
-
 SwiftExplicitDependencyCompileModuleFromInterface arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/SDKExplicitPrecompiledModules/_AVKit_SwiftUI-CZ166DAHX6G6.swiftmodule
 
-SwiftCompile normal arm64 Compiling\ CropEditorView.swift,\ CropEditorWindowController.swift,\ DragSessionCoordinator.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/CropEditor/CropEditorView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/CropEditor/CropEditorWindowController.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Interaction/DragSessionCoordinator.swift (in target 'ShiftKit' from project 'ShiftKit')
+SwiftCompile normal arm64 Compiling\ FileTypeDetector.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/FileInspection/FileTypeDetector.swift (in target 'ShiftKit' from project 'ShiftKit')
 
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/CropEditor/CropEditorView.swift (in target 'ShiftKit' from project 'ShiftKit')
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/FileInspection/FileTypeDetector.swift (in target 'ShiftKit' from project 'ShiftKit')
     cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile CropEditorView.swift
+    builtin-SwiftPerFileCompile FileTypeDetector.swift
 
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/CropEditor/CropEditorWindowController.swift (in target 'ShiftKit' from project 'ShiftKit')
+SwiftCompile normal arm64 Compiling\ ShiftKitColors.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/DesignSystem/ShiftKitColors.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/DesignSystem/ShiftKitColors.swift (in target 'ShiftKit' from project 'ShiftKit')
     cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile CropEditorWindowController.swift
+    builtin-SwiftPerFileCompile ShiftKitColors.swift
 
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Interaction/DragSessionCoordinator.swift (in target 'ShiftKit' from project 'ShiftKit')
+SwiftCompile normal arm64 Compiling\ DocumentConversionEngine.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/DocumentConversionEngine.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/DocumentConversionEngine.swift (in target 'ShiftKit' from project 'ShiftKit')
     cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile DragSessionCoordinator.swift
+    builtin-SwiftPerFileCompile DocumentConversionEngine.swift
 
-SwiftCompile normal arm64 Compiling\ ConversionRequest.swift,\ ConversionRouter.swift,\ ConversionValidationResult.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/ConversionRequest.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/ConversionRouter.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/ConversionValidationResult.swift (in target 'ShiftKit' from project 'ShiftKit')
+SwiftCompile normal arm64 Compiling\ MetadataInspectorWindowController.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Views/MetadataInspectorWindowController.swift (in target 'ShiftKit' from project 'ShiftKit')
+/Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Views/MetadataInspectorWindowController.swift:29:17: warning: capture of 'self' with non-Sendable type 'MetadataInspectorWindowController?' in a '@Sendable' closure [#SendableClosureCaptures]
+ 2 | import SwiftUI
+ 3 | 
+ 4 | public final class MetadataInspectorWindowController: NSObject, NSWindowDelegate {
+   |                    `- note: class 'MetadataInspectorWindowController' does not conform to the 'Sendable' protocol
+ 5 |     public static let shared = MetadataInspectorWindowController()
+ 6 | 
+   :
+27 |             inspectedFile: file,
+28 |             onApplyChanges: { [weak self] inspected, options, isStrip in
+29 |                 self?.handleApply(inspected: inspected, options: options, isStrip: isStrip)
+   |                 `- warning: capture of 'self' with non-Sendable type 'MetadataInspectorWindowController?' in a '@Sendable' closure [#SendableClosureCaptures]
+30 |             },
+31 |             onClose: { [weak self] in
 
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/ConversionRequest.swift (in target 'ShiftKit' from project 'ShiftKit')
+/Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Views/MetadataInspectorWindowController.swift:29:23: warning: call to main actor-isolated instance method 'handleApply(inspected:options:isStrip:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+27 |             inspectedFile: file,
+28 |             onApplyChanges: { [weak self] inspected, options, isStrip in
+29 |                 self?.handleApply(inspected: inspected, options: options, isStrip: isStrip)
+   |                       `- warning: call to main actor-isolated instance method 'handleApply(inspected:options:isStrip:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+30 |             },
+31 |             onClose: { [weak self] in
+   :
+61 | 
+62 |     @MainActor
+63 |     private func handleApply(inspected: InspectedFile, options: [String: String], isStrip: Bool) {
+   |                  `- note: calls to instance method 'handleApply(inspected:options:isStrip:)' from outside of its actor context are implicitly asynchronous
+64 |         let handler = self.completionHandler
+65 |         dismiss()
+
+/Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Views/MetadataInspectorWindowController.swift:32:17: warning: capture of 'self' with non-Sendable type 'MetadataInspectorWindowController?' in a '@Sendable' closure [#SendableClosureCaptures]
+ 2 | import SwiftUI
+ 3 | 
+ 4 | public final class MetadataInspectorWindowController: NSObject, NSWindowDelegate {
+   |                    `- note: class 'MetadataInspectorWindowController' does not conform to the 'Sendable' protocol
+ 5 |     public static let shared = MetadataInspectorWindowController()
+ 6 | 
+   :
+30 |             },
+31 |             onClose: { [weak self] in
+32 |                 self?.dismiss()
+   |                 `- warning: capture of 'self' with non-Sendable type 'MetadataInspectorWindowController?' in a '@Sendable' closure [#SendableClosureCaptures]
+33 |             }
+34 |         )
+
+/Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Views/MetadataInspectorWindowController.swift:32:23: warning: call to main actor-isolated instance method 'dismiss()' in a synchronous nonisolated context [#ActorIsolatedCall]
+30 |             },
+31 |             onClose: { [weak self] in
+32 |                 self?.dismiss()
+   |                       `- warning: call to main actor-isolated instance method 'dismiss()' in a synchronous nonisolated context [#ActorIsolatedCall]
+33 |             }
+34 |         )
+   :
+54 | 
+55 |     @MainActor
+56 |     public func dismiss() {
+   |                 `- note: calls to instance method 'dismiss()' from outside of its actor context are implicitly asynchronous
+57 |         window?.close()
+58 |         window = nil
+
+[#ActorIsolatedCall]: <https://docs.swift.org/compiler/documentation/diagnostics/actor-isolated-call>
+[#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Views/MetadataInspectorWindowController.swift (in target 'ShiftKit' from project 'ShiftKit')
     cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile ConversionRequest.swift
+    builtin-SwiftPerFileCompile MetadataInspectorWindowController.swift
 
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/ConversionRouter.swift (in target 'ShiftKit' from project 'ShiftKit')
+SwiftCompile normal arm64 Compiling\ MergeEditorView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/MergeEditor/MergeEditorView.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/MergeEditor/MergeEditorView.swift (in target 'ShiftKit' from project 'ShiftKit')
     cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile ConversionRouter.swift
+    builtin-SwiftPerFileCompile MergeEditorView.swift
 
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/ConversionValidationResult.swift (in target 'ShiftKit' from project 'ShiftKit')
+SwiftCompile normal arm64 Compiling\ MergeWindowController.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/MergeEditor/MergeWindowController.swift (in target 'ShiftKit' from project 'ShiftKit')
+/Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/MergeEditor/MergeWindowController.swift:29:17: warning: capture of 'self' with non-Sendable type 'MergeWindowController?' in a '@Sendable' closure [#SendableClosureCaptures]
+ 2 | import SwiftUI
+ 3 | 
+ 4 | public final class MergeWindowController: NSObject, NSWindowDelegate {
+   |                    `- note: class 'MergeWindowController' does not conform to the 'Sendable' protocol
+ 5 |     public static let shared = MergeWindowController()
+ 6 | 
+   :
+27 |             initialURLs: fileURLs,
+28 |             onMerge: { [weak self] urls, workflow, options in
+29 |                 self?.handleMerge(urls: urls, workflow: workflow, options: options)
+   |                 `- warning: capture of 'self' with non-Sendable type 'MergeWindowController?' in a '@Sendable' closure [#SendableClosureCaptures]
+30 |             },
+31 |             onCancel: { [weak self] in
+
+/Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/MergeEditor/MergeWindowController.swift:29:23: warning: call to main actor-isolated instance method 'handleMerge(urls:workflow:options:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+27 |             initialURLs: fileURLs,
+28 |             onMerge: { [weak self] urls, workflow, options in
+29 |                 self?.handleMerge(urls: urls, workflow: workflow, options: options)
+   |                       `- warning: call to main actor-isolated instance method 'handleMerge(urls:workflow:options:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+30 |             },
+31 |             onCancel: { [weak self] in
+   :
+61 | 
+62 |     @MainActor
+63 |     private func handleMerge(urls: [URL], workflow: MergeWorkflowType, options: [String: String]) {
+   |                  `- note: calls to instance method 'handleMerge(urls:workflow:options:)' from outside of its actor context are implicitly asynchronous
+64 |         let handler = self.completionHandler
+65 |         dismiss()
+
+/Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/MergeEditor/MergeWindowController.swift:32:17: warning: capture of 'self' with non-Sendable type 'MergeWindowController?' in a '@Sendable' closure [#SendableClosureCaptures]
+ 2 | import SwiftUI
+ 3 | 
+ 4 | public final class MergeWindowController: NSObject, NSWindowDelegate {
+   |                    `- note: class 'MergeWindowController' does not conform to the 'Sendable' protocol
+ 5 |     public static let shared = MergeWindowController()
+ 6 | 
+   :
+30 |             },
+31 |             onCancel: { [weak self] in
+32 |                 self?.dismiss()
+   |                 `- warning: capture of 'self' with non-Sendable type 'MergeWindowController?' in a '@Sendable' closure [#SendableClosureCaptures]
+33 |             }
+34 |         )
+
+/Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/MergeEditor/MergeWindowController.swift:32:23: warning: call to main actor-isolated instance method 'dismiss()' in a synchronous nonisolated context [#ActorIsolatedCall]
+30 |             },
+31 |             onCancel: { [weak self] in
+32 |                 self?.dismiss()
+   |                       `- warning: call to main actor-isolated instance method 'dismiss()' in a synchronous nonisolated context [#ActorIsolatedCall]
+33 |             }
+34 |         )
+   :
+54 | 
+55 |     @MainActor
+56 |     public func dismiss() {
+   |                 `- note: calls to instance method 'dismiss()' from outside of its actor context are implicitly asynchronous
+57 |         window?.close()
+58 |         window = nil
+
+[#ActorIsolatedCall]: <https://docs.swift.org/compiler/documentation/diagnostics/actor-isolated-call>
+[#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/MergeEditor/MergeWindowController.swift (in target 'ShiftKit' from project 'ShiftKit')
     cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile ConversionValidationResult.swift
-
-SwiftCompile normal arm64 Compiling\ PDFKitEngine.swift,\ RadialMenuCoordinator.swift,\ RadialMenuPreviewCard.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/PDFKitEngine.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/RadialMenuCoordinator.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/RadialMenuPreviewCard.swift (in target 'ShiftKit' from project 'ShiftKit')
-/Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/PDFKitEngine.swift:697:53: error: cannot find type 'PDFMetadataInfo' in scope
-695 | 
-696 |     /// Inspects PDF metadata.
-697 |     public func inspectMetadata(url: URL) throws -> PDFMetadataInfo {
-    |                                                     `- error: cannot find type 'PDFMetadataInfo' in scope
-698 |         guard let document = PDFDocument(url: url) else {
-699 |             throw ShiftKitError.conversionFailed(reason: "Failed to open PDF at \(url.path).")
-
-/Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/PDFKitEngine.swift:762:19: error: cannot find type 'PDFMetadataInfo' in scope
-760 |     public func updateMetadata(
-761 |         url: URL,
-762 |         metadata: PDFMetadataInfo,
-    |                   `- error: cannot find type 'PDFMetadataInfo' in scope
-763 |         stripRemaining: Bool = false,
-764 |         outputURL: URL,
-
-/Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/PDFKitEngine.swift:202:27: error: cannot find 'PDFMetadataInfo' in scope
-200 |             return try updateMetadata(
-201 |                 url: request.sourceURL,
-202 |                 metadata: PDFMetadataInfo(),
-    |                           `- error: cannot find 'PDFMetadataInfo' in scope
-203 |                 stripRemaining: true,
-204 |                 outputURL: outputURL,
-
-/Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/PDFKitEngine.swift:737:16: error: cannot find 'PDFMetadataInfo' in scope
-735 |         }
-736 | 
-737 |         return PDFMetadataInfo(
-    |                `- error: cannot find 'PDFMetadataInfo' in scope
-738 |             title: title,
-739 |             author: author,
-
-/Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/PDFKitEngine.swift:773:104: error: result values in '? :' expression have mismatching types '[AnyHashable : Any]' and '[PDFDocumentAttribute : Any]'
-771 |         progressHandler?(0.2, "Updating PDF metadata...")
-772 | 
-773 |         var newAttr: [PDFDocumentAttribute: Any] = stripRemaining ? [:] : (document.documentAttributes ?? [:])
-    |                                                                                                        |- error: result values in '? :' expression have mismatching types '[AnyHashable : Any]' and '[PDFDocumentAttribute : Any]'
-    |                                                                                                        `- note: arguments to generic parameter 'Key' ('AnyHashable' and 'PDFDocumentAttribute') are expected to be equal
-774 | 
-775 |         if stripRemaining {
-Failed frontend command:
-/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-frontend -frontend -c /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/AVFoundationEngine.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/ActionSubmenuView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/App/AppCoordinator.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/App/AppDelegate.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Core/AsyncSemaphore.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Core/ConversionAction.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/ConversionCapability.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/ConversionEngine.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/ConversionJob.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/ConversionOptions.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/ConversionRegistry.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/ConversionRequest.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/ConversionRouter.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/ConversionValidationResult.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/CropEditor/CropEditorView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/CropEditor/CropEditorWindowController.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/CropEditor/CropGeometryEngine.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Interaction/DragEventMonitor.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Interaction/DragSessionCoordinator.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Interaction/DropDestination.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Views/DropZoneView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/EditorFoundation.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/FFmpegEngine.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/FileSystem/FileAccessManager.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Core/FileCategory.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/FileInspection/FileInspector.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Core/FileMetadata.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/FilePreviewView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Core/FileType.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/FileInspection/FileTypeDetector.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Interaction/GlobalEventMonitor.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/ImageIOCoreEngine.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/ImageProcessor.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Interaction/InteractionPermissionManager.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/JobManagement/JobManager.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Views/MainView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/MediaMetadataInfo.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/App/MenuBarCoordinator.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/MenuLayoutEngine.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Interaction/ModifierKeyTracker.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/OutputFormat.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/FileSystem/OutputManager.swift -primary-file /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/PDFKitEngine.swift -primary-file /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/RadialMenuCoordinator.swift -primary-file /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/RadialMenuPreviewCard.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/RadialMenuSegment.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/RadialMenuSlice.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/RadialMenuView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/RadialMenuWindow.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Views/RecentOperationsView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/FileSystem/SandboxSecurityBookmark.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Settings/SettingsStore.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Settings/SettingsView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Views/ShiftInteractionExplainerView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Interaction/ShiftKeyMonitor.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/App/ShiftKitApp.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/DesignSystem/ShiftKitColors.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/DesignSystem/ShiftKitComponents.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Core/ShiftKitError.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/DesignSystem/ShiftKitTypography.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/TrimEditor/TrimGeometryEngine.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/TrimEditor/VideoTrimEditorView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/TrimEditor/VideoTrimWindowController.swift -supplementary-output-file-map /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/supplementaryOutputs-8 -target arm64-apple-macos14.0 -disable-cross-import-overlay-search -swift-module-cross-import AVKit /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/AVKit.framework/Modules/AVKit.swiftcrossimport/SwiftUI.swiftoverlay -swift-module-cross-import AVKit /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/System/Library/Frameworks/AVKit.framework/Modules/AVKit.swiftcrossimport/SwiftUI.swiftoverlay -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/swift/host/plugins/libFoundationMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server\#FoundationMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/swift/host/plugins/libObservationMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server\#ObservationMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/swift/host/plugins/libPreviewsMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server\#PreviewsMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/swift/host/plugins/libSwiftMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server\#SwiftMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/swift/host/plugins/libSwiftUIMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server\#SwiftUIMacros -disable-implicit-swift-modules -Xcc -fno-implicit-modules -Xcc -fno-implicit-module-maps -explicit-swift-module-map-file /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit-dependencies-1.json -Xllvm -aarch64-use-tbi -enable-objc-interop -stack-check -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -I /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug -F /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug -module-cache-path /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -no-color-diagnostics -Xcc -fno-color-diagnostics -enable-testing -g -debug-info-format\=dwarf -dwarf-version\=4 -swift-version 5 -Onone -D DEBUG -serialize-debugging-options -enable-experimental-feature DebugDescriptionMacro -enable-bare-slash-regex -empty-abi-descriptor -validate-clang-modules-once -clang-build-session-file /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -working-directory -Xcc /Users/mdkasifuddin/Developer/macOS/ShiftKit -enable-anonymous-context-mangled-names -file-compilation-dir /Users/mdkasifuddin/Developer/macOS/ShiftKit -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -Xcc -ivfsstatcache -Xcc /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/SDKStatCaches.noindex/macosx27.0-26A425-7231f6df4def33e022ae2eb8f782df1a.sdkstatcache -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -Xcc -iquote -Xcc /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/ShiftKit-generated-files.hmap -Xcc -I/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/ShiftKit-own-target-headers.hmap -Xcc -I/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/ShiftKit-all-target-headers.hmap -Xcc -iquote -Xcc /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/ShiftKit-project-headers.hmap -Xcc -I/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/include -Xcc -I/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/DerivedSources-normal/arm64 -Xcc -I/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/DerivedSources/arm64 -Xcc -I/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/DerivedSources -Xcc -DDEBUG\=1 -no-auto-bridging-header-chaining -module-name ShiftKit -const-gather-protocols-file /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit_const_extract_protocols.json -disable-clang-spi -clang-target arm64-apple-macos27.0 -target-sdk-version 27.0 -target-sdk-name macosx27.0 -in-process-plugin-server-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/libSwiftInProcPluginServer.dylib -o /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/PDFKitEngine.o -o /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/RadialMenuCoordinator.o -o /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/RadialMenuPreviewCard.o -debug-module-path /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit.swiftmodule -index-unit-output-path /ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/PDFKitEngine.o -index-unit-output-path /ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/RadialMenuCoordinator.o -index-unit-output-path /ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/RadialMenuPreviewCard.o -index-store-path /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Index.noindex/DataStore -index-system-modules
-
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/PDFKitEngine.swift (in target 'ShiftKit' from project 'ShiftKit')
-    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile PDFKitEngine.swift
-
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/RadialMenuCoordinator.swift (in target 'ShiftKit' from project 'ShiftKit')
-    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile RadialMenuCoordinator.swift
-
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/RadialMenuPreviewCard.swift (in target 'ShiftKit' from project 'ShiftKit')
-    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile RadialMenuPreviewCard.swift
+    builtin-SwiftPerFileCompile MergeWindowController.swift
 
 SwiftEmitModule normal arm64 Emitting\ module\ for\ ShiftKit (in target 'ShiftKit' from project 'ShiftKit')
 
@@ -165,34 +241,91 @@ SwiftCompile normal arm64 (in target 'ShiftKit' from project 'ShiftKit')
     cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
     
 
-SwiftCompile normal arm64 Compiling\ FileMetadata.swift,\ FilePreviewView.swift,\ ImageIOCoreEngine.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Core/FileMetadata.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/FilePreviewView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/ImageIOCoreEngine.swift (in target 'ShiftKit' from project 'ShiftKit')
+/Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/FileSystem/OutputManager.swift:41:17: warning: stored property 'fileManager' of 'Sendable'-conforming class 'OutputManager' has non-Sendable type 'FileManager'; this is an error in the Swift 6 language mode
+ 39 | // MARK: - Implementation
+ 40 | public final class OutputManager: OutputManaging {
+ 41 |     private let fileManager = FileManager.default
+    |                 `- warning: stored property 'fileManager' of 'Sendable'-conforming class 'OutputManager' has non-Sendable type 'FileManager'; this is an error in the Swift 6 language mode
+ 42 | 
+ 43 |     public init() {}
 
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Core/FileMetadata.swift (in target 'ShiftKit' from project 'ShiftKit')
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/System/Library/Frameworks/Foundation.framework/Headers/NSFileManager.h:138:12: note: class 'FileManager' does not conform to the 'Sendable' protocol
+ 136 | ///
+ 137 | /// The methods of the shared ``FileManager`` object can be called from multiple threads safely. However, if you use a delegate to receive notifications about the status of move, copy, remove, and link operations, you should create a unique instance of the file manager object, assign your delegate to that object, and use that file manager to initiate your operations.
+ 138 | @interface NSFileManager : NSObject
+     |            `- note: class 'FileManager' does not conform to the 'Sendable' protocol
+ 139 | 
+ 140 | /// The shared file manager object for the process.
+
+/Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/FileSystem/OutputManager.swift:40:35: warning: conformance of 'OutputManager' to protocol 'OutputManaging' crosses into main actor-isolated code and can cause data races; this is an error in the Swift 6 language mode [#ConformanceIsolation]
+ 38 | 
+ 39 | // MARK: - Implementation
+ 40 | public final class OutputManager: OutputManaging {
+    |                                   |- warning: conformance of 'OutputManager' to protocol 'OutputManaging' crosses into main actor-isolated code and can cause data races; this is an error in the Swift 6 language mode [#ConformanceIsolation]
+    |                                   |- note: isolate this conformance to the main actor with '@MainActor'
+    |                                   `- note: turn data races into runtime errors with '@preconcurrency'
+ 41 |     private let fileManager = FileManager.default
+ 42 | 
+    :
+138 | 
+139 |     @MainActor
+140 |     public func revealInFinder(url: URL) {
+    |                 `- note: main actor-isolated instance method 'revealInFinder(url:)' cannot satisfy nonisolated requirement
+141 |         NSWorkspace.shared.activateFileViewerSelecting([url])
+142 |     }
+143 | 
+144 |     @MainActor
+145 |     public func openFile(url: URL) {
+    |                 `- note: main actor-isolated instance method 'openFile(url:)' cannot satisfy nonisolated requirement
+146 |         NSWorkspace.shared.open(url)
+147 |     }
+
+[#ConformanceIsolation]: <https://docs.swift.org/compiler/documentation/diagnostics/conformance-isolation>
+SwiftCompile normal arm64 Compiling\ AppCoordinator.swift,\ ConversionAction.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/App/AppCoordinator.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Core/ConversionAction.swift (in target 'ShiftKit' from project 'ShiftKit')
+/Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/App/AppCoordinator.swift:84:73: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+ 80 |         if urls.count > 1 {
+ 81 |             // Present dedicated Merge Studio for multiple files
+ 82 |             Task { @MainActor in
+    |                  |- note: 'self' implicitly strongly captured here
+    |                  `- note: add 'self' as a capture list item to silence
+ 83 |                 self.radialMenuCoordinator.dismiss()
+ 84 |                 MergeWindowController.shared.present(for: urls) { [weak self] orderedURLs, workflow, options in
+    |                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                                                         `- note: explicitly assign the capture list item to silence
+ 85 |                     self?.executeMerge(urls: orderedURLs, workflow: workflow, options: options)
+ 86 |                 }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/App/AppCoordinator.swift (in target 'ShiftKit' from project 'ShiftKit')
     cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile FileMetadata.swift
+    builtin-SwiftPerFileCompile AppCoordinator.swift
 
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/FilePreviewView.swift (in target 'ShiftKit' from project 'ShiftKit')
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Core/ConversionAction.swift (in target 'ShiftKit' from project 'ShiftKit')
     cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile FilePreviewView.swift
+    builtin-SwiftPerFileCompile ConversionAction.swift
 
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/ImageIOCoreEngine.swift (in target 'ShiftKit' from project 'ShiftKit')
+SwiftCompile normal arm64 Compiling\ ConversionRouter.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/ConversionRouter.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/ConversionRouter.swift (in target 'ShiftKit' from project 'ShiftKit')
     cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile ImageIOCoreEngine.swift
+    builtin-SwiftPerFileCompile ConversionRouter.swift
 
-SwiftCompile normal arm64 Compiling\ ImageProcessor.swift,\ JobManager.swift,\ MainView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/ImageProcessor.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/JobManagement/JobManager.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Views/MainView.swift (in target 'ShiftKit' from project 'ShiftKit')
+SwiftCompile normal arm64 Compiling\ MetadataInspectorView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Views/MetadataInspectorView.swift (in target 'ShiftKit' from project 'ShiftKit')
 
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/ImageProcessor.swift (in target 'ShiftKit' from project 'ShiftKit')
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Views/MetadataInspectorView.swift (in target 'ShiftKit' from project 'ShiftKit')
     cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile ImageProcessor.swift
+    builtin-SwiftPerFileCompile MetadataInspectorView.swift
 
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/JobManagement/JobManager.swift (in target 'ShiftKit' from project 'ShiftKit')
+SwiftCompile normal arm64 Compiling\ ConversionRegistry.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/ConversionRegistry.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/ConversionRegistry.swift (in target 'ShiftKit' from project 'ShiftKit')
     cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile JobManager.swift
+    builtin-SwiftPerFileCompile ConversionRegistry.swift
 
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Views/MainView.swift (in target 'ShiftKit' from project 'ShiftKit')
-    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile MainView.swift
+SwiftDriverJobDiscovery normal arm64 Compiling ConversionRouter.swift (in target 'ShiftKit' from project 'ShiftKit')
 
+SwiftCompile normal arm64 Compiling\ JobManager.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/JobManagement/JobManager.swift (in target 'ShiftKit' from project 'ShiftKit')
 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/JobManagement/JobManager.swift:67:23: warning: instance method 'lock' is unavailable from asynchronous contexts; Use async-safe scoped locking instead; this is an error in the Swift 6 language mode
  65 |         defer {
  66 |             Task { await semaphore.signal() }
@@ -209,7 +342,125 @@ SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/
  16 | 
  17 | /// Relinquishes a previously acquired lock.
 
-SwiftCompile normal arm64 Compiling\ DropZoneView.swift,\ FFmpegEngine.swift,\ FileInspector.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Views/DropZoneView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/FFmpegEngine.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/FileInspection/FileInspector.swift (in target 'ShiftKit' from project 'ShiftKit')
+/Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/JobManagement/JobManager.swift:69:23: warning: instance method 'unlock' is unavailable from asynchronous contexts; Use async-safe scoped locking instead; this is an error in the Swift 6 language mode
+ 67 |             queueLock.lock()
+ 68 |             runningTasks.removeValue(forKey: id)
+ 69 |             queueLock.unlock()
+    |                       `- warning: instance method 'unlock' is unavailable from asynchronous contexts; Use async-safe scoped locking instead; this is an error in the Swift 6 language mode
+ 70 |         }
+ 71 | 
+
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/System/Library/Frameworks/Foundation.framework/Headers/NSLock.h:18:1: note: 'unlock()' declared here
+ 16 | 
+ 17 | /// Relinquishes a previously acquired lock.
+ 18 | - (void)unlock NS_SWIFT_UNAVAILABLE_FROM_ASYNC("Use async-safe scoped locking instead");
+    | `- note: 'unlock()' declared here
+ 19 | 
+ 20 | @end
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/JobManagement/JobManager.swift (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-SwiftPerFileCompile JobManager.swift
+
+SwiftDriverJobDiscovery normal arm64 Compiling ShiftKitColors.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 Compiling\ ShiftInteractionExplainerView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Views/ShiftInteractionExplainerView.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Views/ShiftInteractionExplainerView.swift (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-SwiftPerFileCompile ShiftInteractionExplainerView.swift
+
+SwiftDriverJobDiscovery normal arm64 Compiling MergeWindowController.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 Compiling\ SettingsView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Settings/SettingsView.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Settings/SettingsView.swift (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-SwiftPerFileCompile SettingsView.swift
+
+SwiftDriverJobDiscovery normal arm64 Compiling MetadataInspectorWindowController.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 Compiling\ ActionSubmenuView.swift,\ AppDelegate.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/ActionSubmenuView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/App/AppDelegate.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/ActionSubmenuView.swift (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-SwiftPerFileCompile ActionSubmenuView.swift
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/App/AppDelegate.swift (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-SwiftPerFileCompile AppDelegate.swift
+
+SwiftDriverJobDiscovery normal arm64 Compiling FileTypeDetector.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 Compiling\ RadialMenuView.swift,\ RecentOperationsView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/RadialMenuView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Views/RecentOperationsView.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/RadialMenuView.swift (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-SwiftPerFileCompile RadialMenuView.swift
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Views/RecentOperationsView.swift (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-SwiftPerFileCompile RecentOperationsView.swift
+
+SwiftDriverJobDiscovery normal arm64 Compiling ShiftInteractionExplainerView.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 Compiling\ DropZoneView.swift,\ FilePreviewView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Views/DropZoneView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/FilePreviewView.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Views/DropZoneView.swift (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-SwiftPerFileCompile DropZoneView.swift
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/FilePreviewView.swift (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-SwiftPerFileCompile FilePreviewView.swift
+
+SwiftDriverJobDiscovery normal arm64 Compiling ConversionRegistry.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 Compiling\ RadialMenuPreviewCard.swift,\ RadialMenuSegment.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/RadialMenuPreviewCard.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/RadialMenuSegment.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/RadialMenuPreviewCard.swift (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-SwiftPerFileCompile RadialMenuPreviewCard.swift
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/RadialMenuSegment.swift (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-SwiftPerFileCompile RadialMenuSegment.swift
+
+SwiftDriverJobDiscovery normal arm64 Compiling JobManager.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 Compiling\ VideoTrimWindowController.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/TrimEditor/VideoTrimWindowController.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/TrimEditor/VideoTrimWindowController.swift (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-SwiftPerFileCompile VideoTrimWindowController.swift
+
+SwiftDriverJobDiscovery normal arm64 Compiling DocumentConversionEngine.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 Compiling\ VideoTrimEditorView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/TrimEditor/VideoTrimEditorView.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/TrimEditor/VideoTrimEditorView.swift (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-SwiftPerFileCompile VideoTrimEditorView.swift
+
+SwiftDriverJobDiscovery normal arm64 Compiling AppCoordinator.swift, ConversionAction.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 Compiling\ ShiftKitApp.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/App/ShiftKitApp.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/App/ShiftKitApp.swift (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-SwiftPerFileCompile ShiftKitApp.swift
+
+SwiftDriverJobDiscovery normal arm64 Compiling SettingsView.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 Compiling\ ImageIOCoreEngine.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/ImageIOCoreEngine.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/ImageIOCoreEngine.swift (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-SwiftPerFileCompile ImageIOCoreEngine.swift
+
+SwiftDriverJobDiscovery normal arm64 Compiling VideoTrimWindowController.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 Compiling\ FFmpegEngine.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/FFmpegEngine.swift (in target 'ShiftKit' from project 'ShiftKit')
 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/FFmpegEngine.swift:783:30: warning: instance method 'lock' is unavailable from asynchronous contexts; Use async-safe scoped locking instead; this is an error in the Swift 6 language mode
  781 | 
  782 |                 if process.terminationStatus != 0 {
@@ -322,90 +573,223 @@ SwiftCompile normal arm64 Compiling\ DropZoneView.swift,\ FFmpegEngine.swift,\ F
 1181 |         var tags: [String: String] = [:]
 1182 | 
 
+/Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/FFmpegEngine.swift:1181:13: warning: variable 'tags' was never mutated; consider changing to 'let' constant [#VariableNeverMutated]
+1179 |         var sampleRate: Double?
+1180 |         var channels: Int?
+1181 |         var tags: [String: String] = [:]
+     |             `- warning: variable 'tags' was never mutated; consider changing to 'let' constant [#VariableNeverMutated]
+1182 | 
+1183 |         for line in stderr.components(separatedBy: "\n") {
 
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Views/DropZoneView.swift (in target 'ShiftKit' from project 'ShiftKit')
-    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile DropZoneView.swift
+[#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+[#VariableNeverMutated]: <https://docs.swift.org/compiler/documentation/diagnostics/variable-never-mutated>
 
 SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/FFmpegEngine.swift (in target 'ShiftKit' from project 'ShiftKit')
     cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
     builtin-SwiftPerFileCompile FFmpegEngine.swift
 
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/FileInspection/FileInspector.swift (in target 'ShiftKit' from project 'ShiftKit')
+SwiftDriverJobDiscovery normal arm64 Compiling ImageIOCoreEngine.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 Compiling\ ConversionRequest.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/ConversionRequest.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/ConversionRequest.swift (in target 'ShiftKit' from project 'ShiftKit')
     cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile FileInspector.swift
+    builtin-SwiftPerFileCompile ConversionRequest.swift
 
-SwiftCompile normal arm64 Compiling\ ShiftKitApp.swift,\ VideoTrimEditorView.swift,\ VideoTrimWindowController.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/App/ShiftKitApp.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/TrimEditor/VideoTrimEditorView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/TrimEditor/VideoTrimWindowController.swift (in target 'ShiftKit' from project 'ShiftKit')
+SwiftDriverJobDiscovery normal arm64 Compiling ActionSubmenuView.swift, AppDelegate.swift (in target 'ShiftKit' from project 'ShiftKit')
 
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/App/ShiftKitApp.swift (in target 'ShiftKit' from project 'ShiftKit')
-    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile ShiftKitApp.swift
-
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/TrimEditor/VideoTrimEditorView.swift (in target 'ShiftKit' from project 'ShiftKit')
-    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile VideoTrimEditorView.swift
-
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/TrimEditor/VideoTrimWindowController.swift (in target 'ShiftKit' from project 'ShiftKit')
-    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile VideoTrimWindowController.swift
-
-SwiftCompile normal arm64 Compiling\ AVFoundationEngine.swift,\ ActionSubmenuView.swift,\ AppCoordinator.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/AVFoundationEngine.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/ActionSubmenuView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/App/AppCoordinator.swift (in target 'ShiftKit' from project 'ShiftKit')
-
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/AVFoundationEngine.swift (in target 'ShiftKit' from project 'ShiftKit')
-    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile AVFoundationEngine.swift
-
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/ActionSubmenuView.swift (in target 'ShiftKit' from project 'ShiftKit')
-    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile ActionSubmenuView.swift
-
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/App/AppCoordinator.swift (in target 'ShiftKit' from project 'ShiftKit')
-    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile AppCoordinator.swift
-
-SwiftCompile normal arm64 Compiling\ RadialMenuView.swift,\ RadialMenuWindow.swift,\ RecentOperationsView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/RadialMenuView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/RadialMenuWindow.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Views/RecentOperationsView.swift (in target 'ShiftKit' from project 'ShiftKit')
-
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/RadialMenuView.swift (in target 'ShiftKit' from project 'ShiftKit')
-    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile RadialMenuView.swift
+SwiftCompile normal arm64 Compiling\ RadialMenuWindow.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/RadialMenuWindow.swift (in target 'ShiftKit' from project 'ShiftKit')
+/Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/RadialMenuWindow.swift:124:19: warning: main actor-isolated property 'window' can not be mutated from a Sendable closure
+ 36 |     public static let shared = RadialMenuWindowController()
+ 37 | 
+ 38 |     private var window: RadialMenuWindow?
+    |                 `- note: mutation of this property is only permitted within the actor
+ 39 |     private var localClickMonitor: Any?
+ 40 |     private var globalClickMonitor: Any?
+    :
+122 |         }, completionHandler: { [weak self] in
+123 |             panel.orderOut(nil)
+124 |             self?.window = nil
+    |                   `- warning: main actor-isolated property 'window' can not be mutated from a Sendable closure
+125 |         })
+126 |     }
 
 SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/RadialMenuWindow.swift (in target 'ShiftKit' from project 'ShiftKit')
     cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
     builtin-SwiftPerFileCompile RadialMenuWindow.swift
 
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Views/RecentOperationsView.swift (in target 'ShiftKit' from project 'ShiftKit')
-    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile RecentOperationsView.swift
+SwiftDriverJobDiscovery normal arm64 Compiling MergeEditorView.swift (in target 'ShiftKit' from project 'ShiftKit')
 
-SwiftCompile normal arm64 Compiling\ ConversionCapability.swift,\ ConversionJob.swift,\ ConversionRegistry.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/ConversionCapability.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/ConversionJob.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/ConversionRegistry.swift (in target 'ShiftKit' from project 'ShiftKit')
+SwiftCompile normal arm64 Compiling\ MenuBarCoordinator.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/App/MenuBarCoordinator.swift (in target 'ShiftKit' from project 'ShiftKit')
 
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/ConversionCapability.swift (in target 'ShiftKit' from project 'ShiftKit')
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/App/MenuBarCoordinator.swift (in target 'ShiftKit' from project 'ShiftKit')
     cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile ConversionCapability.swift
+    builtin-SwiftPerFileCompile MenuBarCoordinator.swift
+
+SwiftDriverJobDiscovery normal arm64 Compiling ShiftKitApp.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 Compiling\ DragSessionCoordinator.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Interaction/DragSessionCoordinator.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Interaction/DragSessionCoordinator.swift (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-SwiftPerFileCompile DragSessionCoordinator.swift
+
+SwiftDriverJobDiscovery normal arm64 Compiling ConversionRequest.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 Compiling\ RadialMenuCoordinator.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/RadialMenuCoordinator.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/RadialMenuCoordinator.swift (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-SwiftPerFileCompile RadialMenuCoordinator.swift
+
+SwiftDriverJobDiscovery normal arm64 Compiling RadialMenuPreviewCard.swift, RadialMenuSegment.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 Compiling\ AVFoundationEngine.swift,\ ConversionEngine.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/AVFoundationEngine.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/ConversionEngine.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/AVFoundationEngine.swift (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-SwiftPerFileCompile AVFoundationEngine.swift
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/ConversionEngine.swift (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-SwiftPerFileCompile ConversionEngine.swift
+
+SwiftDriverJobDiscovery normal arm64 Compiling MetadataInspectorView.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 Compiling\ FileInspector.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/FileInspection/FileInspector.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/FileInspection/FileInspector.swift (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-SwiftPerFileCompile FileInspector.swift
+
+SwiftDriverJobDiscovery normal arm64 Compiling DropZoneView.swift, FilePreviewView.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 Compiling\ CropEditorView.swift,\ CropEditorWindowController.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/CropEditor/CropEditorView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/CropEditor/CropEditorWindowController.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/CropEditor/CropEditorView.swift (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-SwiftPerFileCompile CropEditorView.swift
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Editors/CropEditor/CropEditorWindowController.swift (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-SwiftPerFileCompile CropEditorWindowController.swift
+
+SwiftDriverJobDiscovery normal arm64 Compiling MenuBarCoordinator.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 Compiling\ ConversionJob.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/ConversionJob.swift (in target 'ShiftKit' from project 'ShiftKit')
 
 SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/ConversionJob.swift (in target 'ShiftKit' from project 'ShiftKit')
     cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
     builtin-SwiftPerFileCompile ConversionJob.swift
 
-SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Conversion/ConversionRegistry.swift (in target 'ShiftKit' from project 'ShiftKit')
+SwiftDriverJobDiscovery normal arm64 Compiling RadialMenuWindow.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 Compiling\ MainView.swift,\ PDFKitEngine.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Views/MainView.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/PDFKitEngine.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/Views/MainView.swift (in target 'ShiftKit' from project 'ShiftKit')
     cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
-    builtin-SwiftPerFileCompile ConversionRegistry.swift
+    builtin-SwiftPerFileCompile MainView.swift
 
-SwiftDriverJobDiscovery normal arm64 Compiling ConversionRequest.swift, ConversionRouter.swift, ConversionValidationResult.swift (in target 'ShiftKit' from project 'ShiftKit')
+SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/PDFKitEngine.swift (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-SwiftPerFileCompile PDFKitEngine.swift
 
-SwiftDriverJobDiscovery normal arm64 Compiling FileMetadata.swift, FilePreviewView.swift, ImageIOCoreEngine.swift (in target 'ShiftKit' from project 'ShiftKit')
+SwiftDriverJobDiscovery normal arm64 Compiling RadialMenuView.swift, RecentOperationsView.swift (in target 'ShiftKit' from project 'ShiftKit')
 
-PruneExplicitPrecompiledModules /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ExplicitPrecompiledModules
+SwiftDriverJobDiscovery normal arm64 Emitting module for ShiftKit (in target 'ShiftKit' from project 'ShiftKit')
 
-PruneExplicitPrecompiledModules /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+SwiftDriver\ Compilation\ Requirements ShiftKit normal arm64 com.apple.xcode.tools.swift.compiler (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name ShiftKit -Onone @/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit.SwiftFileList -DDEBUG -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -target arm64-apple-macos14.0 -g -module-cache-path /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug -F /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/SDKStatCaches.noindex/macosx27.0-26A425-7231f6df4def33e022ae2eb8f782df1a.sdkstatcache -output-file-map /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit_const_extract_protocols.json -Xcc -iquote -Xcc /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/ShiftKit-generated-files.hmap -Xcc -I/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/ShiftKit-own-target-headers.hmap -Xcc -I/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/ShiftKit-all-target-headers.hmap -Xcc -iquote -Xcc /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/ShiftKit-project-headers.hmap -Xcc -I/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/include -Xcc -I/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/DerivedSources-normal/arm64 -Xcc -I/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/DerivedSources/arm64 -Xcc -I/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit-Swift.h -working-directory /Users/mdkasifuddin/Developer/macOS/ShiftKit -experimental-emit-module-separately -disable-cmo
 
-PruneExplicitPrecompiledModules /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/SDKExplicitPrecompiledModules
+SwiftMergeGeneratedHeaders /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/DerivedSources/ShiftKit-Swift.h /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit-Swift.h (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-swiftHeaderTool -arch arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit-Swift.h -o /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/DerivedSources/ShiftKit-Swift.h
 
-** BUILD FAILED **
+Copy /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.swiftmodule/arm64-apple-macos.swiftmodule /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit.swiftmodule (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit.swiftmodule /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.swiftmodule/arm64-apple-macos.swiftmodule
 
+Copy /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.swiftmodule/arm64-apple-macos.abi.json /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit.abi.json (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit.abi.json /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.swiftmodule/arm64-apple-macos.abi.json
 
-The following build commands failed:
-	SwiftCompile normal arm64 Compiling\ PDFKitEngine.swift,\ RadialMenuCoordinator.swift,\ RadialMenuPreviewCard.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/PDFKitEngine.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/RadialMenuCoordinator.swift /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/RadialMenu/RadialMenuPreviewCard.swift (in target 'ShiftKit' from project 'ShiftKit')
-	SwiftCompile normal arm64 /Users/mdkasifuddin/Developer/macOS/ShiftKit/ShiftKit/ConversionEngines/PDFKitEngine.swift (in target 'ShiftKit' from project 'ShiftKit')
-	Building project ShiftKit with scheme ShiftKit
-(3 failures)
+Copy /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.swiftmodule/Project/arm64-apple-macos.swiftsourceinfo /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit.swiftsourceinfo (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit.swiftsourceinfo /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.swiftmodule/Project/arm64-apple-macos.swiftsourceinfo
+
+SwiftDriverJobDiscovery normal arm64 Compiling AVFoundationEngine.swift, ConversionEngine.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftDriverJobDiscovery normal arm64 Compiling RadialMenuCoordinator.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftDriverJobDiscovery normal arm64 Compiling DragSessionCoordinator.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftDriverJobDiscovery normal arm64 Compiling ConversionJob.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftDriverJobDiscovery normal arm64 Compiling FFmpegEngine.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftDriverJobDiscovery normal arm64 Compiling VideoTrimEditorView.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftDriverJobDiscovery normal arm64 Compiling FileInspector.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftDriverJobDiscovery normal arm64 Compiling MainView.swift, PDFKitEngine.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftDriverJobDiscovery normal arm64 Compiling CropEditorView.swift, CropEditorWindowController.swift (in target 'ShiftKit' from project 'ShiftKit')
+
+SwiftDriver\ Compilation ShiftKit normal arm64 com.apple.xcode.tools.swift.compiler (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-Swift-Compilation -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name ShiftKit -Onone @/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit.SwiftFileList -DDEBUG -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -target arm64-apple-macos14.0 -g -module-cache-path /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug -F /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/SDKStatCaches.noindex/macosx27.0-26A425-7231f6df4def33e022ae2eb8f782df1a.sdkstatcache -output-file-map /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit_const_extract_protocols.json -Xcc -iquote -Xcc /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/ShiftKit-generated-files.hmap -Xcc -I/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/ShiftKit-own-target-headers.hmap -Xcc -I/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/ShiftKit-all-target-headers.hmap -Xcc -iquote -Xcc /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/ShiftKit-project-headers.hmap -Xcc -I/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/include -Xcc -I/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/DerivedSources-normal/arm64 -Xcc -I/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/DerivedSources/arm64 -Xcc -I/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit-Swift.h -working-directory /Users/mdkasifuddin/Developer/macOS/ShiftKit -experimental-emit-module-separately -disable-cmo
+
+Ld /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app/Contents/MacOS/ShiftKit.debug.dylib normal (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-macos14.0 -dynamiclib -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/EagerLinkingTBDs/Debug -L/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug -F/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/EagerLinkingTBDs/Debug -F/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug -filelist /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit.LinkFileList -install_name @rpath/ShiftKit.debug.dylib -Xlinker -rpath -Xlinker /usr/lib/swift -Xlinker -rpath -Xlinker @executable_path/../Frameworks -Xlinker -object_path_lto -Xlinker /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit_lto.o -rdynamic -Xlinker -no_deduplicate -Xlinker -dependency_info -Xlinker /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit.swiftmodule -Xlinker -alias -Xlinker _main -Xlinker ___debug_main_executable_dylib_entry_point -Xlinker -no_adhoc_codesign -o /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app/Contents/MacOS/ShiftKit.debug.dylib
+
+ConstructStubExecutorLinkFileList /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/ShiftKit-ExecutorLinkFileList-normal-arm64.txt (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    construct-stub-executor-link-file-list /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app/Contents/MacOS/ShiftKit.debug.dylib /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/libPreviewsJITStubExecutor_no_swift_entry_point.a /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/libPreviewsJITStubExecutor.a --output /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/ShiftKit-ExecutorLinkFileList-normal-arm64.txt
+note: Using stub executor library with Swift entry point. (in target 'ShiftKit' from project 'ShiftKit')
+
+Ld /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app/Contents/MacOS/ShiftKit normal (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-macos14.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug -F/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug -Xlinker -rpath -Xlinker @executable_path -Xlinker -rpath -Xlinker @executable_path/../Frameworks -rdynamic -Xlinker -no_deduplicate -e ___debug_blank_executor_main -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_dylib -Xlinker /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/ShiftKit-DebugDylibPath-normal-arm64.txt -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_instlnm -Xlinker /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/ShiftKit-DebugDylibInstallName-normal-arm64.txt -Xlinker -filelist -Xlinker /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/ShiftKit-ExecutorLinkFileList-normal-arm64.txt /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app/Contents/MacOS/ShiftKit.debug.dylib -Xlinker -no_adhoc_codesign -o /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app/Contents/MacOS/ShiftKit
+
+CopySwiftLibs /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-swiftStdLibTool --copy --verbose --sign - --scan-executable /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app/Contents/MacOS/ShiftKit.debug.dylib --scan-folder /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app/Contents/Frameworks --scan-folder /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app/Contents/PlugIns --scan-folder /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app/Contents/Library/SystemExtensions --scan-folder /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app/Contents/Extensions --platform macosx --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app/Contents/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os --back-deploy-swift-span
+
+ExtractAppIntentsMetadata (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --module-name ShiftKit --sdk-root /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk --xcode-version 27A9275 --platform-family macOS --deployment-target 14.0 --bundle-identifier com.shiftkit.mac --output /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app/Contents/Resources --target-triple arm64-apple-macos14.0 --binary-file /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app/Contents/MacOS/ShiftKit --dependency-file /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit_dependency_info.dat --stringsdata-file /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit.SwiftFileList --metadata-file-list /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/ShiftKit.DependencyMetadataFileList --static-metadata-file-list /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/ShiftKit.DependencyStaticMetadataFileList --swift-const-vals-list /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/Objects-normal/arm64/ShiftKit.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --no-app-shortcuts-localization
+2026-10-18 17:22:27.748 appintentsmetadataprocessor[77681:3673552] Starting appintentsmetadataprocessor export
+2026-10-18 17:22:27.749 appintentsmetadataprocessor[77681:3673552] warning: Metadata extraction skipped, no AppIntents.framework dependency found
+
+CodeSign /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app/Contents/MacOS/ShiftKit.debug.dylib (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    
+    Signing Identity:     "Sign to Run Locally"
+    
+    /usr/bin/codesign --force --sign - --timestamp\=none --generate-entitlement-der /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app/Contents/MacOS/ShiftKit.debug.dylib
+
+CodeSign /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app/Contents/MacOS/__preview.dylib (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    
+    Signing Identity:     "Sign to Run Locally"
+    
+    /usr/bin/codesign --force --sign - --timestamp\=none --generate-entitlement-der /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app/Contents/MacOS/__preview.dylib
+/Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app/Contents/MacOS/__preview.dylib: replacing existing signature
+
+CodeSign /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    
+    Signing Identity:     "Sign to Run Locally"
+    
+    /usr/bin/codesign --force --sign - --entitlements /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/ShiftKit.build/Debug/ShiftKit.build/ShiftKit.app.xcent --timestamp\=none --generate-entitlement-der /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app
+
+Validate /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-validationUtility /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app -no-validate-extension -infoplist-subpath Contents/Info.plist
+
+RegisterWithLaunchServices /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app (in target 'ShiftKit' from project 'ShiftKit')
+    cd /Users/mdkasifuddin/Developer/macOS/ShiftKit
+    builtin-lsregisterurl --record-path /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Intermediates.noindex/XCBuildData/registered-launchservices.txt -- /System/Library/Frameworks/CoreServices.framework/Versions/Current/Frameworks/LaunchServices.framework/Versions/Current/Support/lsregister -f -R -trusted /Users/mdkasifuddin/Developer/macOS/ShiftKit/build/DerivedData/Build/Products/Debug/ShiftKit.app
+

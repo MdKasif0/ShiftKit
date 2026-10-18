@@ -11,7 +11,13 @@ public protocol FileTypeDetecting: Sendable {
 
 // MARK: - Implementation
 public final class FileTypeDetector: FileTypeDetecting {
+    public static let shared = FileTypeDetector()
+
     public init() {}
+
+    public func detect(for url: URL) -> FileType {
+        detectType(for: url)
+    }
 
     /// Primary detection combining header inspection, UTI, and extension fallback.
     public func detectType(for url: URL) -> FileType {
