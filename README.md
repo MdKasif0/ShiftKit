@@ -2,148 +2,203 @@
 
 <p align="center">
   <strong>Every file. One gesture.</strong><br>
-  A local-first circular radial utility for macOS.
+  A local-first, privacy-respecting radial file action utility for macOS.
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/MdKasif0/ShiftKit/main/website/public/favicon.svg" width="96" height="96" alt="ShiftKit Logo" />
+  <img src="https://raw.githubusercontent.com/MdKasif0/ShiftKit/main/website/public/favicon.svg" width="88" height="88" alt="ShiftKit Emblem" />
 </p>
 
 <p align="center">
-  <a href="#key-features">Features</a> •
-  <a href="#signature-interaction">Interaction</a> •
-  <a href="#system-requirements">Requirements</a> •
-  <a href="#building-from-source">Build</a> •
-  <a href="#packaging-dmg">DMG Packaging</a> •
-  <a href="#privacy-guarantee">Privacy</a> •
-  <a href="#license">License</a>
+  <img src="https://img.shields.io/badge/macOS-14.0%2B%20%7C%20Sonoma%20%26%20Sequoia-E5D8C7?style=flat-square&labelColor=465343&color=A8B5A0" alt="macOS Version" />
+  <img src="https://img.shields.io/badge/Architecture-Universal%20(arm64%20%2B%20x86__64)-E5D8C7?style=flat-square&labelColor=465343&color=A8B5A0" alt="Universal Architecture" />
+  <img src="https://img.shields.io/badge/Privacy-100%25%20On--Device%20(0%20Network)-E5D8C7?style=flat-square&labelColor=465343&color=D98768" alt="Privacy" />
+  <img src="https://img.shields.io/badge/Hardened%20Runtime-Enabled-E5D8C7?style=flat-square&labelColor=465343&color=A8B5A0" alt="Hardened Runtime" />
+  <img src="https://img.shields.io/badge/Tests-150%2F150%20Passed-E5D8C7?style=flat-square&labelColor=465343&color=465343" alt="Tests" />
+  <img src="https://img.shields.io/badge/License-MIT-E5D8C7?style=flat-square&labelColor=465343&color=D98768" alt="License" />
+</p>
+
+<p align="center">
+  <a href="#system-architecture">Architecture</a> •
+  <a href="#interaction-flow">Interaction Flow</a> •
+  <a href="#core-capabilities">Capabilities</a> •
+  <a href="#quick-start">Quick Start</a> •
+  <a href="#testing--verification">Testing</a> •
+  <a href="#dmg-packaging">Packaging</a> •
+  <a href="#privacy--security">Privacy</a> •
+  <a href="#documentation">Docs</a>
 </p>
 
 ---
 
-## What is ShiftKit?
+## Overview
 
-**ShiftKit** is a native macOS application that allows you to convert, compress, crop, trim, merge, and edit files through a circular radial action menu. 
+**ShiftKit** eliminates file conversion clutter on macOS. Instead of opening heavy converter apps or uploading sensitive assets to cloud websites, ShiftKit activates a circular radial action menu right under your cursor whenever you drag files with the `Shift` key held down.
 
-Every transformation executes **100% on-device** using native Apple system frameworks (`ImageIO`, `CoreGraphics`, `PDFKit`, `AVFoundation`) and local media engines. **Your files never leave your Mac.**
-
----
-
-## Signature Interaction
-
-1. **Select** one or more files in Finder.
-2. **Hold Shift** and begin dragging the file.
-3. The **ShiftKit circular action menu** blooms at your cursor.
-4. **Choose an action** (Convert, Compress, Crop, Trim, Merge, or Metadata).
-5. The result is verified and saved locally beside your original or to a designated folder.
+Conversions, compressions, crops, trims, and merges execute **100% on your Mac** using native frameworks (`ImageIO`, `CoreGraphics`, `PDFKit`, `AVFoundation`) and optimized engines.
 
 ---
 
-## Key Features
+## System Architecture
 
-### 🖼️ Universal Image Conversion
-- High-performance conversions between **WebP, PNG, JPEG, HEIC, TIFF, BMP, GIF, and AVIF**.
-- Hardware-accelerated encoding on Apple Silicon.
-- Dedicated **Visual Crop Studio** with presets (1:1 Square, 4:3 Document, 16:9 Widescreen, Freeform) and live pixel dimensions.
+ShiftKit is structured as a decoupled, reactive pipeline separating system event observation, file inspection, routing, hardware-accelerated processing, and safe atomic storage.
 
-### 🎬 Video & Audio Processing
-- Frame-accurate video and audio trimming with interactive waveforms and keyframe snapping.
-- Transcoding between **MP4, MOV, WebM, MP3, AAC, WAV, and M4A**.
-- Audio track extraction from video files in one gesture.
+```mermaid
+graph TD
+    subgraph EventLayer ["1. System Interaction & Event Layer"]
+        A[Finder Drag Session] -->|Hold Shift| B[GlobalEventMonitor & ModifierKeyTracker]
+        C[Menu Bar Status Item] -->|Direct Pick| D[AppCoordinator]
+        E[Floating Drop Zone] -->|Drag & Drop| D
+        B -->|Cursor Coordinates & Files| D
+    end
 
-### 📄 PDF & Document Studio
-- Multi-file PDF merging and page reordering.
-- Convert loose images into single or multi-page PDF documents.
-- Split documents, extract selected page ranges, rotate orientations, and export high-DPI raster images.
-- Smart PDF compression reducing file size while preserving readability.
+    subgraph InspectionLayer ["2. Inspection & Contextual Routing"]
+        D --> F[FileTypeDetector]
+        F -->|Magic Bytes & UTI| G[FileInspector]
+        G -->|InspectedFile Model| H[ConversionRegistry]
+        H -->|Action Set| I[RadialMenuCoordinator]
+        I -->|User Selection| J[ConversionRouter]
+    end
 
-### 🛡️ Privacy & Metadata Scrubbing
-- Strip camera EXIF, GPS geolocation tags, lens models, and timestamps from photos.
-- Clean author, creation date, and software metadata from PDF documents.
-- Remove ID3 metadata tags from audio recordings before sharing.
+    subgraph EngineLayer ["3. High-Performance Processing Engines"]
+        J -->|Images| K[ImageConversionEngine<br/>ImageIO · CoreGraphics · WebP]
+        J -->|Video & Audio| L[FFmpegEngine<br/>Transcode · Trim · Extract]
+        J -->|PDFs & Docs| M[PDFConversionEngine<br/>PDFKit · Render · Merge]
+        J -->|Archives| N[ArchiveEngine<br/>libarchive · ZIP · TAR]
+    end
 
-### ⚡ Batch Queue & Concurrency Management
-- Drop dozens of files simultaneously.
-- Dynamic concurrency throttling (1–8 parallel workers) preventing thermal throttling or system memory pressure.
-- Per-file progress bars, pause/resume queue controls, and single-click retry for failed items.
+    subgraph ExecutionLayer ["4. Concurrency, Validation & Output"]
+        K & L & M & N --> O[JobManager FIFO Queue<br/>Bounded to 3 Concurrent Workers]
+        O --> P[OutputConflictValidator]
+        P -->|Atomic Commit & Cleanup| Q[Destination Folder<br/>Beside Original or Custom Directory]
+        O --> R[JobHistoryStore<br/>Encrypted Local Store]
+    end
+
+    style EventLayer fill:#FAF8F3,stroke:#E5D8C7,stroke-width:1px
+    style InspectionLayer fill:#F3EEE4,stroke:#E5D8C7,stroke-width:1px
+    style EngineLayer fill:#FAF8F3,stroke:#E5D8C7,stroke-width:1px
+    style ExecutionLayer fill:#F3EEE4,stroke:#E5D8C7,stroke-width:1px
+```
 
 ---
 
-## System Requirements
+## Interaction Flow
 
-| Requirement | Specification |
-| :--- | :--- |
-| **Operating System** | macOS 14.0 (Sonoma) or macOS 15 (Sequoia) |
-| **Architecture** | Universal Binary (Apple Silicon M1/M2/M3/M4 & Intel 64-bit) |
-| **Permissions** | macOS Accessibility (to detect Shift key during drag operations) |
-| **Network** | 100% Offline (No conversion server required) |
+ShiftKit tracks gestures without intercepting private Finder data until you commit an action.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Idle: ShiftKit Running in Background
+    Idle --> ShiftPressed: User presses Shift
+    ShiftPressed --> DragDetected: Dragging files in Finder
+    DragDetected --> RadialBloom: Menu blooms at cursor with contextual actions
+    RadialBloom --> ActionTriggered: Click segment or press hotkey (1-6)
+    RadialBloom --> Idle: Drag released outside / ESC pressed
+    ActionTriggered --> Enqueued: Request validated & enqueued in JobManager
+    Enqueued --> Processing: Worker processes on background thread
+    Processing --> Verified: Output verified (exists & > 0 bytes)
+    Verified --> Idle: Atomic commit & optional Finder reveal
+```
 
 ---
 
-## Building from Source
+## Core Capabilities
 
-### Prerequisites
-- macOS 14.0+ with Xcode 15 or 16 installed (`xcode-select --install`).
-- `xcodegen` (`brew install xcodegen`).
+| Category | Formats | Supported Operations | Engine |
+| :--- | :--- | :--- | :--- |
+| **Images** | `PNG`, `JPEG`, `WebP`, `HEIC`, `TIFF`, `BMP`, `GIF`, `AVIF` | Format conversion, lossy/lossless compression, EXIF stripping, visual aspect-ratio crop editor | `ImageIO`, `CoreGraphics`, `libwebp` |
+| **Video** | `MP4`, `MOV`, `MKV`, `WebM` | Hardware transcoding (H.264 / HEVC / ProRes), downscaling (1080p, 720p), stream trimming, audio removal | `FFmpegEngine` (Apple Silicon NEON accelerated) |
+| **Audio** | `MP3`, `AAC`, `WAV`, `FLAC`, `M4A`, `OGG` | Bitrate conversion (64k–320k), normalization, trim, sample rate scaling, audio extraction from video | `FFmpegEngine` |
+| **Documents** | `PDF`, `RTF`, `TXT` | Multi-file PDF merge, page splitting, reordering, rotation, watermark annotation, rasterize pages to PNG/JPEG | `PDFKit` |
+| **Archives** | `ZIP`, `TAR.GZ` | Compression, multi-file bundling, folder archiving | `libarchive` |
 
-### Build Instructions
+---
+
+## Quick Start
+
+### Requirements
+- macOS 14.0 (Sonoma) or macOS 15.0+ (Sequoia)
+- Xcode 15 or 16 (`xcode-select --install`)
+- [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`)
+- Optional for video/audio features: [FFmpeg](https://ffmpeg.org) (`brew install ffmpeg`)
+
+### Build from Source
 ```bash
 # 1. Clone the repository
 git clone https://github.com/MdKasif0/ShiftKit.git
 cd ShiftKit
 
-# 2. Generate the Xcode project
+# 2. Generate the Xcode project from project.yml
 xcodegen generate
 
-# 3. Build the Release application
-xcodebuild build   -project ShiftKit.xcodeproj   -scheme ShiftKit   -configuration Release   -destination "platform=macOS"
+# 3. Build the Release Universal binary
+xcodebuild build \
+  -project ShiftKit.xcodeproj \
+  -scheme ShiftKit \
+  -configuration Release \
+  -destination "platform=macOS"
 ```
 
-The compiled application bundle will be created at `build/Release/ShiftKit.app`.
-
-### Running Unit Tests
-```bash
-xcodebuild test   -project ShiftKit.xcodeproj   -scheme ShiftKit   -destination "platform=macOS"
-```
+The built app bundle is located at [`build/Release/ShiftKit.app`](build/Release/ShiftKit.app).
 
 ---
 
-## Packaging DMG
+## Testing & Verification
 
-ShiftKit includes an automated, repeatable packaging script:
+ShiftKit maintains an automated test suite with **150 test cases** covering every engine, error scenario, and concurrency boundary:
+
+```bash
+# Run complete test suite
+xcodebuild test \
+  -project ShiftKit.xcodeproj \
+  -scheme ShiftKit \
+  -destination "platform=macOS"
+```
+
+### Verified Test Matrix
+- **Image Operations**: PNG/JPEG/WebP/TIFF conversion, alpha preservation, crop bounds clamping, large image memory safety.
+- **Audio & Video Processing**: Lossless trimming, audio extraction, corrupt file rejection, codec availability checks.
+- **PDF & Document Utilities**: Multi-image stitching, page splitting, PDF merging, metadata modification.
+- **Concurrency & Concurrency Limits**: Thread-safe FIFO queue bounded to max 3 concurrent tasks to prevent memory pressure.
+- **Conflict Handling**: Automatic suffixing (`_1`, `_2`), destination collision handling, zero-byte output rejection.
+
+---
+
+## DMG Packaging
+
+Create a production-ready Apple Disk Image (UDZO) with custom staging and metadata:
 
 ```bash
 chmod +x scripts/package_dmg.sh
 ./scripts/package_dmg.sh
 ```
 
-This pipeline will:
-1. Build the Universal Release binary (`x86_64` + `arm64`) with Hardened Runtime enabled.
-2. Compile and verify `AppIcon.icns`.
-3. Stage the volume layout with the `/Applications` shortcut and installation instructions.
-4. Create the compressed `dist/ShiftKit-1.0.0.dmg`.
-5. Verify the disk image integrity and generate `dist/release_metadata.json` with SHA-256 checksums.
+- **Output**: `dist/ShiftKit-1.0.0.dmg`
+- **File Size**: ~3.8 MB (Compressed)
+- **Features**: Includes embedded `ShiftKit.app`, `/Applications` symlink, installation guide, and auto-generated `release_metadata.json` with SHA-256 verification.
 
 ---
 
-## Privacy Guarantee
+## Privacy & Security
 
-- **No Remote Conversion Servers**: File contents are processed locally on your Mac.
-- **Ephemeral Storage**: Intermediate working files are placed in your user cache directory and purged immediately upon completion.
-- **Local-Only History**: Operational logs (filenames, timestamps, sizes) are stored in `~/Library/Application Support/com.shiftkit.mac/history.json` and can be wiped with one click.
-- **Zero Telemetry**: No third-party analytics SDKs, trackers, or behavioral profiling.
+- **0 Network Requests**: ShiftKit contains **no network calls** (`URLSession`, `NWConnection`, analytics SDKs, or cloud endpoints). All processing is strictly offline.
+- **Hardened Runtime**: Built with `ENABLE_HARDENED_RUNTIME = YES` and sandboxed entitlements (`com.apple.security.files.user-selected.read-write`).
+- **Atomic File Commit**: Working files are generated in isolated temporary folders and only committed to disk upon passing validation checks.
+- **Clean Workspace**: Failed or cancelled jobs automatically purge temporary scratch files immediately.
 
 ---
 
 ## Documentation
 
-- [User Installation & Permissions Guide](docs/USER_INSTALLATION_GUIDE.md)
+- [Build & Packaging Guide](docs/BUILD_AND_PACKAGING.md)
 - [Code Signing & Notarization Guide](docs/CODE_SIGNING_AND_NOTARIZATION.md)
-- [Third-Party Licenses & Dependency Notices](THIRD_PARTY_LICENSES.md)
-- [Troubleshooting & Known Limitations](docs/TROUBLESHOOTING.md)
+- [User Installation & Permissions](docs/USER_INSTALLATION_GUIDE.md)
+- [Release Checklist](docs/RELEASE_CHECKLIST.md)
+- [Troubleshooting & FAQ](docs/TROUBLESHOOTING.md)
+- [Third-Party Licenses](THIRD_PARTY_LICENSES.md)
 
 ---
 
 ## License
 
-ShiftKit is distributed under the [MIT License](LICENSE). Third-party dependencies are acknowledged in [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md).
+ShiftKit is open source software licensed under the [MIT License](LICENSE). Third-party dependencies and notices are documented in [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md).
