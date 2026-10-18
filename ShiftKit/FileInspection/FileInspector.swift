@@ -139,6 +139,25 @@ public final class FileInspector: FileInspecting {
             }
         }
 
+        // Fallback to FFmpeg inspection if duration or dimensions are missing
+        if (durationSeconds == nil || pixelWidth == nil), (detectedType.isMedia) {
+            if let ffmpegMeta = try? await FFmpegEngine().inspectMetadata(url: url) {
+                if durationSeconds == nil && ffmpegMeta.duration > 0 {
+                    durationSeconds = ffmpegMeta.duration
+                }
+                if pixelWidth == nil, let w = ffmpegMeta.videoWidth, w > 0 {
+                    pixelWidth = w
+                    pixelHeight = ffmpegMeta.videoHeight
+                }
+                if videoCodec == nil { videoCodec = ffmpegMeta.videoCodec }
+                if audioCodec == nil { audioCodec = ffmpegMeta.audioCodec }
+                if audioChannels == nil { audioChannels = ffmpegMeta.audioChannels }
+                if audioSampleRate == nil { audioSampleRate = ffmpegMeta.audioSampleRate }
+                if documentTitle == nil { documentTitle = ffmpegMeta.title }
+                if documentAuthor == nil { documentAuthor = ffmpegMeta.artist }
+            }
+        }
+
         // C. PDF Inspection via PDFKit
         if case .pdf = detectedType {
             if let pdf = PDFDocument(url: url) {
