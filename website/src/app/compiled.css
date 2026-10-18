@@ -267,6 +267,9 @@
   .top-0 {
     top: 0px;
   }
+  .top-1 {
+    top: var(--spacing);
+  }
   .top-1\/2 {
     top: calc(1 / 2 * 100%);
   }
@@ -299,6 +302,9 @@
   }
   .right-0 {
     right: 0px;
+  }
+  .right-1 {
+    right: var(--spacing);
   }
   .right-2 {
     right: calc(var(--spacing) * 2);
@@ -492,9 +498,6 @@
   .mb-14 {
     margin-bottom: calc(var(--spacing) * 14);
   }
-  .mb-16 {
-    margin-bottom: calc(var(--spacing) * 16);
-  }
   .ml-0\.5 {
     margin-left: calc(var(--spacing) * 0.5);
   }
@@ -677,6 +680,9 @@
   }
   .w-3\/4 {
     width: calc(3 / 4 * 100%);
+  }
+  .w-3\/5 {
+    width: calc(3 / 5 * 100%);
   }
   .w-4 {
     width: calc(var(--spacing) * 4);
@@ -1075,6 +1081,9 @@
   :where(.divide-\[\#E5D8C7\] > :not(:last-child)) {
     border-color: #E5D8C7;
   }
+  .self-end {
+    align-self: flex-end;
+  }
   .truncate {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1262,6 +1271,9 @@
   }
   .border-\[\#E0443E\] {
     border-color: #E0443E;
+  }
+  .border-\[\#F3EEE4\] {
+    border-color: #F3EEE4;
   }
   .border-\[\#FAF8F3\]\/20 {
     border-color: color-mix(in oklab, #FAF8F3 20%, transparent);
@@ -1498,9 +1510,6 @@
   }
   .stroke-\[2\.5\] {
     stroke-width: 2.5;
-  }
-  .stroke-\[2\] {
-    stroke-width: 2;
   }
   .stroke-\[3\] {
     stroke-width: 3;
@@ -2231,6 +2240,12 @@
     .sm\:w-36 {
       width: calc(var(--spacing) * 36);
     }
+    .sm\:w-44 {
+      width: calc(var(--spacing) * 44);
+    }
+    .sm\:w-48 {
+      width: calc(var(--spacing) * 48);
+    }
     .sm\:w-60 {
       width: calc(var(--spacing) * 60);
     }
@@ -2261,8 +2276,14 @@
     .sm\:justify-center {
       justify-content: center;
     }
+    .sm\:gap-2 {
+      gap: calc(var(--spacing) * 2);
+    }
     .sm\:gap-4 {
       gap: calc(var(--spacing) * 4);
+    }
+    .sm\:gap-6 {
+      gap: calc(var(--spacing) * 6);
     }
     .sm\:gap-8 {
       gap: calc(var(--spacing) * 8);
@@ -2281,6 +2302,9 @@
       --tw-space-y-reverse: 0;
       margin-block-start: calc(calc(var(--spacing) * 8) * var(--tw-space-y-reverse));
       margin-block-end: calc(calc(var(--spacing) * 8) * calc(1 - var(--tw-space-y-reverse)));
+    }
+    .sm\:self-center {
+      align-self: center;
     }
     .sm\:rounded-2xl {
       border-radius: var(--radius-2xl);
@@ -2314,6 +2338,9 @@
     }
     .sm\:px-6 {
       padding-inline: calc(var(--spacing) * 6);
+    }
+    .sm\:py-0 {
+      padding-block: 0px;
     }
     .sm\:pt-5 {
       padding-top: calc(var(--spacing) * 5);
@@ -2495,6 +2522,9 @@
     }
     .lg\:gap-8 {
       gap: calc(var(--spacing) * 8);
+    }
+    .lg\:gap-12 {
+      gap: calc(var(--spacing) * 12);
     }
     .lg\:p-10 {
       padding: calc(var(--spacing) * 10);
