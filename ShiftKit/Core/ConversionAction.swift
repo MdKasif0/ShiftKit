@@ -38,6 +38,8 @@ public enum ConversionActionCategory: String, Hashable, Sendable, CaseIterable {
     }
 }
 
+public typealias ActionCategory = ConversionActionCategory
+
 // MARK: - Radial Conversion Action
 public struct ConversionAction: Identifiable, Hashable, Sendable {
     public let id: String
