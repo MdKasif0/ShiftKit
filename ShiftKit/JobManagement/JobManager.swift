@@ -38,7 +38,7 @@ public final class JobManager: @unchecked Sendable {
     private var semaphore: AsyncSemaphore
     private let queueLock = NSLock()
     private var runningTasks: [UUID: Task<Void, Never>] = [:]
-    private var maxConcurrency: Int
+    public private(set) var maxConcurrency: Int
     private var isQueuePaused: Bool = false
 
     public init(

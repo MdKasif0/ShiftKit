@@ -46,11 +46,11 @@ final class ErrorFormattingTests: XCTestCase {
 
     func testSpecificErrorDescriptions() {
         let denied = ShiftKitError.permissionDenied(URL(fileURLWithPath: "/restricted/path.pdf"))
-        XCTAssertTrue(denied.userFacingDescription.contains("Access to "path.pdf" was denied"))
+        XCTAssertTrue(denied.userFacingDescription.contains("Access to \"path.pdf\" was denied"))
         XCTAssertTrue(denied.recoverySuggestion.contains("System Settings > Privacy & Security"))
 
         let conflict = ShiftKitError.outputConflict(URL(fileURLWithPath: "/tmp/existing.png"))
-        XCTAssertTrue(conflict.userFacingDescription.contains("A file already exists at "existing.png""))
+        XCTAssertTrue(conflict.userFacingDescription.contains("A file already exists at \"existing.png\""))
         XCTAssertTrue(conflict.recoverySuggestion.contains("Settings to Auto-number"))
 
         let space = ShiftKitError.insufficientDiskSpace(needed: 1024 * 1024 * 500, available: 1024 * 1024 * 50)

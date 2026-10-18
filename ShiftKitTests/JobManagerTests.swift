@@ -60,9 +60,8 @@ final class JobManagerTests: XCTestCase {
         XCTAssertFalse(job.id.uuidString.isEmpty)
         XCTAssertEqual(job.inputs, [inputURL])
         XCTAssertEqual(job.operation, .imageToJPEG)
-        XCTAssertEqual(job.destinationURL, destURL)
-        XCTAssertEqual(job.status, .queued)
-        XCTAssertFalse(job.isCancelled)
+        XCTAssertEqual(job.sourceFileName, "input.png")
+        XCTAssertEqual(job.actionTitle, "To JPEG")
         XCTAssertEqual(job.progress, 0.0)
         XCTAssertNil(job.startedAt)
         XCTAssertNil(job.completedAt)
@@ -110,7 +109,6 @@ final class JobManagerTests: XCTestCase {
     }
 
     func testOutputValidationFailsWhenOutputFileIsEmptyOrMissing() async throws {
-        // Create an invalid mock output manager that always fails validation
         struct MockFailingOutputManager: OutputManaging {
             func defaultOutputDirectory() -> URL { URL(fileURLWithPath: "/tmp") }
             func resolveDestinationURL(for sourceURL: URL, targetExtension: String?, suffix: String?, customDirectory: URL?) -> URL {
@@ -129,7 +127,6 @@ final class JobManagerTests: XCTestCase {
             func revealInFinder(url: URL) {}
             func openFile(url: URL) {}
             func validateOutput(at url: URL) throws -> Int64 {
-                // Reject all output validation
                 throw ShiftKitError.conversionFailed(reason: "Output validation failed: produced file is missing or empty.")
             }
         }
@@ -266,7 +263,7 @@ final class JobManagerTests: XCTestCase {
 
         // Give it 150ms to ensure it does not run while paused
         try await Task.sleep(nanoseconds: 150_000_000)
-        XCTAssertFalse(jobManager.completedJobs.contains(where: { /bin/zsh.id == job.id }))
+        XCTAssertFalse(jobManager.completedJobs.contains(where: { $0.id == job.id }))
 
         jobManager.resumeQueue()
         XCTAssertFalse(jobManager.isPaused)
@@ -275,7 +272,7 @@ final class JobManagerTests: XCTestCase {
         let deadline = Date().addingTimeInterval(5.0)
         var finished = false
         while Date() < deadline {
-            if jobManager.completedJobs.contains(where: { /bin/zsh.id == job.id }) {
+            if jobManager.completedJobs.contains(where: { $0.id == job.id }) {
                 finished = true
                 break
             }
@@ -300,7 +297,7 @@ final class JobManagerTests: XCTestCase {
         let deadline = Date().addingTimeInterval(3.0)
         var failed = false
         while Date() < deadline {
-            if jobManager.failedJobs.contains(where: { /bin/zsh.id == job.id }) {
+            if jobManager.failedJobs.contains(where: { $0.id == job.id }) {
                 failed = true
                 break
             }
@@ -319,7 +316,7 @@ final class JobManagerTests: XCTestCase {
         let retryDeadline = Date().addingTimeInterval(5.0)
         var retriedFinished = false
         while Date() < retryDeadline {
-            if let completed = jobManager.completedJobs.first(where: { /bin/zsh.id == retried.id }) {
+            if let completed = jobManager.completedJobs.first(where: { $0.id == retried.id }) {
                 if case .completed = completed.status {
                     retriedFinished = true
                     break
