@@ -8,6 +8,9 @@ public final class AVFoundationEngine: ConversionEngine {
     public init() {}
 
     public func canHandle(action: ConversionAction, fileType: FileType) -> Bool {
+        if action.id == "vid_to_gif" || action.targetFormat == "gif" || action.targetFormat == "webm" || action.id == "audio_to_mp3" {
+            return false // Delegated to FFmpeg
+        }
         switch fileType {
         case .video, .audio:
             // AVFoundation handles standard Apple formats (MP4, MOV, M4A, etc.)

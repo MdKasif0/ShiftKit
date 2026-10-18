@@ -31,7 +31,17 @@ public final class ConversionRouter: ConversionRouting {
 
     /// Selects the appropriate processing engine for a given request.
     public func route(request: ConversionRequest) throws -> ConversionEngine {
-        // Find matching engine by action and file type
+        let sourceFormat = OutputFormat.find(byExtension: request.sourceURL.pathExtension) ?? .png
+        let targetExt = request.action.targetFormat ?? request.sourceURL.pathExtension
+        let targetFormat = OutputFormat.find(byExtension: targetExt) ?? sourceFormat
+
+        if let cap = registry.capability(from: sourceFormat, to: targetFormat, category: request.action.category) {
+            if let matched = engines.first(where: { $0.engineID == cap.requiredEngineID }) {
+                return matched
+            }
+        }
+
+        // Fallback: Find matching engine by action and file type
         for engine in engines {
             if engine.canHandle(action: request.action, fileType: request.fileType) {
                 return engine
